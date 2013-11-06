@@ -164,7 +164,7 @@ object Angular extends DispatchSnippet {
     private val promiseMapper = DefaultApiSuccessMapper
 
     /**
-     * Registers a javascript function in this service's javascript object that takes a String and returns a $q promise.
+     * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
      *
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
@@ -175,7 +175,7 @@ object Angular extends DispatchSnippet {
 
     /**
      * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
-     * $q promise.
+     * \$q promise.
      *
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
@@ -185,7 +185,7 @@ object Angular extends DispatchSnippet {
     }
 
     /**
-     * Registers a no-arg javascript function in this service's javascript object that returns a $q promise.
+     * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
      *
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
@@ -237,7 +237,7 @@ object Angular extends DispatchSnippet {
   }
 
   /**
-   * Used to resolve or reject a javascript angular $q promise.
+   * Used to resolve or reject a javascript angular \$q promise.
    */
   sealed trait Promise
 
