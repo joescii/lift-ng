@@ -2,8 +2,10 @@ package net.liftmodules.ng
 
 import scala.collection.mutable
 import scala.xml.NodeSeq
+
 import net.liftweb.http.RequestVar
 import net.liftweb.common.{Failure, Full, Empty, Box}
+import net.liftweb.http. { LiftRules, DispatchSnippet }
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
@@ -25,10 +27,14 @@ import net.liftweb.json.{DefaultFormats, JsonParser}
  * )
  * }}}
  */
-object Angular {
+object Angular extends DispatchSnippet {
   
-  /** Placeholder init function for Boot to comply with liftmodule conventions */
-  def init():Unit = {}
+  /** Init function to be called in Boot */
+  def init():Unit = {
+    LiftRules.snippetDispatch.append {
+      case "Angular" => this
+    }
+  }
   
   implicit val formats = DefaultFormats
 
@@ -38,6 +44,11 @@ object Angular {
    * Set to true when render is called so we know to stop saving things up to put in the head.
    */
   private object HeadRendered extends RequestVar[Boolean](false)
+  
+  /** Implementation of dispatch to allow us to add ourselves as a snippet */
+  override def dispatch = { 
+    case _ => { _ => render }
+  }
 
   /**
    * Renders all the modules that have been added to the RequestVar.
