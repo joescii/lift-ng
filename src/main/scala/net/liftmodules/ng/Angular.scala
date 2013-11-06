@@ -26,6 +26,10 @@ import net.liftweb.json.{DefaultFormats, JsonParser}
  * }}}
  */
 object Angular {
+  
+  /** Placeholder init function for Boot to comply with liftmodule conventions */
+  def init():Unit = {}
+  
   implicit val formats = DefaultFormats
 
   private object AngularModules extends RequestVar[mutable.HashSet[Module]](mutable.HashSet.empty)
