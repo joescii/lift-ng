@@ -34,6 +34,7 @@ object Angular extends DispatchSnippet {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
     }
+    liftproxyjs
   }
   
   implicit val formats = DefaultFormats
@@ -58,8 +59,12 @@ object Angular extends DispatchSnippet {
     require(!HeadRendered.is, "render has already been called once")
 
     HeadRendered.set(true)
-    Script(AngularModules.is.foldLeft(Noop)((jsCmd, module) => jsCmd & module.cmd))
+    Script(AngularModules.is.foldLeft(liftproxyjs)((jsCmd, module) => jsCmd & module.cmd))
   }
+  
+  private lazy val liftproxyjs:JsCmd = 
+    LiftRules.loadResourceAsString("/net/liftmodules/ng/js/liftproxy.js").map(JsRaw(_):JsCmd).openOr(Noop)
+  
 
   /**
    * Registers the module with the RequestVar so that it may be rendered in base.html.
