@@ -10,7 +10,7 @@ liftEdition <<= liftVersion apply { _.substring(0,3) }
 
 name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.9.1"
 
 crossScalaVersions := Seq("2.10.3", "2.9.2", "2.9.1-1", "2.9.1")
 
@@ -29,11 +29,13 @@ scalacOptions <<= scalaVersion map { v: String =>
   if (v.startsWith("2.9.")) opts else opts ++ ("-feature" :: "-language:postfixOps" :: Nil)
 }
 
-publishTo <<= version { _.endsWith("SNAPSHOT") match {
-    case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-    case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-  }
-}
+// publishTo <<= version { _.endsWith("SNAPSHOT") match {
+//     case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+//     case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+//   }
+// }
+
+publishTo := Some("mentor-archiva" at "http://orw-symc-vm:9080/archiva/repository/internal/")
 
 credentials += Credentials( file("sonatype.credentials") )
 
