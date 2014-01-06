@@ -6,3 +6,7 @@ project/target/
 .classpath
 .project
 .settings/
+
+# IntelliJ IDEA stuff
+*.iml
+.idea/
