@@ -5,7 +5,7 @@ import scala.xml.NodeSeq
 
 import net.liftweb.http.RequestVar
 import net.liftweb.common.{Failure, Full, Empty, Box}
-import net.liftweb.http. { LiftRules, DispatchSnippet }
+import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer }
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
@@ -34,7 +34,13 @@ object Angular extends DispatchSnippet {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
     }
+
+    // Force loading
     liftproxyjs
+
+    ResourceServer.allow {
+      case "net" :: "liftmodules" :: "ng" :: "js" :: _ => true
+    }
   }
   
   implicit val formats = DefaultFormats
