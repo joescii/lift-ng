@@ -92,7 +92,7 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <script data-lift="Angular"></script>
 ```
 
-The resulting angular service returns a `$q` promise (see [AngularJS: ng.$q](http://docs.angularjs.org/api/ng.$q).  When you call the service, you register callbacks for success, error, and notify (not currently utilized).
+The resulting angular service returns a `$q` promise (see [AngularJS: ng.$q](http://docs.angularjs.org/api/ng.$q)).  When you call the service, you register callbacks for success, error, and notify (not currently utilized).
 
 ```javascript
 angular.module('pony', ['lift.pony'])
