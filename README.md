@@ -39,18 +39,37 @@ We recommend that you view original contributor [Doug Roper](https://github.com/
 Configuration
 =============
 
-Add this module to your `build.sbt` or `Build.scala` as appropriate.
+Add the Sonatype.org Releases repo as a resolver in your `build.sbt` or `Build.scala` as appropriate.
 
 ```scala
-val liftEdition = "2.5"
+resolvers += "Sonatype.org Releases" at "https://oss.sonatype.org/content/repositories/releases/"
+```
 
-"net.liftmodules" %% ("ng_"+liftEdition) % "0.1.0" % "compile"
+Add this `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
+
+```scala
+libraryDependencies ++= {
+  val liftEdition = "2.5"
+
+  Seq(
+    // Other dependencies ...
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.1.0" % "compile"
+  )
+}
 ```
 
 And invoke `Angular.init()` in your `Boot` class.
 
 ```scala
-net.liftmodules.ng.Angular.init()
+package bootstrap.liftweb
+
+class Boot {
+  def boot {
+    // Other stuff...
+    
+    net.liftmodules.ng.Angular.init()
+  }
+}
 ```
 
 Usage
