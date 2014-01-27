@@ -2,7 +2,7 @@ name := "ng"
 
 organization := "net.liftmodules"
 
-version := "0.1.0"
+version := "0.1.0-SNAPSHOT"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
@@ -29,13 +29,11 @@ scalacOptions <<= scalaVersion map { v: String =>
   if (v.startsWith("2.9.")) opts else opts ++ ("-feature" :: "-language:postfixOps" :: Nil)
 }
 
-// publishTo <<= version { _.endsWith("SNAPSHOT") match {
-//     case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-//     case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-//   }
-// }
-
-publishTo := Some("mentor-archiva" at "http://orw-symc-vm:9080/archiva/repository/internal/")
+publishTo <<= version { _.endsWith("SNAPSHOT") match {
+    case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+    case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+  }
+}
 
 credentials += Credentials( file("sonatype.credentials") )
 
