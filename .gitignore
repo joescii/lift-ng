@@ -1,4 +1,5 @@
 # sbt specific
+console.devmode.log
 target/
 project/target/
 
