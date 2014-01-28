@@ -72,6 +72,11 @@ class Boot {
 }
 ```
 
+Supported Versions
+==================
+
+**lift-ng** is built and released to support Lift 2.5 and Scala versions 2.9.1, 2.9.1-1, 2.9.2, and 2.10.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
+
 Usage
 =====
 
@@ -137,10 +142,10 @@ Scaladocs
 =========
 
 The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.  There should not be any differences among the supported versions of Scala.  Nonetheless all are listed here for good measure.
-[Scala 2.10](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.10/api/index.html#package)
-[Scala 2.9.2](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.2/api/index.html#package)
-[Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
-[Scala 2.9.1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1/api/index.html#package)
+* [Scala 2.10](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.10/api/index.html#package)
+* [Scala 2.9.2](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.2/api/index.html#package)
+* [Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
+* [Scala 2.9.1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1/api/index.html#package)
 
 Wish list
 =========
@@ -148,6 +153,7 @@ Wish list
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
 * Testing (in progress)
+* Cross-Lift version support (Not currently known what editions other than 2.5 can be supported.  Will need a solution to automating the build.)
 * `Future[T]` return type
 * Comet integration
 * Actor integration
