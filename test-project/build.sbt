@@ -1,10 +1,4 @@
-name := "lift-ng test application"
-
-version := "0.1.1-SNAPSHOT"
-
-organization := "net.liftmodules"
-
-scalaVersion := "2.9.1"
+name := "ng-test"
 
 resolvers ++= Seq("snapshots"     at "http://oss.sonatype.org/content/repositories/snapshots",
                 "releases"        at "http://oss.sonatype.org/content/repositories/releases"

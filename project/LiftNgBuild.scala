@@ -7,7 +7,19 @@ object LiftNgBuild extends Build {
 
   val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
 
-  lazy val project = Project("lift-ng", file("."))
+  val commonSettings = Seq(
+    scalaVersion := "2.9.1",
+    organization := "net.liftmodules",
+    version := "0.1.1-SNAPSHOT"
+  )
+  
+  lazy val project = Project(
+    id = "lift-ng", 
+    base = file("."),
+    settings = Project.defaultSettings ++ commonSettings)
 
-  lazy val testProject = Project("lift-ng-test", file("test-project")) dependsOn(project)
+  lazy val testProject = Project(
+    id = "lift-ng-test", 
+    base = file("test-project"),
+    settings = Project.defaultSettings ++ commonSettings) dependsOn(project)
 }
