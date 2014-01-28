@@ -75,7 +75,7 @@ class Boot {
 Supported Versions
 ==================
 
-**lift-ng** is built and released to support Lift 2.5 and Scala versions 2.9.1, 2.9.1-1, 2.9.2, and 2.10.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
+**lift-ng** is built and released to support Lift edition 2.5 and Scala versions 2.9.1, 2.9.1-1, 2.9.2, and 2.10.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
 Usage
 =====
