@@ -154,6 +154,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 * Testing (in progress)
 * Cross-Lift version support (Not currently known what editions other than 2.5 can be supported.  Will need a solution to automating the build.)
+* Forward `Failure(err)` string to client on error (currently the client code always receives the string `'server error'`)
 * `Future[T]` return type
 * Comet integration
 * Actor integration
