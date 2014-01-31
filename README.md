@@ -156,5 +156,8 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Cross-Lift version support (Not currently known what editions other than 2.5 can be supported.  Will need a solution to automating the build.)
 * Forward `Failure(err)` string to client on error (currently the client code always receives the string `'server error'`)
 * `Future[T]` return type
+* Initial value/first resolve value.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
+* Injection of i18n/i10n angular js file.
+* Injection of ResourceBundle i18n translation.
 * Comet integration
 * Actor integration
