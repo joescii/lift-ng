@@ -106,7 +106,7 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <!-- The angular library -->
 <script type="text/javascript" src="/scripts/angular.js"></script>
 
-<!-- Prerequisite s stuff the plugin needs -->
+<!-- Prerequisite stuff the plugin needs -->
 <script data-lift="Angular"></script>
 <script src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script>
 
