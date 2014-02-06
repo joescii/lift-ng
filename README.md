@@ -100,21 +100,21 @@ object NgPonyService {
 }
 ```
 
-This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services.  For instance
+This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services as well as some plumbing from this plugin.  
 
 ```html
 <!-- The angular library -->
 <script type="text/javascript" src="/scripts/angular.js"></script>
 
-<!-- Your angular controllers, etc -->
-<script type="text/javascript" src="/scripts/pony.js"></script>
-
-<!-- Our NgPonyService snippet -->
-<script data-lift="NgPonyService"></script>
-
-<!-- Some of the other stuff the plugin needs -->
+<!-- Prerequisite s stuff the plugin needs -->
 <script data-lift="Angular"></script>
 <script src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script>
+
+<!-- The NgPonyService snippet defined above -->
+<script data-lift="NgPonyService"></script>
+
+<!-- Your angular controllers, etc -->
+<script type="text/javascript" src="/scripts/pony.js"></script>
 ```
 
 The resulting angular service returns a `$q` promise (see [AngularJS: ng.$q](http://docs.angularjs.org/api/ng.$q)).  When you call the service, you register callbacks for success, error, and notify (not currently utilized).
