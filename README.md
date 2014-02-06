@@ -53,7 +53,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.1.0" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.1.1" % "compile"
   )
 }
 ```
