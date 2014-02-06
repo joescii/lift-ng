@@ -10,7 +10,7 @@ object LiftNgBuild extends Build {
   val commonSettings = Seq(
     scalaVersion := "2.9.1",  // This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
     organization := "net.liftmodules",
-    version := "0.1.1-SNAPSHOT"
+    version := "0.1.2-SNAPSHOT"
   )
   
   lazy val project = Project(
