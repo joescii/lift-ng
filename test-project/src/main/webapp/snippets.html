@@ -7,13 +7,20 @@
       <script id="angular-loader_js"  src="/js/3rdlib/angular-loader.js"  type="text/javascript"></script>
       <script id="liftmodules-ng_js"  data-lift="Angular"></script>
       <script id="liftproxy_js"       src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script>
+      <script id="snipApp_js"         src="/js/SnipApp.js"                type="text/javascript"></script>
 
-      <h2>Welcome to your project!</h2>
-      <p>
-        <span>
-          Welcome to your Lift app at <span id="time">Time goes here</span>
-        </span>
-      </p>
+      <h2>Snippet tests</h2>
+      <div ng-app="SnipApp">
+        <p ng-controller="SnipController">
+          <input id="input1a"  type="text" ng-model="input1a"/>
+          <input id="button1a" type="button" value="Test1a" ng-click="clickButton1()">
+          <input id="input1b"  type="text" ng-model="input1b"/>
+          <input id="button1b" type="button" value="Test1b" ng-click="clickButton2()">
+          <span id="output1" ng-bind="output1">
+            Output1
+          </span>
+        </p>
+      </div>
     </div>
   </body>
 </html>

@@ -12,7 +12,7 @@ import firefox.FirefoxDriver
 //import ie.InternetExplorerDriver
 
 /** Specs for the angular services added via snippets */
-class SnippetServiceSpecs extends WordSpecLike with ShouldMatchers with Eventually with WebBrowser with BeforeAndAfterAll {
+class SnippetServiceSpecs extends FlatSpecLike with ShouldMatchers with Eventually with WebBrowser with BeforeAndAfterAll {
   override def afterAll = close()
 
   val index    = "http://localhost:8080"
@@ -29,17 +29,21 @@ class SnippetServiceSpecs extends WordSpecLike with ShouldMatchers with Eventual
     case _ => new FirefoxDriver()
   }
 
-  "Selenium" should {
-    "navigate to the home page" in {
-      go to index
-      eventually { pageTitle should be ("App: Home") }
-    }
+  "Selenium" should "navigate to the home page" in {
+    go to index
+    eventually { pageTitle should be ("App: Home") }
   }
 
-  "The snippets page" should {
-    "load" in {
-      go to snippets
-      eventually { pageTitle should be ("App: Snippets") }
-    }
+  "The snippets page" should "load" in {
+    go to snippets
+    eventually { pageTitle should be ("App: Snippets") }
+  }
+
+  "The angular service with no return value and the service with a return string" should "populate the test text" in {
+    textField("input1a").value = "First"
+    click on "button1a"
+    textField("input1b").value = "Second"
+    click on "button1b"
+    eventually { id("output1").element.text should be ("First Second") }
   }
 }
