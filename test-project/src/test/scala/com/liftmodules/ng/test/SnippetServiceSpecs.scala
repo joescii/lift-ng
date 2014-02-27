@@ -50,4 +50,15 @@ class SnippetServiceSpecs extends FlatSpecLike with ShouldMatchers with Eventual
     click on "button1b"
     eventually { id("output1").element.text should be ("FromServer FromClient") }
   }
+
+  "The angular service with a JSON argument" should "send both text box strings to the server and populate the test" +
+    "text boxes with 'FromServer client1' and 'FromServer client2'" in {
+    textField("input2a").value = "client1"
+    textField("input2b").value = "client2"
+    click on "button2"
+    eventually {
+      id("output2a").element.text should be ("FromServer client1")
+      id("output2b").element.text should be ("FromServer client2")
+    }
+  }
 }
