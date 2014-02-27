@@ -40,10 +40,10 @@ class SnippetServiceSpecs extends FlatSpecLike with ShouldMatchers with Eventual
   }
 
   "The angular service with no return value and the service with a return string" should "populate the test text" in {
-    textField("input1a").value = "First"
     click on "button1a"
-    textField("input1b").value = "Second"
+    eventually { id("output1").element.text should be ("FromServer") }
+    textField("input1").value = "FromClient"
     click on "button1b"
-    eventually { id("output1").element.text should be ("First Second") }
+    eventually { id("output1").element.text should be ("FromServer FromClient") }
   }
 }
