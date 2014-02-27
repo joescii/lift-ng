@@ -1,5 +1,9 @@
 name := "ng"
 
+organization := "net.liftmodules"
+
+version := "0.1.2-SNAPSHOT"
+
 liftVersion <<= liftVersion ?? "2.5.1"
 
 liftEdition <<= liftVersion { _.substring(0,3) }

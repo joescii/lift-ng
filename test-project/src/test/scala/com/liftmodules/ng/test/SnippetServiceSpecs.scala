@@ -15,7 +15,8 @@ import firefox.FirefoxDriver
 class SnippetServiceSpecs extends WordSpecLike with ShouldMatchers with Eventually with WebBrowser with BeforeAndAfterAll {
   override def afterAll = close()
 
-  val index = "http://localhost:8080"
+  val index    = "http://localhost:8080"
+  val snippets = s"$index/snippets"
 
   implicit override val patienceConfig = PatienceConfig(timeout = scaled(Span(2, Seconds)), interval = scaled(Span(100, Millis)))
 
@@ -31,9 +32,14 @@ class SnippetServiceSpecs extends WordSpecLike with ShouldMatchers with Eventual
   "Selenium" should {
     "navigate to the home page" in {
       go to index
-      eventually {
-        pageTitle should be ("App: Home")
-      }
+      eventually { pageTitle should be ("App: Home") }
+    }
+  }
+
+  "The snippets page" should {
+    "load" in {
+      go to snippets
+      eventually { pageTitle should be ("App: Snippets") }
     }
   }
 }
