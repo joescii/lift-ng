@@ -2,9 +2,11 @@ name := "ng"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
-liftEdition <<= liftVersion apply { _.substring(0,3) }
+liftEdition <<= liftVersion { _.substring(0,3) }
 
 name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
+
+scalaVersion := "2.9.1"  // This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
 crossScalaVersions := Seq("2.10.3", "2.9.2", "2.9.1-1", "2.9.1")
 
