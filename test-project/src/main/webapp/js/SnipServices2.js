@@ -10,8 +10,8 @@ angular.module('SnipServices2', [])
       var defer;
       defer = $q.defer();
       defer.resolve({
-        str1: "FromServer client1",
-        str2: "FromServer client2"
+        str1: "FromServer "+obj.str1,
+        str2: "FromServer "+obj.str2
       });
       return defer.promise;
     }

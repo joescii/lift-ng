@@ -34,7 +34,10 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
   $scope.output2a = "";
   $scope.output2b = "";
   $scope.clickButton2 = function() {
-    snipServices2.call({}).then(
+    snipServices2.call({
+      str1: $scope.input2a,
+      str2: $scope.input2b
+    }).then(
       function (obj) {
         $scope.output2a = obj.str1;
         $scope.output2b = obj.str2;
