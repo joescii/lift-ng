@@ -20,7 +20,7 @@ import net.liftmodules.ng.Angular
 class Boot {
   def boot {
     // where to search snippet
-    LiftRules.addToPackages("net.liftweb.ng.test")
+    LiftRules.addToPackages("net.liftmodules.ng.test")
 
     // Build SiteMap
     val entries = List(

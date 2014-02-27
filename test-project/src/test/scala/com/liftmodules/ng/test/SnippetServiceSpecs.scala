@@ -39,9 +39,13 @@ class SnippetServiceSpecs extends FlatSpecLike with ShouldMatchers with Eventual
     eventually { pageTitle should be ("App: Snippets") }
   }
 
-  "The angular service with no return value and the service with a return string" should "populate the test text" in {
+  "The angular service with no argument" should "populate the test text with 'FromServer'" in {
     click on "button1a"
     eventually { id("output1").element.text should be ("FromServer") }
+  }
+
+  "The angular service with one string argument" should "send the text box string to the server and then populate " +
+    "the test text with 'FromServer FromClient'" in {
     textField("input1").value = "FromClient"
     click on "button1b"
     eventually { id("output1").element.text should be ("FromServer FromClient") }
