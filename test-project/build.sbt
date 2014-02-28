@@ -37,3 +37,4 @@ libraryDependencies <++= version { ver =>
   )
 }
 
+(test in Test) <<= (test in Test) dependsOn (start in container.Configuration)
