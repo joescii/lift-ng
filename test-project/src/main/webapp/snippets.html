@@ -14,9 +14,9 @@
       <h2>Snippet tests</h2>
       <div ng-app="SnipApp">
         <p ng-controller="Test1Controller">
-          <input id="button1a" type="button" value="Test1a" ng-click="clickButton1a()">
+          <input id="button1a" type="button" value="Test1a" ng-click="clickButton1a()"/>
           <input id="input1"  type="text" ng-model="input1"/>
-          <input id="button1b" type="button" value="Test1b" ng-click="clickButton1b()">
+          <input id="button1b" type="button" value="Test1b" ng-click="clickButton1b()"/>
           <span id="output1" ng-bind="output1">Output1</span>
         </p>
         <p ng-controller="Test2Controller">
@@ -24,7 +24,11 @@
           <span id="output2a" ng-bind="output2a">Output2a</span>
           <input id="input2b"  type="text" ng-model="input2b"/>
           <span id="output2b" ng-bind="output2b">Output2b</span>
-          <input id="button2" type="button" value="Test1b" ng-click="clickButton2()">
+          <input id="button2" type="button" value="Test1b" ng-click="clickButton2()"/>
+        </p>
+        <p ng-controller="AsyncTestController">
+          <input id="button3" type="button" value="Async" ng-click="startUpdates()"/>
+          <span id="asyncOut" ng-bind="asyncOut">Count</span>
         </p>
       </div>
     </div>

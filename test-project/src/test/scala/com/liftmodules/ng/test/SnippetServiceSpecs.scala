@@ -61,4 +61,13 @@ class SnippetServiceSpecs extends FlatSpecLike with ShouldMatchers with Eventual
       id("output2b").element.text should be ("FromServer client2")
     }
   }
+
+  "The angular comet actor" should "update the async block continually with consecutive integers" in {
+    click on "button3"
+    eventually { id("asyncOut").element.text should be ("0") }
+    eventually { id("asyncOut").element.text should be ("1") }
+    eventually { id("asyncOut").element.text should be ("2") }
+    eventually { id("asyncOut").element.text should be ("3") }
+    eventually { id("asyncOut").element.text should be ("4") }
+  }
 }

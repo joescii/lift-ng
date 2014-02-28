@@ -29,7 +29,7 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
       }
     );
   };
-  }])
+}])
 .controller('Test2Controller', ['$scope', '$window', 'snipServices2', function($scope, $window, snipServices2) {
   $scope.output2a = "";
   $scope.output2b = "";
@@ -50,5 +50,13 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
         $window.alert("Something REALLY broke, and we REALLY don't know why");
       }
     );
+  };
+}])
+.controller('AsyncTestController', ['$scope', '$interval', function($scope, $interval) {
+  $scope.startUpdates = function() {
+    $scope.asyncOut = 0
+    $interval(function() {
+      $scope.asyncOut++;
+    }, 1000)
   };
 }]);
