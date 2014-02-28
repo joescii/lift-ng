@@ -11,22 +11,20 @@ import StringHelpers._
 
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with Loggable {
-  def rand = "NG"+randomString(18)
-  val module:String = rand
-  val directive:String = rand
-  val id:String = rand
+  private def rand = "NG"+randomString(18)
+  private val id:String = rand
 
+  /** Render a div for us to hook into */
   def render = <div id={id}></div>
 
-  val scope = "var scope = angular.element(document.querySelector('#"+id+"')).scope();"
+  private val scope = "var scope = angular.element(document.querySelector('#"+id+"')).scope();"
 
-  def broadcast(event:String, msg:String) = partialUpdate {
-    val cmd = scope+"scope.$apply(function() { scope.$broadcast('"+event+"','"+msg+"') });"
+  def broadcast(event:String, obj:AnyRef) = partialUpdate {
+    def build(msg:String) = scope+"scope.$apply(function() { scope.$broadcast('"+event+"','"+msg+"') });"
+    val cmd = obj match {
+      case s:String => build(s)
+    }
     JsRaw(cmd)
   }
 
-  def emit(event:String, msg:String) = partialUpdate {
-    val cmd = scope+"scope.$apply(function() { scope.$emit('"+event+"','"+msg+"') });"
-    JsRaw(cmd)
-  }
 }
