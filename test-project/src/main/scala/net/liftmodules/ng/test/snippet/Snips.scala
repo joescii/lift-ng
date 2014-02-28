@@ -5,7 +5,14 @@ import Angular._
 import scala.xml.NodeSeq
 import test.model.Test2Obj
 
-import net.liftweb.common.{Loggable, Empty, Full}
+import net.liftweb._
+import common.{Loggable, Empty, Full}
+import util._
+import http._
+import js._
+import Helpers._
+import SHtml._
+import JsCmds._
 
 /** Defines snippets for testing Angular */
 object Snips extends Loggable {
@@ -29,4 +36,9 @@ object Snips extends Loggable {
       logger.info(s"call($obj) received on server.")
       Full(Test2Obj(s"FromServer $str1", s"FromServer $str2"))
   })))
+
+  def renderAsyncButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("AsyncTestActor", Empty, "start") }
+    Noop
+  })
 }

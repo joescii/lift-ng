@@ -52,11 +52,9 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
     );
   };
 }])
-.controller('AsyncTestController', ['$scope', '$interval', function($scope, $interval) {
-  $scope.startUpdates = function() {
-    $scope.asyncOut = 0
-    $interval(function() {
-      $scope.asyncOut++;
-    }, 1000)
-  };
+.controller('AsyncTestController', ['$scope', function($scope) {
+  $scope.asyncOut = "Not running";
+  $scope.$on('asyncMsg', function(e, msg) {
+    $scope.asyncOut = msg;
+  });
 }]);
