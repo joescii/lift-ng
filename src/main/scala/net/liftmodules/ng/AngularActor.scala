@@ -19,9 +19,11 @@ trait AngularActor extends CometActor with Loggable {
   /** Render a div for us to hook into */
   def render = <div id={id}></div>
 
+  /** Your handle to the $scope object for your actor */
   object scope {
     private val scope = "var scope = angular.element(document.querySelector('#"+id+"')).scope();"
 
+    /** Performs a $scope.$broadcast with the given event name and object argument */
     def broadcast(event:String, obj:AnyRef) = partialUpdate {
       implicit val formats = DefaultFormats
 
