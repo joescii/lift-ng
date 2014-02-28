@@ -15,6 +15,7 @@
       <h2>Snippet tests</h2>
       <div ng-app="SnipApp">
         <div data-lift="comet?type=BroadcastStringActor"></div>
+        <div data-lift="comet?type=BroadcastJsonActor"></div>
         <p ng-controller="Test1Controller">
           <input id="button1a" type="button" value="Test1a" ng-click="clickButton1a()"/>
           <input id="input1"  type="text" ng-model="input1"/>
@@ -34,8 +35,8 @@
         </p>
         <p ng-controller="BroadcastJsonController">
           <input id="button4" type="button" value="Async" data-lift="Snips.renderBroadcastJsonButton"/>
-          <span id="broadcastJsonOut1" ng-bind="broadcastStringOut1">Count</span>
-          <span id="broadcastJsonOut2" ng-bind="broadcastStringOut2">Char</span>
+          <span id="broadcastJsonOut1" ng-bind="broadcastJsonOut1">Count</span>
+          <span id="broadcastJsonOut2" ng-bind="broadcastJsonOut2">Char</span>
         </p>
       </div>
     </div>

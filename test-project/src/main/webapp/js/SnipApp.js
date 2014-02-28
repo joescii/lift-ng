@@ -57,4 +57,12 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
   $scope.$on('broadcastString', function(e, msg) {
     $scope.broadcastStringOut = msg;
   });
+}])
+.controller('BroadcastJsonController', ['$scope', function($scope) {
+  $scope.broadcastJsonOut1 = "Not running";
+  $scope.broadcastJsonOut2 = "Not running";
+  $scope.$on('broadcastJson', function(e, obj) {
+    $scope.broadcastJsonOut1 = obj.num;
+    $scope.broadcastJsonOut2 = obj.char;
+  });
 }]);

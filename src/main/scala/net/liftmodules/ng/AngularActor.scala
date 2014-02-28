@@ -8,6 +8,8 @@ import js._
 import JE._
 import JsCmds._
 import StringHelpers._
+import json.Serialization._
+import json.DefaultFormats
 
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with Loggable {
@@ -20,10 +22,14 @@ trait AngularActor extends CometActor with Loggable {
   private val scope = "var scope = angular.element(document.querySelector('#"+id+"')).scope();"
 
   def broadcast(event:String, obj:AnyRef) = partialUpdate {
-    def build(msg:String) = scope+"scope.$apply(function() { scope.$broadcast('"+event+"','"+msg+"') });"
+    implicit val formats = DefaultFormats
+
+    def build(msg:String) = scope+"scope.$apply(function() { scope.$broadcast('"+event+"',"+msg+") });"
     val cmd = obj match {
-      case s:String => build(s)
+      case s:String => build("'"+s+"'")
+      case _ => build(write(obj))
     }
+    logger.debug("Emitting JsRaw: "+cmd)
     JsRaw(cmd)
   }
 

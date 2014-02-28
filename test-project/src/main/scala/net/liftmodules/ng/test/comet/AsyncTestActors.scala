@@ -1,6 +1,8 @@
 package net.liftmodules.ng
 package test.comet
 
+import test.model.BroadcastObj
+
 import net.liftweb._
 import common._
 import util._
@@ -37,5 +39,16 @@ class BroadcastStringActor extends AsyncTestActor {
     val next = iter.next.toString
     logger.info(s"calling scope.broadcast($next) from server.")
     broadcast("broadcastString",next)
+  }
+}
+
+class BroadcastJsonActor extends AsyncTestActor {
+  val nums  = Stream.from(0).iterator
+  val chars = Stream.from(97).map(_.asInstanceOf[Char]).iterator
+
+  override def doUpdate() = {
+    val next = BroadcastObj(nums.next, chars.next.toString)
+    logger.info(s"calling scope.broadcast($next) from server.")
+    broadcast("broadcastJson",next)
   }
 }
