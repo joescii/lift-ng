@@ -19,18 +19,20 @@ trait AngularActor extends CometActor with Loggable {
   /** Render a div for us to hook into */
   def render = <div id={id}></div>
 
-  private val scope = "var scope = angular.element(document.querySelector('#"+id+"')).scope();"
+  object scope {
+    private val scope = "var scope = angular.element(document.querySelector('#"+id+"')).scope();"
 
-  def broadcast(event:String, obj:AnyRef) = partialUpdate {
-    implicit val formats = DefaultFormats
+    def broadcast(event:String, obj:AnyRef) = partialUpdate {
+      implicit val formats = DefaultFormats
 
-    def build(msg:String) = scope+"scope.$apply(function() { scope.$broadcast('"+event+"',"+msg+") });"
-    val cmd = obj match {
-      case s:String => build("'"+s+"'")
-      case _ => build(write(obj))
+      def build(msg:String) = scope+"scope.$apply(function() { scope.$broadcast('"+event+"',"+msg+") });"
+      val cmd = obj match {
+        case s:String => build("'"+s+"'")
+        case _ => build(write(obj))
+      }
+      logger.debug("Emitting JsRaw: "+cmd)
+      JsRaw(cmd)
     }
-    logger.debug("Emitting JsRaw: "+cmd)
-    JsRaw(cmd)
   }
 
 }

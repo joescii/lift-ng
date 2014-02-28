@@ -38,7 +38,7 @@ class BroadcastStringActor extends AsyncTestActor {
   override def doUpdate() = {
     val next = iter.next.toString
     logger.info(s"calling scope.broadcast($next) from server.")
-    broadcast("broadcastString",next)
+    scope.broadcast("broadcastString",next)
   }
 }
 
@@ -49,6 +49,6 @@ class BroadcastJsonActor extends AsyncTestActor {
   override def doUpdate() = {
     val next = BroadcastObj(nums.next, chars.next.toString)
     logger.info(s"calling scope.broadcast($next) from server.")
-    broadcast("broadcastJson",next)
+    scope.broadcast("broadcastJson",next)
   }
 }
