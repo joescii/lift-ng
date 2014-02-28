@@ -41,4 +41,9 @@ object Snips extends Loggable {
     S.session.map { _.sendCometActorMessage("BroadcastStringActor", Empty, "start") }
     Noop
   })
+
+  def renderBroadcastJsonButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("BroadcastJsonActor", Empty, "start") }
+    Noop
+  })
 }
