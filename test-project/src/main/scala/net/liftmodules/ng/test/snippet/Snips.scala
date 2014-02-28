@@ -37,8 +37,8 @@ object Snips extends Loggable {
       Full(Test2Obj(s"FromServer $str1", s"FromServer $str2"))
   })))
 
-  def renderAsyncButton = "* [onclick]" #> ajaxInvoke( () => {
-    S.session.map { _.sendCometActorMessage("AsyncTestActor", Empty, "start") }
+  def renderBroadcastStringButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("BroadcastStringActor", Empty, "start") }
     Noop
   })
 }
