@@ -1,5 +1,4 @@
-lift-ng
-=======
+# lift-ng
 
 AngularJS support for Lift
 
@@ -31,13 +30,11 @@ angular.module("lift.pony")
 
 Both will create an angular module named `lift.pony` with a service named `ponyService` with a function named `getBestPony`, yet the former runs on the client-side, and the latter runs on the server-side.
 
-Tutorial
-========
+## Tutorial
 
 We recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the functionality of this plugin.  See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
 
-Configuration
-=============
+## Configuration
 
 Add the Sonatype.org Releases repo as a resolver in your `build.sbt` or `Build.scala` as appropriate.
 
@@ -53,7 +50,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.1.1" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.2.0" % "compile"
   )
 }
 ```
@@ -72,15 +69,17 @@ class Boot {
 }
 ```
 
-Supported Versions
-==================
+## Supported Versions
 
 **lift-ng** is built and released to support Lift edition 2.5 and Scala versions 2.9.1, 2.9.1-1, 2.9.2, and 2.10.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
-Usage
-=====
+## Usage
 
-Continuing with the sample code from the introduction, you will need a snippet which contains the definition of the angular service/factory.
+Below are a few usage examples.  Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/barnesjd/lift-ng/tree/master/test-project) for fully functional examples
+
+### AJAX
+
+Continuing with the sample code from the introduction, you will need a snippet which contains the definition of the angular service/factory which can be called from the client code.
 
 ```scala
 object NgPonyService {
@@ -139,8 +138,14 @@ angular.module('pony', ['lift.pony'])
   });
 ```
 
-Scaladocs
-=========
+### Comet 
+
+Now we can take a look at how to utilize Lift's comet support to asynchronously send angular updates from the server
+
+**TBD**
+
+
+## Scaladocs
 
 The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.  There should not be any differences among the supported versions of Scala.  Nonetheless all are listed here for good measure.
 * [Scala 2.10](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.10/api/index.html#package)
@@ -148,17 +153,22 @@ The latest version of scaladocs are hosted thanks to [cloudbees](http://www.clou
 * [Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
 * [Scala 2.9.1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1/api/index.html#package)
 
-Wish list
-=========
+## Contributing
+
+
+## Wish list
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* Testing (in progress)
 * Cross-Lift version support (Not currently known what editions other than 2.5 can be supported.  Will need a solution to automating the build.)
 * Forward `Failure(err)` string to client on error (currently the client code always receives the string `'server error'`)
 * `Future[T]` return type
 * Initial value/first resolve value.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * Injection of i18n/i10n angular js file.
 * Injection of ResourceBundle i18n translation.
-* Comet integration
-* Actor integration
+
+## Change log
+
+* *0.2.0*: Introduction of `AngularActor` featuring `scope.broadcast` as the first comet-backed feature
+* *0.1.1*: First working release
+* *0.1*: First release
