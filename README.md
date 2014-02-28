@@ -155,6 +155,15 @@ The latest version of scaladocs are hosted thanks to [cloudbees](http://www.clou
 
 ## Contributing
 
+As with any open source project, contributions are greatly appreciated.  If you find an issue or have a feature idea, we'd love to know about it!  Any of the following will help this effort tremendously.
+
+1. Issue a Pull Request with the fix/enhancement and unit tests to validate the changes.  OR
+2. Issue a Pull Request with failing tests in the [test-project](https://github.com/barnesjd/lift-ng/tree/master/test-project) to show what needs to be changed OR
+3. At a minimum, [open an issue](https://github.com/barnesjd/lift-ng/issues/new) to let us know about what you've discovered.
+
+### Testing
+
+Part of contributing your changes will involve testing.  The [test-project](https://github.com/barnesjd/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** plugin via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
 
 ## Wish list
 
@@ -172,3 +181,22 @@ Here are things we would like in this library.  It's not a road map, but should 
 * *0.2.0*: Introduction of `AngularActor` featuring `scope.broadcast` as the first comet-backed feature
 * *0.1.1*: First working release
 * *0.1*: First release
+
+## License
+
+**lift-ng** is licensed under [APL 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+Copyright 2013 org.example
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
