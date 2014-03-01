@@ -201,6 +201,18 @@ As with any open source project, contributions are greatly appreciated.  If you 
 2. Issue a Pull Request with failing tests in the [test-project](https://github.com/barnesjd/lift-ng/tree/master/test-project) to show what needs to be changed OR
 3. At a minimum, [open an issue](https://github.com/barnesjd/lift-ng/issues/new) to let us know about what you've discovered.
 
+### Pull Requests
+
+Below is the recommended procedure for git:
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+Try to include as much as you are able, such as tests, documentation, updates to this README, etc.
+
 ### Testing
 
 Part of contributing your changes will involve testing.  The [test-project](https://github.com/barnesjd/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** plugin via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
