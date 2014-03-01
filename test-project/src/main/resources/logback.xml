@@ -15,7 +15,7 @@
 
 
     <logger name="net.liftmodules.ng.test" level="info" />
-    <logger name="net.liftmodules.ng.test.comet" level="debug" />
+    <logger name="net.liftmodules.ng.test.comet" level="info" />
     <logger name="net.liftweb" level="warn" />
     <logger name="bootstrap.liftweb" level="info" />
     <root level="warn">

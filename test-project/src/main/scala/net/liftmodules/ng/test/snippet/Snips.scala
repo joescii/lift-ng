@@ -46,4 +46,14 @@ object Snips extends Loggable {
     S.session.map { _.sendCometActorMessage("RootScopeBroadcastJsonActor", Empty, "start") }
     Noop
   })
+
+  def renderRootScopeEmitStringButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("RootScopeEmitStringActor", Empty, "start") }
+    Noop
+  })
+
+  def renderRootScopeEmitJsonButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("RootScopeEmitJsonActor", Empty, "start") }
+    Noop
+  })
 }

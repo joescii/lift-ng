@@ -65,4 +65,18 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
     $scope.rootScopeBroadcastJsonOut1 = obj.num;
     $scope.rootScopeBroadcastJsonOut2 = obj.char;
   });
+}])
+.controller('RootScopeEmitStringController', ['$rootScope', '$scope', function($rootScope, $scope) {
+  $scope.rootScopeEmitStringOut = "Not running";
+  $rootScope.$on('rootScopeEmitString', function(e, msg) {
+    $scope.rootScopeEmitStringOut = msg;
+  });
+}])
+.controller('RootScopeEmitJsonController', ['$rootScope', '$scope', function($rootScope, $scope) {
+  $scope.rootScopeEmitJsonOut1 = "Not running";
+  $scope.rootScopeEmitJsonOut2 = "Not running";
+  $rootScope.$on('rootScopeEmitJson', function(e, obj) {
+    $scope.rootScopeEmitJsonOut1 = obj.num;
+    $scope.rootScopeEmitJsonOut2 = obj.char;
+  });
 }]);

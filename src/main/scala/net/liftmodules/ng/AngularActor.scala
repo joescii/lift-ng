@@ -22,19 +22,26 @@ trait AngularActor extends CometActor with Loggable {
   /** Your handle to the \$rootScope object for your actor */
   object rootScope {
     private val varRootScope = "var rootScope = angular.element(document.querySelector('#"+id+"')).scope().$root;"
+    implicit val formats = DefaultFormats
 
-    /** Performs a \$rootScope.\$broadcast with the given event name and object argument */
-    def broadcast(event:String, obj:AnyRef) = partialUpdate {
-      implicit val formats = DefaultFormats
+    private def cmdWithArg(cmdBuilder: String => String, obj:AnyRef) = obj match {
+      case s:String => cmdBuilder("'"+s+"'")
+      case _ => cmdBuilder(write(obj))
+    }
 
-      def build(msg:String) = varRootScope+"rootScope.$apply(function() { rootScope.$broadcast('"+event+"',"+msg+") });"
-      val cmd = obj match {
-        case s:String => build("'"+s+"'")
-        case _ => build(write(obj))
-      }
+    private def messenger(method:String)(event:String, obj:AnyRef):Unit = partialUpdate {
+      def cmdBuilder(arg:String) = varRootScope+"rootScope.$apply(function() { rootScope."+method+"('"+event+"',"+arg+") });"
+      val cmd = cmdWithArg(cmdBuilder, obj)
       logger.debug("Emitting JsRaw: "+cmd)
       JsRaw(cmd)
     }
+
+
+    /** Performs a <code>\$rootScope.\$broadcast()</code> with the given event name and object argument */
+    def broadcast = messenger("$broadcast")_
+
+    /** Performs a <code>\$rootScope.\$emit()</code> with the given event name and object argument */
+    def emit = messenger("$emit")_
   }
 
 }
