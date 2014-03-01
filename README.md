@@ -142,8 +142,48 @@ angular.module('pony', ['lift.pony'])
 
 Now we can take a look at how to utilize Lift's comet support to asynchronously send angular updates from the server
 
-**TBD**
+First you should write a new class which extends the `AngularActor` trait, which is a sub-trait of Lift's `CometActor`.  Thus you can do anything you can normally with a `CometActor`, as well as get access to the `$rootScope` of the angular application.  Currently we support an emit or broadcast of either strings or arbitrary JSON objects on the `$rootScope` service in the angular app.
 
+```scala
+class CometExample extends AngularActor {
+  override def lowPriority = {
+    case ("emit", msg:String) => rootScope.emit("emit-message", msg)
+    case ("emit", obj:AnyRef) => rootScope.emit("emit-object",  obj)
+    
+    case ("broadcast", msg:String) => rootScope.broadcast("emit-message", msg)
+    case ("broadcast", obj:AnyRef) => rootScope.broadcast("emit-object",  obj)
+  }
+}
+```
+
+Now add the comet actor to your HTML anywhere within the `ng-application`.
+
+```html
+<div ng-app="ExampleApp">
+  <div data-lift="comet?type=CometExample"></div>
+  <!-- other stuff -->
+</div>
+```
+
+And listen for the events on the `$rootScope` (for `emit`) or the `$scope` (for `broadcast`).
+
+```javascript
+angular.module('ExampleApp', [])
+.controller('ExampleController', ['$rootScope', '$scope', function($rootScope, $scope) {
+  $scope.$on('broadcast-message', function(e, msg) {
+    $scope.broadcastMessage = msg;
+  });
+  $scope.$on('broadcast-object', function(e, obj) {
+    $scope.broadcastObject = obj;
+  });
+  $rootScope.$on('emit-message', function(e, msg) {
+    $scope.emitMessage = msg;
+  });
+  $rootScope.$on('emit-object', function(e, obj) {
+    $scope.emitObject = obj;
+  });
+}]);
+```
 
 ## Scaladocs
 
