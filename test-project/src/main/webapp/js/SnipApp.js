@@ -52,17 +52,17 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
     );
   };
 }])
-.controller('BroadcastStringController', ['$scope', function($scope) {
-  $scope.broadcastStringOut = "Not running";
-  $scope.$on('broadcastString', function(e, msg) {
-    $scope.broadcastStringOut = msg;
+.controller('RootScopeBroadcastStringController', ['$scope', function($scope) {
+  $scope.rootScopeBroadcastStringOut = "Not running";
+  $scope.$on('rootScopeBroadcastString', function(e, msg) {
+    $scope.rootScopeBroadcastStringOut = msg;
   });
 }])
-.controller('BroadcastJsonController', ['$scope', function($scope) {
-  $scope.broadcastJsonOut1 = "Not running";
-  $scope.broadcastJsonOut2 = "Not running";
-  $scope.$on('broadcastJson', function(e, obj) {
-    $scope.broadcastJsonOut1 = obj.num;
-    $scope.broadcastJsonOut2 = obj.char;
+.controller('RootScopeBroadcastJsonController', ['$scope', function($scope) {
+  $scope.rootScopeBroadcastJsonOut1 = "Not running";
+  $scope.rootScopeBroadcastJsonOut2 = "Not running";
+  $scope.$on('rootScopeBroadcastJson', function(e, obj) {
+    $scope.rootScopeBroadcastJsonOut1 = obj.num;
+    $scope.rootScopeBroadcastJsonOut2 = obj.char;
   });
 }]);

@@ -37,13 +37,13 @@ object Snips extends Loggable {
       Full(Test2Obj(s"FromServer $str1", s"FromServer $str2"))
   })))
 
-  def renderBroadcastStringButton = "* [onclick]" #> ajaxInvoke( () => {
-    S.session.map { _.sendCometActorMessage("BroadcastStringActor", Empty, "start") }
+  def renderRootScopeBroadcastStringButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("RootScopeBroadcastStringActor", Empty, "start") }
     Noop
   })
 
-  def renderBroadcastJsonButton = "* [onclick]" #> ajaxInvoke( () => {
-    S.session.map { _.sendCometActorMessage("BroadcastJsonActor", Empty, "start") }
+  def renderRootScopeBroadcastJsonButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("RootScopeBroadcastJsonActor", Empty, "start") }
     Noop
   })
 }

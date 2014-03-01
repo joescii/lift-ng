@@ -14,8 +14,8 @@
 
       <h2>Snippet tests</h2>
       <div ng-app="SnipApp">
-        <div data-lift="comet?type=BroadcastStringActor"></div>
-        <div data-lift="comet?type=BroadcastJsonActor"></div>
+        <div data-lift="comet?type=RootScopeBroadcastStringActor"></div>
+        <div data-lift="comet?type=RootScopeBroadcastJsonActor"></div>
         <p ng-controller="Test1Controller">
           <input id="button1a" type="button" value="Test1a" ng-click="clickButton1a()"/>
           <input id="input1"  type="text" ng-model="input1"/>
@@ -29,14 +29,14 @@
           <span id="output2b" ng-bind="output2b">Output2b</span>
           <input id="button2" type="button" value="Test1b" ng-click="clickButton2()"/>
         </p>
-        <p ng-controller="BroadcastStringController">
-          <input id="button3" type="button" value="Async" data-lift="Snips.renderBroadcastStringButton"/>
-          <span id="broadcastStringOut" ng-bind="broadcastStringOut">Count</span>
+        <p ng-controller="RootScopeBroadcastStringController">
+          <input id="button3" type="button" value="Async" data-lift="Snips.renderRootScopeBroadcastStringButton"/>
+          <span id="rootScopeBroadcastStringOut" ng-bind="rootScopeBroadcastStringOut">Count</span>
         </p>
-        <p ng-controller="BroadcastJsonController">
-          <input id="button4" type="button" value="Async" data-lift="Snips.renderBroadcastJsonButton"/>
-          <span id="broadcastJsonOut1" ng-bind="broadcastJsonOut1">Count</span>
-          <span id="broadcastJsonOut2" ng-bind="broadcastJsonOut2">Char</span>
+        <p ng-controller="RootScopeBroadcastJsonController">
+          <input id="button4" type="button" value="Async" data-lift="Snips.renderRootScopeBroadcastJsonButton"/>
+          <span id="rootScopeBroadcastJsonOut1" ng-bind="rootScopeBroadcastJsonOut1">Count</span>
+          <span id="rootScopeBroadcastJsonOut2" ng-bind="rootScopeBroadcastJsonOut2">Char</span>
         </p>
       </div>
     </div>

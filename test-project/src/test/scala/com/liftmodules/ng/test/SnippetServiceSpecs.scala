@@ -62,36 +62,36 @@ class SnippetServiceSpecs extends FlatSpecLike with ShouldMatchers with Eventual
     }
   }
 
-  "The angular BroadcastString comet actor" should "update the async block continually with consecutive integers" in {
+  "The angular RootScopeBroadcastString comet actor" should "update the async block continually with consecutive integers" in {
     click on "button3"
-    eventually { id("broadcastStringOut").element.text should be ("0") }
-    eventually { id("broadcastStringOut").element.text should be ("1") }
-    eventually { id("broadcastStringOut").element.text should be ("2") }
-    eventually { id("broadcastStringOut").element.text should be ("3") }
-    eventually { id("broadcastStringOut").element.text should be ("4") }
+    eventually { id("rootScopeBroadcastStringOut").element.text should be ("0") }
+    eventually { id("rootScopeBroadcastStringOut").element.text should be ("1") }
+    eventually { id("rootScopeBroadcastStringOut").element.text should be ("2") }
+    eventually { id("rootScopeBroadcastStringOut").element.text should be ("3") }
+    eventually { id("rootScopeBroadcastStringOut").element.text should be ("4") }
   }
 
-  "The angular BroadcastJson comet actor" should "update the async block continually with consecutive integers and letters" in {
+  "The angular RootScopeBroadcastJson comet actor" should "update the async block continually with consecutive integers and letters" in {
     click on "button4"
     eventually {
-      id("broadcastJsonOut1").element.text should be ("0")
-      id("broadcastJsonOut2").element.text should be ("a")
+      id("rootScopeBroadcastJsonOut1").element.text should be ("0")
+      id("rootScopeBroadcastJsonOut2").element.text should be ("a")
     }
     eventually {
-      id("broadcastJsonOut1").element.text should be ("1")
-      id("broadcastJsonOut2").element.text should be ("b")
+      id("rootScopeBroadcastJsonOut1").element.text should be ("1")
+      id("rootScopeBroadcastJsonOut2").element.text should be ("b")
     }
     eventually {
-      id("broadcastJsonOut1").element.text should be ("2")
-      id("broadcastJsonOut2").element.text should be ("c")
+      id("rootScopeBroadcastJsonOut1").element.text should be ("2")
+      id("rootScopeBroadcastJsonOut2").element.text should be ("c")
     }
     eventually {
-      id("broadcastJsonOut1").element.text should be ("3")
-      id("broadcastJsonOut2").element.text should be ("d")
+      id("rootScopeBroadcastJsonOut1").element.text should be ("3")
+      id("rootScopeBroadcastJsonOut2").element.text should be ("d")
     }
     eventually {
-      id("broadcastJsonOut1").element.text should be ("4")
-      id("broadcastJsonOut2").element.text should be ("e")
+      id("rootScopeBroadcastJsonOut1").element.text should be ("4")
+      id("rootScopeBroadcastJsonOut2").element.text should be ("e")
     }
   }
 }

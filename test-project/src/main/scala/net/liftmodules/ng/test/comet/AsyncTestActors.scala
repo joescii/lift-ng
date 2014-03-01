@@ -32,23 +32,23 @@ abstract class AsyncTestActor extends AngularActor with Loggable {
   override def lifespan = Full(10)
 }
 
-class BroadcastStringActor extends AsyncTestActor {
+class RootScopeBroadcastStringActor extends AsyncTestActor {
   val iter = Stream.from(0).iterator
 
   override def doUpdate() = {
     val next = iter.next.toString
-    logger.info(s"calling scope.broadcast($next) from server.")
-    scope.broadcast("broadcastString",next)
+  logger.info(s"calling rootScope.broadcast($next) from server.")
+    rootScope.broadcast("rootScopeBroadcastString",next)
   }
 }
 
-class BroadcastJsonActor extends AsyncTestActor {
+class RootScopeBroadcastJsonActor extends AsyncTestActor {
   val nums  = Stream.from(0).iterator
   val chars = Stream.from(97).map(_.asInstanceOf[Char]).iterator
 
   override def doUpdate() = {
     val next = BroadcastObj(nums.next, chars.next.toString)
-    logger.info(s"calling scope.broadcast($next) from server.")
-    scope.broadcast("broadcastJson",next)
+    logger.info(s"calling rootScope.broadcast($next) from server.")
+    rootScope.broadcast("rootScopeBroadcastJson",next)
   }
 }

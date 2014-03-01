@@ -19,15 +19,15 @@ trait AngularActor extends CometActor with Loggable {
   /** Render a div for us to hook into */
   def render = <div id={id}></div>
 
-  /** Your handle to the $scope object for your actor */
-  object scope {
-    private val scope = "var scope = angular.element(document.querySelector('#"+id+"')).scope();"
+  /** Your handle to the \$rootScope object for your actor */
+  object rootScope {
+    private val varRootScope = "var rootScope = angular.element(document.querySelector('#"+id+"')).scope().$root;"
 
-    /** Performs a $scope.$broadcast with the given event name and object argument */
+    /** Performs a \$rootScope.\$broadcast with the given event name and object argument */
     def broadcast(event:String, obj:AnyRef) = partialUpdate {
       implicit val formats = DefaultFormats
 
-      def build(msg:String) = scope+"scope.$apply(function() { scope.$broadcast('"+event+"',"+msg+") });"
+      def build(msg:String) = varRootScope+"rootScope.$apply(function() { rootScope.$broadcast('"+event+"',"+msg+") });"
       val cmd = obj match {
         case s:String => build("'"+s+"'")
         case _ => build(write(obj))

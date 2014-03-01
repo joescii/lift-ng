@@ -178,7 +178,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
-* *0.2.0*: Introduction of `AngularActor` featuring `scope.broadcast` as the first comet-backed feature
+* *0.2.0*: Introduction of `AngularActor` featuring `rootScope.broadcast` as the first comet-backed feature
 * *0.1.1*: First working release
 * *0.1*: First release
 
