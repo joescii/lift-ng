@@ -1,0 +1,11 @@
+alias pub=publish-local
+
+set liftVersion  in ThisBuild:="3.0-SNAPSHOT"
+set scalaVersion in ThisBuild:="2.10.3"
+pub
+
+set liftVersion  in ThisBuild:="2.6-SNAPSHOT"
++ pub
+
+set liftVersion  in ThisBuild:="2.5.1"
++ pub
