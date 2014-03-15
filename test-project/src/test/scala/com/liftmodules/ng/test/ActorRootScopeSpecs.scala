@@ -7,6 +7,22 @@ class ActorRootScopeSpecs extends BaseSpec {
     eventually { pageTitle should be ("App: Actors - Root Scope") }
   }
 
+  "The angular RootScopeBroadcastString comet actor" should "update the async block continually with consecutive integers" in {
+    cometStringCheck("button3", "rootScopeBroadcastStringOut")
+  }
+
+  "The angular RootScopeBroadcastJson comet actor" should "update the async block continually with consecutive integers and letters" in {
+    cometJsonCheck("button4", "rootScopeBroadcastJsonOut1", "rootScopeBroadcastJsonOut2")
+  }
+
+  "The angular RootScopeEmitString comet actor" should "update the async block continually with consecutive integers" in {
+    cometStringCheck("button5", "rootScopeEmitStringOut")
+  }
+
+  "The angular RootScopeEmitJson comet actor" should "update the async block continually with consecutive integers and letters" in {
+    cometJsonCheck("button6", "rootScopeEmitJsonOut1", "rootScopeEmitJsonOut2")
+  }
+
   def cometStringCheck(button:String, span:String) = {
     click on button
     eventually { id(span).element.text should be ("0") }
@@ -14,10 +30,6 @@ class ActorRootScopeSpecs extends BaseSpec {
     eventually { id(span).element.text should be ("2") }
     eventually { id(span).element.text should be ("3") }
     eventually { id(span).element.text should be ("4") }
-  }
-
-  "The angular RootScopeBroadcastString comet actor" should "update the async block continually with consecutive integers" in {
-    cometStringCheck("button3", "rootScopeBroadcastStringOut")
   }
 
   def cometJsonCheck(button:String, spanInt:String, spanChar:String) = {
@@ -44,15 +56,4 @@ class ActorRootScopeSpecs extends BaseSpec {
     }
   }
 
-  "The angular RootScopeBroadcastJson comet actor" should "update the async block continually with consecutive integers and letters" in {
-    cometJsonCheck("button4", "rootScopeBroadcastJsonOut1", "rootScopeBroadcastJsonOut2")
-  }
-
-  "The angular RootScopeEmitString comet actor" should "update the async block continually with consecutive integers" in {
-    cometStringCheck("button5", "rootScopeEmitStringOut")
-  }
-
-  "The angular RootScopeEmitJson comet actor" should "update the async block continually with consecutive integers and letters" in {
-    cometJsonCheck("button6", "rootScopeEmitJsonOut1", "rootScopeEmitJsonOut2")
-  }
 }
