@@ -4,9 +4,9 @@
 <body class="lift:content_id=main">
   <div id="main" class="lift:surround?with=default;at=content">
     <h2>Snippet tests</h2>
-    <div data-lift="comet?type=EarlyEmitActor"></div>
 
     <div ng-controller="EarlyEmitController">
+      <div data-lift="comet?type=EarlyEmitActor"></div>
       Last message: {{earlyEmitOut[earlyEmitOut.length - 1]}}
       <div ng-repeat="out in earlyEmitOut">
         <span class="early-emit-out">{{out}}</span>
