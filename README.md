@@ -138,6 +138,68 @@ angular.module('pony', ['lift.pony'])
   });
 ```
 
+#### No arguments, string arguments, or case class arguments
+
+Just like with Lift's `SHtml.ajaxInvoke`, you can make a service which takes no arguments.  Hence we could have defined our `ponyService.getBestPony` like the following...
+
+```scala
+angular.module("lift.pony")
+  .factory("ponyService", jsObjFactory()
+    .jsonCall("getBestPony", {
+      // Return the best pony (server-side)
+      Full(BestPony)
+    })
+  )
+```
+
+Or we can accept a `String`...
+
+```scala
+angular.module("lift.pony")
+  .factory("ponyService", jsObjFactory()
+    .jsonCall("getPonyByName", (name:String) => {
+      // Return the matching pony
+      Full(MyPony)
+    })
+  )
+```
+
+Finally, perhaps most importantly, we expect a case class to be sent to the server.  Note that the case class must extend `NgModel` for this to work.
+
+```scala
+case class Pony (name:String, img:URL) extends NgModel
+
+angular.module("lift.pony")
+  .factory("ponyService", jsObjFactory()
+    .jsonCall("setBestPony", (pony:Pony) => {
+      // Nothing to return
+      Empty
+    })
+  )
+```
+
+#### Multiple function calls
+
+All of the above functions can be part of the same service...
+```scala
+angular.module("lift.pony")
+  .factory("ponyService", jsObjFactory()
+    .jsonCall("getBestPony", {
+      // Return the best pony (server-side)
+      Full(BestPony)
+    })
+
+    .jsonCall("getPonyByName", (name:String) => {
+      // Return the matching pony
+      Full(MyPony)
+
+    .jsonCall("setBestPony", (pony:Pony) => {
+      // Nothing to return
+      Empty
+    })
+  )
+```
+
 ### Comet 
 
 Now we can take a look at how to utilize Lift's comet support to asynchronously send angular updates from the server
