@@ -78,7 +78,7 @@ class EarlyEmitActor extends AngularActor { self =>
   val nums  = Stream.from(0).iterator
 
   override def lowPriority = {
-    case i:Int => println("emitting"); rootScope.emit("earlyEmit", s"Comet message $i")
+    case i:Int => println("emitting"); rootScope.emit("earlyEmit", i.toString)
   }
 
   self ! nums.next()
