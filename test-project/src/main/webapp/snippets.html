@@ -18,37 +18,37 @@
         <div data-lift="comet?type=RootScopeBroadcastJsonActor"></div>
         <div data-lift="comet?type=RootScopeEmitStringActor"></div>
         <div data-lift="comet?type=RootScopeEmitJsonActor"></div>
-        <p ng-controller="Test1Controller">
+        <div ng-controller="Test1Controller">
           <input id="button1a" type="button" value="Test1a" ng-click="clickButton1a()"/>
           <input id="input1"  type="text" ng-model="input1"/>
           <input id="button1b" type="button" value="Test1b" ng-click="clickButton1b()"/>
           <span id="output1" ng-bind="output1">Output1</span>
-        </p>
-        <p ng-controller="Test2Controller">
+        </div>
+        <div ng-controller="Test2Controller">
           <input id="input2a"  type="text" ng-model="input2a"/>
           <span id="output2a" ng-bind="output2a">Output2a</span>
           <input id="input2b"  type="text" ng-model="input2b"/>
           <span id="output2b" ng-bind="output2b">Output2b</span>
           <input id="button2" type="button" value="Test1b" ng-click="clickButton2()"/>
-        </p>
-        <p ng-controller="RootScopeBroadcastStringController">
+        </div>
+        <div ng-controller="RootScopeBroadcastStringController">
           <input id="button3" type="button" value="RootScopeBroadcastString" data-lift="Snips.renderRootScopeBroadcastStringButton"/>
           <span id="rootScopeBroadcastStringOut" ng-bind="rootScopeBroadcastStringOut">Count</span>
-        </p>
-        <p ng-controller="RootScopeBroadcastJsonController">
+        </div>
+        <div ng-controller="RootScopeBroadcastJsonController">
           <input id="button4" type="button" value="RootScopeBroadcastJson" data-lift="Snips.renderRootScopeBroadcastJsonButton"/>
           <span id="rootScopeBroadcastJsonOut1" ng-bind="rootScopeBroadcastJsonOut1">Count</span>
           <span id="rootScopeBroadcastJsonOut2" ng-bind="rootScopeBroadcastJsonOut2">Char</span>
-        </p>
-        <p ng-controller="RootScopeEmitStringController">
+        </div>
+        <div ng-controller="RootScopeEmitStringController">
           <input id="button5" type="button" value="RootScopeEmitString" data-lift="Snips.renderRootScopeEmitStringButton"/>
           <span id="rootScopeEmitStringOut" ng-bind="rootScopeEmitStringOut">Count</span>
-        </p>
-        <p ng-controller="RootScopeEmitJsonController">
+        </div>
+        <div ng-controller="RootScopeEmitJsonController">
           <input id="button6" type="button" value="RootScopeEmitJson" data-lift="Snips.renderRootScopeEmitJsonButton"/>
           <span id="rootScopeEmitJsonOut1" ng-bind="rootScopeEmitJsonOut1">Count</span>
           <span id="rootScopeEmitJsonOut2" ng-bind="rootScopeEmitJsonOut2">Char</span>
-        </p>
+        </div>
       </div>
     </div>
   </body>
