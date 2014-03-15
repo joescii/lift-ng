@@ -73,3 +73,17 @@ class RootScopeEmitJsonActor extends AsyncTestActor {
     rootScope.emit("rootScopeEmitJson",next)
   }
 }
+
+class EarlyEmitActor extends AngularActor { self =>
+  val nums  = Stream.from(0).iterator
+
+  override def lowPriority = {
+    case i:Int => println("emitting"); rootScope.emit("earlyEmit", s"Comet message $i")
+  }
+
+  self ! nums.next()
+
+  for(t <- 500 to 3000 by 500) {
+    Schedule(() => {self ! nums.next()}, t.millis)
+  }
+}
