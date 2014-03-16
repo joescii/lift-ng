@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Snippets</title></head>
+<body class="lift:content_id=main">
+  <div id="main" class="lift:surround?with=default;at=content">
+    <h2>Snippet tests</h2>
+
+    <div ng-controller="EarlyEmitController">
+      <div data-lift="comet?type=EarlyEmitActor"></div>
+      Last message: {{earlyEmitOut[earlyEmitOut.length - 1]}}
+      <div ng-repeat="out in earlyEmitOut">
+        <span class="early-emit-out">{{out}}</span>
+      </div>
+    </div>
+
+    <script id="angular_js"         src="/js/3rdlib/angular.js"         type="text/javascript"></script>
+    <script id="angular-loader_js"  src="/js/3rdlib/angular-loader.js"  type="text/javascript"></script>
+    <script id="delayApp_js"        src="/js/DelayApp.js"               type="text/javascript"></script>
+  </div>
+</body>
+</html>

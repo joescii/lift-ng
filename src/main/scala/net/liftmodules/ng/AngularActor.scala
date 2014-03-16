@@ -19,29 +19,44 @@ trait AngularActor extends CometActor with Loggable {
   /** Render a div for us to hook into */
   def render = <div id={id}></div>
 
-  /** Your handle to the \$rootScope object for your actor */
-  object rootScope {
-    private val varRootScope = "var rootScope = angular.element(document.querySelector('#"+id+"')).scope().$root;"
+  trait Scope {
+    // TODO: Use an Int and change this to obj:Any??
+    /** Performs a <code>\$broadcast()</code> with the given event name and object argument */
+    def broadcast(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "broadcast", event, obj))
+    /** Performs a <code>\$emit()</code> with the given event name and object argument */
+    def emit(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "emit", event, obj))
+
+    protected def vars:String
+    protected def scopeVar:String
+
+    protected val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
+    protected val varRoot  = "var r=s.$root;"
     implicit val formats = DefaultFormats
 
-    private def cmdWithArg(cmdBuilder: String => String, obj:AnyRef) = obj match {
-      case s:String => cmdBuilder("'"+s+"'")
-      case _ => cmdBuilder(write(obj))
+    protected def stringify(obj:AnyRef):String = obj match {
+      case s:String => "'"+s+"'"
+      case _ => write(obj)
     }
 
-    private def messenger(method:String)(event:String, obj:AnyRef):Unit = partialUpdate {
-      def cmdBuilder(arg:String) = varRootScope+"rootScope.$apply(function() { rootScope."+method+"('"+event+"',"+arg+") });"
-      val cmd = cmdWithArg(cmdBuilder, obj)
-      logger.debug("Emitting JsRaw: "+cmd)
-      JsRaw(cmd)
-    }
+    protected def eventInvoke(scopeVar:String, method:String, event:String, obj:AnyRef):String =
+      scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+")});"
 
+    protected def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd =
+      JsRaw(vars+eventInvoke(scopeVar, method, event, obj))
+  }
 
-    /** Performs a <code>\$rootScope.\$broadcast()</code> with the given event name and object argument */
-    def broadcast = messenger("$broadcast")_
+  private class ChildScope extends Scope {
+    override val vars = varScope
+    override val scopeVar = "s"
+  }
 
-    /** Performs a <code>\$rootScope.\$emit()</code> with the given event name and object argument */
-    def emit = messenger("$emit")_
+  /** Your handle to the \$scope object for your actor */
+  val scope:Scope = new ChildScope
+
+  /** Your handle to the \$rootScope object for your actor */
+  object rootScope extends Scope {
+    override val vars = varScope+varRoot
+    override val scopeVar = "r"
   }
 
 }

@@ -212,13 +212,13 @@ class CometExample extends AngularActor {
     case ("emit", msg:String) => rootScope.emit("emit-message", msg)
     case ("emit", obj:AnyRef) => rootScope.emit("emit-object",  obj)
     
-    case ("broadcast", msg:String) => rootScope.broadcast("emit-message", msg)
-    case ("broadcast", obj:AnyRef) => rootScope.broadcast("emit-object",  obj)
+    case ("broadcast", msg:String) => scope.broadcast("emit-message", msg)
+    case ("broadcast", obj:AnyRef) => scope.broadcast("emit-object",  obj)
   }
 }
 ```
 
-Now add the comet actor to your HTML anywhere within the `ng-application`.
+Now add the comet actor into your HTML DOM within the scope you wish to send your events to within the `ng-application`.
 
 ```html
 <div ng-app="ExampleApp">
@@ -232,17 +232,17 @@ And listen for the events on the `$rootScope` (for `emit`) or the `$scope` (for 
 ```javascript
 angular.module('ExampleApp', [])
 .controller('ExampleController', ['$rootScope', '$scope', function($rootScope, $scope) {
-  $scope.$on('broadcast-message', function(e, msg) {
-    $scope.broadcastMessage = msg;
-  });
-  $scope.$on('broadcast-object', function(e, obj) {
-    $scope.broadcastObject = obj;
-  });
   $rootScope.$on('emit-message', function(e, msg) {
     $scope.emitMessage = msg;
   });
   $rootScope.$on('emit-object', function(e, obj) {
     $scope.emitObject = obj;
+  });
+  $scope.$on('broadcast-message', function(e, msg) {
+    $scope.broadcastMessage = msg;
+  });
+  $scope.$on('broadcast-object', function(e, obj) {
+    $scope.broadcastObject = obj;
   });
 }]);
 ```
@@ -283,7 +283,10 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* Cross-Lift version support (Not currently known what editions other than 2.5 can be supported.  Will need a solution to automating the build.)
+* `AngularActor` support for setting scope variables
+* `AngularActor.scope.parent` support
+* Optional handling for comet events received before Angular has initialized (see issue #1)
+* `onRender` method to allow sending Angular stuff when the page is loaded
 * Forward `Failure(err)` string to client on error (currently the client code always receives the string `'server error'`)
 * `Future[T]` return type
 * Initial value/first resolve value.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
@@ -292,6 +295,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.2.1*: Implemented `scope.broadcast` and `scope.emit` for `AngularActor`
 * *0.2.0*: Introduction of `AngularActor` featuring `rootScope.broadcast` and `rootScope.emit` as the first comet-backed features
 * *0.1.1*: First working release
 * *0.1*: First release featuring AJAX services invoked from the client
