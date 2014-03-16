@@ -27,6 +27,7 @@ class Boot {
       Menu.i("Home") / "index", // the simple way to declare a menu
       Menu.i("Snippets") / "snippets",
       Menu.i("Actors - Root Scope") / "actorsRootScope",
+      Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Delay") / "delay",
 
       // more complex because this menu allows anything in the

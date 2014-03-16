@@ -87,3 +87,11 @@ class EarlyEmitActor extends AngularActor { self =>
     Schedule(() => {self ! nums.next()}, t.millis)
   }
 }
+
+class ScopeActor extends AngularActor {
+  override def lowPriority = {
+    // TODO: Change to scope
+    case "emit" => rootScope.emit("scope-msg", "emit")
+    case "broadcast" => rootScope.broadcast("scope-msg", "broadcast")
+  }
+}
