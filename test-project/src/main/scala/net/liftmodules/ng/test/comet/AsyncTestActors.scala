@@ -90,8 +90,7 @@ class EarlyEmitActor extends AngularActor { self =>
 
 class ScopeActor extends AngularActor {
   override def lowPriority = {
-    // TODO: Change to scope
-    case "emit" => rootScope.emit("scope-msg", "emit")
-    case "broadcast" => rootScope.broadcast("scope-msg", "broadcast")
+    case "emit" => scope.emit("scope-msg", "emit")
+    case "broadcast" => scope.broadcast("scope-msg", "broadcast")
   }
 }
