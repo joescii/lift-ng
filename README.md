@@ -284,10 +284,10 @@ Part of contributing your changes will involve testing.  The [test-project](http
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
 * `AngularActor` support for setting scope variables
-* `AngularActor.scope.parent` support
-* Optional handling for comet events received before Angular has initialized (see issue #1)
 * `onRender` method to allow sending Angular stuff when the page is loaded
 * Forward `Failure(err)` string to client on error (currently the client code always receives the string `'server error'`)
+* `AngularActor.scope.parent` support
+* Optional handling for comet events received before Angular has initialized (see issue #1)
 * `Future[T]` return type
 * Initial value/first resolve value.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * Injection of i18n/i10n angular js file.

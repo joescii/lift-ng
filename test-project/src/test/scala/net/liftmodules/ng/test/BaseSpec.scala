@@ -1,4 +1,4 @@
-package com.liftmodules.ng.test
+package net.liftmodules.ng.test
 
 import org.scalatest._
 import concurrent.Eventually

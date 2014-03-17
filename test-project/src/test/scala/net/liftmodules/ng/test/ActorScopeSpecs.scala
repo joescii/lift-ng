@@ -1,4 +1,4 @@
-package com.liftmodules.ng.test
+package net.liftmodules.ng.test
 
 class ActorScopeSpecs extends BaseSpec {
   "The Actors - Scope page" should "load" in {
