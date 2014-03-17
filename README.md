@@ -304,7 +304,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 **lift-ng** is licensed under [APL 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-Copyright 2013 org.example
+Copyright 2014 net.liftweb
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
