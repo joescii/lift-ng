@@ -1,4 +1,4 @@
-package com.liftmodules.ng.test
+package net.liftmodules.ng.test
 
 /** Specs for the angular services added via snippets */
 class ActorRootScopeSpecs extends BaseSpec {
