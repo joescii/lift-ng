@@ -149,7 +149,11 @@ angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
     .jsonCall("getBestPony", {
       // Return the best pony (server-side)
-      Full(BestPony)
+      try {
+        Full(BestPony)
+      } catch {
+        case e:Exception => Failure("No Pony!")
+      }
     })
   )
 ```
@@ -161,7 +165,11 @@ angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
     .jsonCall("getPonyByName", (name:String) => {
       // Return the matching pony
-      Full(MyPony)
+      try {
+        Full(BestPony)
+      } catch {
+        case e:Exception => Failure("No Pony!")
+      }
     })
   )
 ```
@@ -295,17 +303,16 @@ Part of contributing your changes will involve testing.  The [test-project](http
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
 * `onRender` method to allow sending Angular stuff when the page is loaded
-* Forward `Failure(err)` string to client on error (currently the client code always receives the string `'server error'`)
 * `AngularActor.scope.parent` support
 * Optional handling for comet events received before Angular has initialized (see issue #1)
 * `Future[T]` return type
-* Initial value/first resolve value.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
+* Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * Injection of i18n/i10n angular js file.
 * Injection of ResourceBundle i18n translation.
 
 ## Change log
 
-* *0.2.2*: Implemented `AngularActor.assign` for assigning scope variables.
+* *0.2.2*: Implemented `AngularActor.assign` for assigning scope variables. `Failure(msg)` message is sent to the client for `$q.reject`. Changed interpretation of `Empty` to mean `Resolve` rather than `Reject`.
 * *0.2.1*: Implemented `scope.broadcast` and `scope.emit` for `AngularActor`
 * *0.2.0*: Introduction of `AngularActor` featuring `rootScope.broadcast` and `rootScope.emit` as the first comet-backed features
 * *0.1.1*: First working release
