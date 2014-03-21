@@ -204,7 +204,7 @@ angular.module("lift.pony")
 
 Now we can take a look at how to utilize Lift's comet support to asynchronously send angular updates from the server
 
-First you should write a new class which extends the `AngularActor` trait, which is a sub-trait of Lift's `CometActor`.  Thus you can do anything you can normally with a `CometActor`, as well as get access to the `$rootScope` of the angular application.  Currently we support an emit or broadcast of either strings or arbitrary JSON objects on the `$rootScope` service in the angular app.
+First you should write a new class which extends the `AngularActor` trait, which is a sub-trait of Lift's `CometActor`.  Thus you can do anything you can normally with a `CometActor`, as well as get access the `$scope` where the actor is defined in the DOM and the `$rootScope` of the angular application.  Currently we support `$emit`, `$broadcast`, and assignment of arbitrary fields on the given scope object.
 
 ```scala
 class CometExample extends AngularActor {
@@ -214,11 +214,14 @@ class CometExample extends AngularActor {
     
     case ("broadcast", msg:String) => scope.broadcast("emit-message", msg)
     case ("broadcast", obj:AnyRef) => scope.broadcast("emit-object",  obj)
+
+    case ("assign", msg:String) => rootScope.assign("my.str.field", msg)
+    case ("assign", obj:AnyRef) => scope.assign("my.obj.field", obj)
   }
 }
 ```
 
-Now add the comet actor into your HTML DOM within the scope you wish to send your events to within the `ng-application`.
+Now add the comet actor into your HTML DOM within the scope you wish to belong to within the `ng-application`.
 
 ```html
 <div ng-app="ExampleApp">
@@ -227,7 +230,7 @@ Now add the comet actor into your HTML DOM within the scope you wish to send you
 </div>
 ```
 
-And listen for the events on the `$rootScope` (for `emit`) or the `$scope` (for `broadcast`).
+Then do whatever you need in your angular application to listen for events, watch for changes, etc.
 
 ```javascript
 angular.module('ExampleApp', [])
@@ -243,6 +246,12 @@ angular.module('ExampleApp', [])
   });
   $scope.$on('broadcast-object', function(e, obj) {
     $scope.broadcastObject = obj;
+  });
+  $rootScope.$watch('my.str.field', function(e, msg) {
+    // ...
+  });
+  $scope.$watch('my.obj.field', function(e, obj) {
+    // ...
   });
 }]);
 ```
