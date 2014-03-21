@@ -227,10 +227,9 @@ object Angular extends DispatchSnippet {
       def toPromise(box: Box[Any]): Promise = {
         box match {
           case Full(jsExp: JsExp) => Resolve(Some(jsExp)) // prefer using a case class instead
-          case Full(Unit) => Resolve()
           case Full(serializable: AnyRef) => Resolve(Some(JsRaw(write(serializable))))
           case Full(other) => Resolve(Some(JsRaw(other.toString)))
-          case Empty => Reject()
+          case Full(Unit) | Empty => Resolve()
           case Failure(msg, _, _) => Reject(msg)
         }
       }
