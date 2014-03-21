@@ -94,3 +94,15 @@ class ScopeActor extends AngularActor {
     case "broadcast" => scope.broadcast("scope-msg", "broadcast")
   }
 }
+
+class AssignmentActor extends AngularActor {
+  override def lowPriority = {
+    case "start" => { // TODO:
+      rootScope.assign("rootStr", "Root String")
+      rootScope.assign("rootObj", BroadcastObj(1, "a"))
+      scope.assign("scopeStr", "Scope String")
+      scope.assign("scopeObj", BroadcastObj(2, "b"))
+    }
+
+  }
+}

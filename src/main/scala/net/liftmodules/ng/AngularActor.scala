@@ -25,6 +25,7 @@ trait AngularActor extends CometActor with Loggable {
     def broadcast(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "broadcast", event, obj))
     /** Performs a <code>\$emit()</code> with the given event name and object argument */
     def emit(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "emit", event, obj))
+    def assign(field:String, obj:AnyRef):Unit = {}
 
     protected def vars:String
     protected def scopeVar:String

@@ -28,6 +28,7 @@ class Boot {
       Menu.i("Snippets") / "snippets",
       Menu.i("Actors - Root Scope") / "actorsRootScope",
       Menu.i("Actors - Scope") / "actorsScope",
+      Menu.i("Actors - Assignment") / "actorsAssignment",
       Menu.i("Delay") / "delay",
 
       // more complex because this menu allows anything in the
