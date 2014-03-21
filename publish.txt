@@ -1,4 +1,4 @@
-alias pub=publish-local
+alias pub=publish-signed
 
 clean 
 
