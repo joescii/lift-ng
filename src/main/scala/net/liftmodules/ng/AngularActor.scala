@@ -25,25 +25,35 @@ trait AngularActor extends CometActor with Loggable {
     def broadcast(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "broadcast", event, obj))
     /** Performs a <code>\$emit()</code> with the given event name and object argument */
     def emit(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "emit", event, obj))
-    def assign(field:String, obj:AnyRef):Unit = {}
+    /** Performs assigns the second argument to the field specified in the first argument */
+    def assign(field:String, obj:AnyRef):Unit = partialUpdate(assignCmd(scopeVar, field, obj))
 
+    /** Variables needed to perform any of our angular actions (will be \$scope and possibly \$rootScope) */
     protected def vars:String
+    /** The variable name of the scope variable for this scope (either \$scope or \$rootScope) */
     protected def scopeVar:String
 
+    /** Variable assignment for \$scope */
     protected val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
+    /** Variable assignment for \$rootScope */
     protected val varRoot  = "var r=s.$root;"
-    implicit val formats = DefaultFormats
 
-    protected def stringify(obj:AnyRef):String = obj match {
+    private implicit val formats = DefaultFormats // Some crap needed for stringify
+    private def stringify(obj:AnyRef):String = obj match {
       case s:String => "'"+s+"'"
       case _ => write(obj)
     }
 
-    protected def eventInvoke(scopeVar:String, method:String, event:String, obj:AnyRef):String =
-      scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+")});"
+    private def eventInvoke(scopeVar:String, method:String, event:String, obj:AnyRef):String =
+      scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});"
 
-    protected def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd =
+    private def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd =
       JsRaw(vars+eventInvoke(scopeVar, method, event, obj))
+
+    private def assignCmd(scopeVar:String, field:String, obj:AnyRef):JsCmd = {
+      val assignment = scopeVar+".$apply(function(){"+scopeVar+"."+field+"="+stringify(obj)+";});"
+      JsRaw(vars+assignment)
+    }
   }
 
   private class ChildScope extends Scope {
