@@ -30,6 +30,8 @@ angular.module("lift.pony")
 
 Both will create an angular module named `lift.pony` with a service named `ponyService` with a function named `getBestPony`, yet the former runs on the client-side, and the latter runs on the server-side.
 
+In addition to supporting client-side initiated service requests, **lift-ng** supports pushes from the server via [comet](#comet).
+
 ## Tutorial
 
 We recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the functionality of this plugin.  See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
@@ -292,7 +294,6 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* `AngularActor` support for setting scope variables
 * `onRender` method to allow sending Angular stuff when the page is loaded
 * Forward `Failure(err)` string to client on error (currently the client code always receives the string `'server error'`)
 * `AngularActor.scope.parent` support
@@ -304,6 +305,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.2.2*: Implemented `AngularActor.assign` for assigning scope variables.
 * *0.2.1*: Implemented `scope.broadcast` and `scope.emit` for `AngularActor`
 * *0.2.0*: Introduction of `AngularActor` featuring `rootScope.broadcast` and `rootScope.emit` as the first comet-backed features
 * *0.1.1*: First working release
