@@ -17,6 +17,11 @@ angular.module('SnipServices1', [])
       defer = $q.defer();
       defer.resolve('FromServer '+str);
       return defer.promise;
+    },
+    callFail: function() {
+      var defer = $q.defer();
+      defer.reject("FAIL");
+      return defer.promise;
     }
   };
 }]);

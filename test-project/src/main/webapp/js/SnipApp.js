@@ -29,6 +29,16 @@ angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
       }
     );
   };
+  $scope.clickButton1Fail = function() {
+    snipServices1.callFail().then(
+      function(str) {
+        $window.alert("Something broke, and we don't know why");
+      },
+      function(err) {
+        $scope.output1Fail = err
+      }
+    );
+  };
 }])
 .controller('Test2Controller', ['$scope', '$window', 'snipServices2', function($scope, $window, snipServices2) {
   $scope.output2a = "";

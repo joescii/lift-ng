@@ -231,7 +231,7 @@ object Angular extends DispatchSnippet {
           case Full(serializable: AnyRef) => Resolve(Some(JsRaw(write(serializable))))
           case Full(other) => Resolve(Some(JsRaw(other.toString)))
           case Empty => Reject()
-          case Failure(_, _, _) => Reject()
+          case Failure(msg, _, _) => Reject(msg)
         }
       }
     }

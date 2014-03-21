@@ -6,7 +6,7 @@ import scala.xml.NodeSeq
 import test.model.Test2Obj
 
 import net.liftweb._
-import common.{Loggable, Empty, Full}
+import net.liftweb.common.{Failure, Loggable, Empty, Full}
 import util._
 import http._
 import js._
@@ -26,6 +26,9 @@ object Snips extends Loggable {
   }).jsonCall("call2", (str:String) => {
       logger.info(s"call2($str) received on server.")
       Full(s"FromServer $str")
+  }).jsonCall("callFail", {
+      logger.info("callFail() received on server")
+      Failure("FromServerFail")
   })))
 
   def renderSingle(xhtml:NodeSeq) = renderIfNotAlreadyDefined(angular.module("SnipServices2")
