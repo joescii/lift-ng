@@ -11,6 +11,7 @@ import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
 import net.liftweb.json.Serialization.write
 import net.liftweb.json.{DefaultFormats, JsonParser}
+import net.liftweb.actor.LAFuture
 
 /**
  * Dynamically generates angular modules at page render time.
@@ -205,6 +206,10 @@ object Angular extends DispatchSnippet {
       registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
     }
 
+    def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
+      registerFunction(functionName, null)
+    }
+
     /**
      * Adds the ajax function factory and its dependencies to the factory.
      */
@@ -294,6 +299,8 @@ object Angular extends DispatchSnippet {
       jsonToPromise andThen promiseToJson
     }
   }
+
+  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]()
 
   trait AjaxFunctionGenerator {
 
