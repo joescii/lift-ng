@@ -26,6 +26,7 @@ class Boot {
     val entries = List(
       Menu.i("Home") / "index", // the simple way to declare a menu
       Menu.i("Snippets") / "snippets",
+      Menu.i("Futures") / "futures",
       Menu.i("Actors - Root Scope") / "actorsRootScope",
       Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Actors - Assignment") / "actorsAssignment",
