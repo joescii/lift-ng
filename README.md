@@ -52,7 +52,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.2.1" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.2.3" % "compile"
   )
 }
 ```
@@ -210,6 +210,29 @@ angular.module("lift.pony")
   )
 ```
 
+### Non-AJAX
+Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.  Typical examples of this are configuration settings, session values, etc.  To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
+
+```scala
+angular.module("StaticServices")
+  .factory("staticService", jsObjFactory()
+    .string("string", "FromServer1")
+    .anyVal("integer", 42)
+    .json("obj", StringInt("FromServer2", 88))
+
+  )
+```
+
+The above produces a simple service equivalent to the following JavaScript
+```javascript
+angular.module("StaticServices",["zen.lift.proxy"])
+  .factory("staticService", function(liftProxy) { return {
+    integer: function() {return "42"},
+    string:  function() {return "FromServer1"},
+    obj:     function() {return {str:"FromServer2",num:88}}}}
+  );
+```
+
 ### Comet 
 
 Now we can take a look at how to utilize Lift's comet support to asynchronously send angular updates from the server
@@ -302,7 +325,6 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* `onRender` method to allow sending Angular stuff when the page is loaded
 * `AngularActor.scope.parent` support
 * Optional handling for comet events received before Angular has initialized (see issue #1)
 * `Future[T]` return type
@@ -312,6 +334,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.2.3*: Implemented `string`, `anyVal`, and `json` on `JsonObjFactory` to allow providing values which are known at page load time and do not otherwise change.
 * *0.2.2*: Implemented `AngularActor.assign` for assigning scope variables. `Failure(msg)` message is sent to the client for `$q.reject`. Changed interpretation of `Empty` to mean `Resolve` rather than `Reject`.
 * *0.2.1*: Implemented `scope.broadcast` and `scope.emit` for `AngularActor`
 * *0.2.0*: Introduction of `AngularActor` featuring `rootScope.broadcast` and `rootScope.emit` as the first comet-backed features
