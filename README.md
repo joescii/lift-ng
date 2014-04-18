@@ -52,7 +52,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.2.1" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.2.3" % "compile"
   )
 }
 ```
@@ -305,13 +305,13 @@ Here are things we would like in this library.  It's not a road map, but should 
 * `onRender` method to allow sending Angular stuff when the page is loaded
 * `AngularActor.scope.parent` support
 * Optional handling for comet events received before Angular has initialized (see issue #1)
-* `Future[T]` return type
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * Injection of i18n/i10n angular js file.
 * Injection of ResourceBundle i18n translation.
 
 ## Change log
 
+* *0.2.3*: Implemented support for a factory to return an `LAFuture[Any]`
 * *0.2.2*: Implemented `AngularActor.assign` for assigning scope variables. `Failure(msg)` message is sent to the client for `$q.reject`. Changed interpretation of `Empty` to mean `Resolve` rather than `Reject`.
 * *0.2.1*: Implemented `scope.broadcast` and `scope.emit` for `AngularActor`
 * *0.2.0*: Introduction of `AngularActor` featuring `rootScope.broadcast` and `rootScope.emit` as the first comet-backed features
