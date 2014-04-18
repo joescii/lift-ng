@@ -227,10 +227,10 @@ The above produces a simple service equivalent to the following JavaScript
 ```javascript
 angular.module("StaticServices",["zen.lift.proxy"])
   .factory("staticService", function(liftProxy) { return {
-    integer: function() {return "42"},
     string:  function() {return "FromServer1"},
-    obj:     function() {return {str:"FromServer2",num:88}}}}
-  );
+    integer: function() {return "42"},
+    obj:     function() {return {str:"FromServer2",num:88}}
+  }});
 ```
 
 ### Comet 
