@@ -8,9 +8,11 @@ import net.liftweb.common._
 
 import scala.xml.NodeSeq
 
-object FutureSnips {
+object FutureSnips extends Loggable {
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("Futures").factory("futureServices", jsObjFactory().jsonCall("getFutureVal", (obj:Test2Obj) => {
+      import obj._
+      logger.info(s"call($obj) received on server.")
       Empty
     }))
   )
