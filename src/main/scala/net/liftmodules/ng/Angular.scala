@@ -178,6 +178,7 @@ object Angular extends DispatchSnippet {
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
      *
+     * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
@@ -189,6 +190,7 @@ object Angular extends DispatchSnippet {
      * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
      * \$q promise.
      *
+     * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
@@ -199,6 +201,7 @@ object Angular extends DispatchSnippet {
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
      *
+     * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
@@ -209,6 +212,36 @@ object Angular extends DispatchSnippet {
     def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
       registerFunction(functionName, null)
     }
+
+    /**
+     * Registers a no-arg javascript function in this service's javascript object that returns a String value.
+     * Use this to provide string values which are known at page load time and do not change.
+     *
+     * @param functionName name of the function to be made available on the service/factory
+     * @param value value to be returned on invocation of this function in the client.
+     */
+    def string(functionName: String, value:String): JsObjFactory =
+      registerFunction(functionName, ToStringFunctionGenerator(value))
+
+    /**
+     * Registers a no-arg javascript function in this service's javascript object that returns an AnyVal value.
+     * Use this to provide primitive values which are known at page load time and do not change.
+     *
+     * @param functionName name of the function to be made available on the service/factory
+     * @param value value to be returned on invocation of this function in the client.
+     */
+    def anyVal(functionName: String, value:AnyVal): JsObjFactory =
+      string(functionName, value.toString)
+
+    /**
+     * Registers a no-arg javascript function in this service's javascript object that returns a json object.
+     * Use this to provide objects which are known at page load time and do not change.
+     *
+     * @param functionName name of the function to be made available on the service/factory
+     * @param value value to be returned on invocation of this function in the client.
+     */
+    def json(functionName: String, value:AnyRef): JsObjFactory =
+      registerFunction(functionName, ToJsonFunctionGenerator(value))
 
     /**
      * Adds the ajax function factory and its dependencies to the factory.
@@ -301,6 +334,14 @@ object Angular extends DispatchSnippet {
   }
 
   protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]()
+
+  protected case class ToStringFunctionGenerator(s:String) extends LiftAjaxFunctionGenerator {
+    def toAnonFunc = AnonFunc(JsReturn(s))
+  }
+
+  protected case class ToJsonFunctionGenerator(obj:AnyRef) extends LiftAjaxFunctionGenerator {
+    def toAnonFunc = AnonFunc(JsReturn(JsRaw(write(obj))))
+  }
 
   trait AjaxFunctionGenerator {
 
