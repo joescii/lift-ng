@@ -15,9 +15,9 @@ import scala.xml.NodeSeq
 object FutureSnips extends Loggable {
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("Futures").factory("futureServices", jsObjFactory()
-    .future("noArg", () => {
+    .future("noArg", {
       println("Called!!")
-      new LAFuture[String]()
+      new LAFuture[Box[String]]()
     }))
 //    .jsonFuture("getFutureVal", (obj:Test2Obj) => {
 //      import obj._

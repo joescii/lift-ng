@@ -209,8 +209,8 @@ object Angular extends DispatchSnippet {
       registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
     }
 
-    def future[T <: Any](functionName: String, func: () => LAFuture[T]): JsObjFactory = {
-      registerFunction(functionName, FutureFunctionGenerator(func))
+    def future[T <: Any](functionName: String, func: => LAFuture[Box[T]]): JsObjFactory = {
+      registerFunction(functionName, FutureFunctionGenerator(() => promiseMapper.toFuturePromise(func)))
     }
 
     def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
@@ -275,6 +275,12 @@ object Angular extends DispatchSnippet {
           case Failure(msg, _, _) => Reject(msg)
         }
       }
+
+      def toFuturePromise[T <: Any](future: LAFuture[Box[T]]) = {
+        val fp = new LAFuture[Promise]
+        future.foreach(v => fp.satisfy(toPromise(v)))
+        fp
+      }
     }
 
   }
@@ -286,6 +292,7 @@ object Angular extends DispatchSnippet {
   trait PromiseMapper {
 
     def toPromise(box: Box[Any]): Promise
+    def toFuturePromise[T <: Any](future: LAFuture[Box[T]]): LAFuture[Promise]
   }
 
   /**
@@ -345,7 +352,7 @@ object Angular extends DispatchSnippet {
     }
   }
 
-  protected case class FutureFunctionGenerator[T](func: () => LAFuture[T]) extends LiftAjaxFunctionGenerator {
+  protected case class FutureFunctionGenerator(func: () => LAFuture[Promise]) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
 
     // TODO: Get the ID!
