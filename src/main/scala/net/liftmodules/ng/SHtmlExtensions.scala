@@ -21,7 +21,7 @@ object SHtmlExtensions extends SHtml {
     jsonFunc: String => JsObj
     ): JsExp = {
     val jsonResponseFunc: (String) => LiftResponse = jsonFunc.andThen(toJsonResponse)
-    fmapFunc(contextFuncBuilder(jsonResponseFunc))(name => JsRaw("'" + name + "=' + encodeURIComponent(" + jsCalcValue.toJsCmd + ")"))
+    fmapFunc(contextFuncBuilder(jsonResponseFunc))(name => JsRaw("{name:'" + name + "',data:" + jsCalcValue.toJsCmd + "}"))
   }
 
   /**

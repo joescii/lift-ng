@@ -312,7 +312,15 @@ object Angular extends DispatchSnippet {
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
 
-    private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), stringToPromise.andThen(promiseToJson))
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
+
+    private def jsonFunc: String => JsObj = {
+      val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
+        case Some(RequestString(id, data)) => stringToPromise(data)
+        case None => Reject("invalid json")
+      }
+      jsonToPromise andThen promiseToJson
+    }
   }
 
   protected case class AjaxJsonToJsonFunctionGenerator[Model <: NgModel : Manifest](modelToPromise: Model => Promise)
@@ -322,10 +330,10 @@ object Angular extends DispatchSnippet {
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
 
-    private def liftPostData: JsExp = SHtmlExtensions.ajaxJsonPost(Stringify(JsVar(ParamName)), jsonFunc)
+    private def liftPostData: JsExp = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
     private def jsonFunc: String => JsObj = {
-      val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[Model] match {
+      val jsonToPromise = (json: String) => JsonParser.parse(json).\\("data").extractOpt[Model] match {
         case Some(model) => modelToPromise(model)
         case None => Reject("invalid json")
       }
@@ -333,7 +341,10 @@ object Angular extends DispatchSnippet {
     }
   }
 
-  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]()
+//  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
+//    extends LiftAjaxFunctionGenerator {
+//
+//  }
 
   protected case class ToStringFunctionGenerator(s:String) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(s))
@@ -374,4 +385,6 @@ object Angular extends DispatchSnippet {
    */
   trait NgModel
 
+  case class RequestData[Model <: NgModel : Manifest](id:String, data:Model)
+  case class RequestString(id:String, data:String)
 }
