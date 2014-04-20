@@ -28,9 +28,9 @@ object SHtmlExtensions extends SHtml {
    * Registers a server-side function that takes no arguments and returns a json object string. The function may be
    * invoked POST'ing the returned String as form data to ('/ajax_request/' + lift_page + '/').
    */
-  def ajaxJsonPost(jsonFunc: () => JsObj): String = {
+  def ajaxJsonPost(jsonFunc: () => JsObj): JsExp = {
     val jsonResponseFunc = () => toJsonResponse(jsonFunc())
-    fmapFunc(contextFuncBuilder(NFuncHolder(jsonResponseFunc)))(_ + "=true")
+    fmapFunc(contextFuncBuilder(jsonResponseFunc))(name => JsRaw("{name:'"+name+"'}"))
   }
 
   private val toJsonResponse = (jsonObjFunc: JsObj) => JsonResponse.apply(jsonObjFunc)
