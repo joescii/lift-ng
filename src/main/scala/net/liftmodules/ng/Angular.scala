@@ -209,6 +209,10 @@ object Angular extends DispatchSnippet {
       registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
     }
 
+    def future[T <: Any](functionName: String, func: () => LAFuture[T]): JsObjFactory = {
+      registerFunction(functionName, FutureFunctionGenerator)
+    }
+
     def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
       registerFunction(functionName, null)
     }
@@ -339,6 +343,10 @@ object Angular extends DispatchSnippet {
       }
       jsonToPromise andThen promiseToJson
     }
+  }
+
+  protected case object FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
+    def toAnonFunc = AnonFunc(JsReturn(JsObj("future" -> JsTrue)))
   }
 
 //  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
