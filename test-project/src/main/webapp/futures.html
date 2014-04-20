@@ -12,13 +12,17 @@
 
       <h2>Future tests</h2>
       <div ng-app="FutureApp">
-        <div ng-controller="TestController">
-          <input id="inputA" type="text" ng-model="inputA"/>
-          <span id="outputA" ng-bind="outputA">OutputA</span>
-          <input id="inputB" type="text" ng-model="inputB"/>
-          <span id="outputB" ng-bind="outputB">OutputB</span>
-          <input id="button" type="button" value="Test" ng-click="clickButton()"/>
+        <div ng-controller="NoArgController">
+          <input id="no-arg-button" type="button" value="No Arg" ng-click="click()"/>
+          <span id="no-arg-output" ng-bind="output">Hard-coded</span>
         </div>
+        <!--<div ng-controller="TestController">-->
+          <!--<input id="inputA" type="text" ng-model="inputA"/>-->
+          <!--<span id="outputA" ng-bind="outputA">OutputA</span>-->
+          <!--<input id="inputB" type="text" ng-model="inputB"/>-->
+          <!--<span id="outputB" ng-bind="outputB">OutputB</span>-->
+          <!--<input id="button" type="button" value="Test" ng-click="clickButton()"/>-->
+        <!--</div>-->
       </div>
     </div>
   </body>

@@ -1,4 +1,13 @@
 angular.module('FutureApp', ['Futures'])
+.controller('NoArgController', ['$scope', 'futureServices', function($scope, svc) {
+  $scope.output = "";
+
+  $scope.click = function() {
+    svc.noArg().then(function(str){
+      $scope.output = str;
+    });
+  };
+}])
 .controller('TestController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.outputA = "";
   $scope.outputB = "";

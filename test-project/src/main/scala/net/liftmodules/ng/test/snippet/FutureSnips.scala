@@ -14,12 +14,16 @@ import scala.xml.NodeSeq
 
 object FutureSnips extends Loggable {
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
-    angular.module("Futures").factory("futureServices", jsObjFactory().jsonFuture("getFutureVal", (obj:Test2Obj) => {
-      import obj._
-      logger.info(s"getFutureVal($obj) received on server.")
-      val f = new LAFuture[Test2Obj]()
-      Schedule.schedule(() => {f.satisfy(Test2Obj(s"FromFuture $str1", s"FromFuture $str2"))}, 1 second)
-      f
-    }))
+    angular.module("Futures").factory("futureServices", jsObjFactory()
+    .future("noArg", () =>
+      new LAFuture[String]()
+    ))
+//    .jsonFuture("getFutureVal", (obj:Test2Obj) => {
+//      import obj._
+//      logger.info(s"getFutureVal($obj) received on server.")
+//      val f = new LAFuture[Test2Obj]()
+//      Schedule.schedule(() => {f.satisfy(Test2Obj(s"FromFuture $str1", s"FromFuture $str2"))}, 1 second)
+//      f
+//    }))
   )
 }
