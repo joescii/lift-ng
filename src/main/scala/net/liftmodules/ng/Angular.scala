@@ -12,6 +12,7 @@ import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
 import net.liftweb.json.Serialization.write
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import net.liftweb.actor.LAFuture
+import net.liftweb.json.JsonAST.JString
 
 /**
  * Dynamically generates angular modules at page render time.
@@ -313,7 +314,7 @@ object Angular extends DispatchSnippet {
 
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
 
-    private def liftPostData = SHtmlExtensions.ajaxJsonPost(() => {promiseToJson(jsFunc())})
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost((id) => promiseToJson(jsFunc()))
   }
 
   protected case class AjaxStringToJsonFunctionGenerator(stringToPromise: (String) => Promise)
@@ -355,11 +356,35 @@ object Angular extends DispatchSnippet {
   protected case class FutureFunctionGenerator(func: () => LAFuture[Promise]) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
 
-    // TODO: Get the ID!
-    private def liftPostData = SHtmlExtensions.ajaxJsonPost(() => {
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc)
+
+    private def jsonFunc: String => JsObj = {
+
+      val jsonToFuture:(String) => LAFuture[Promise] = json => JsonParser.parse(json) \\ "id" match {
+        case JString(id) => callFuture(id)
+        case _ => reject
+      }
+
+      val futureToJsObj = (f:LAFuture[Promise]) =>
+        if(f.isSatisfied)
+          promiseToJson(f.get)
+        else
+          JsObj("future" -> JsTrue)
+
+      jsonToFuture andThen futureToJsObj
+    }
+
+    private def callFuture(id:String) = {
       val f = func()
-      JsObj("future" -> JsTrue)
-    })
+      println("Received call "+id)
+      f
+    }
+
+    private val reject = {
+      val f = new LAFuture[Promise]
+      f.satisfy(Reject("invalid json"))
+      f
+    }
   }
 
 //  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
