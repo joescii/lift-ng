@@ -210,7 +210,7 @@ object Angular extends DispatchSnippet {
     }
 
     def future[T <: Any](functionName: String, func: () => LAFuture[T]): JsObjFactory = {
-      registerFunction(functionName, FutureFunctionGenerator)
+      registerFunction(functionName, FutureFunctionGenerator(func))
     }
 
     def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
@@ -345,8 +345,14 @@ object Angular extends DispatchSnippet {
     }
   }
 
-  protected case object FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
-    def toAnonFunc = AnonFunc(JsReturn(JsObj("future" -> JsTrue)))
+  protected case class FutureFunctionGenerator[T](func: () => LAFuture[T]) extends LiftAjaxFunctionGenerator {
+    def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
+
+    // TODO: Get the ID!
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost(() => {
+      val f = func()
+      JsObj("future" -> JsTrue)
+    })
   }
 
 //  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
