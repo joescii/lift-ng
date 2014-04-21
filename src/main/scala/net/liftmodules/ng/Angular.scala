@@ -178,6 +178,17 @@ object Angular extends DispatchSnippet {
     private val promiseMapper = DefaultApiSuccessMapper
 
     /**
+     * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
+     *
+     * @param functionName name of the function to be made available on the service/factory
+     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+     *             failures will be mapped to promise.reject(). See promiseMapper.
+     */
+    def jsonCall(functionName: String, func: => Box[AnyRef]): JsObjFactory = {
+      registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
+    }
+
+    /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
      *
      * @param functionName name of the function to be made available on the service/factory
@@ -207,18 +218,29 @@ object Angular extends DispatchSnippet {
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def jsonCall(functionName: String, func: => Box[AnyRef]): JsObjFactory = {
-      registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
-    }
-
     def future[T <: Any](functionName: String, func: => LAFuture[Box[T]]): JsObjFactory = {
       registerFunction(functionName, NoArgFutureFunctionGenerator(() => func))
     }
 
+    /**
+     * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
+     *
+     * @param functionName name of the function to be made available on the service/factory
+     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+     *             failures will be mapped to promise.reject(). See promiseMapper.
+     */
     def future[T <: Any](functionName: String, func: String => LAFuture[Box[T]]): JsObjFactory = {
       registerFunction(functionName, StringFutureFunctionGenerator(func))
     }
 
+    /**
+     * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
+     * \$q promise.
+     *
+     * @param functionName name of the function to be made available on the service/factory
+     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+     *             failures will be mapped to promise.reject(). See promiseMapper.
+     */
     def future[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[Box[T]]): JsObjFactory = {
       registerFunction(functionName, JsonFutureFunctionGenerator(func))
     }
