@@ -16,6 +16,20 @@ class FuturesSpec extends BaseSpec {
     eventually{id("failure-output").element.text should be ("FailureTest")}
   }
 
+  "The futures page" should "reload" in {
+    go to s"$index/futures"
+    eventually { pageTitle should be ("App: Futures") }
+  }
+
+  "The angular services" should "correctly load concurrently" in {
+    click on "no-arg-button"
+    click on "failure-button"
+    eventually{
+      id("no-arg-output").element.text should be ("FromFuture")
+      id("failure-output").element.text should be ("FailureTest")
+    }
+  }
+
   "The angular service with a JSON argument" should "send both text box strings to the server and eventually populate the test " +
     "text boxes with 'FromFuture client1' and 'FromFuture client2'" ignore {
     textField("inputA").value = "client1"
