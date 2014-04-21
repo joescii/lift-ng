@@ -212,7 +212,7 @@ object Angular extends DispatchSnippet {
     }
 
     def future[T <: Any](functionName: String, func: => LAFuture[Box[T]]): JsObjFactory = {
-      registerFunction(functionName, FutureFunctionGenerator(() => promiseMapper.toFuturePromise(func)))
+      registerFunction(functionName, FutureFunctionGenerator(() => func))
     }
 
     def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
@@ -263,28 +263,22 @@ object Angular extends DispatchSnippet {
       AnonFunc(serviceDependencies.mkString(","), JsReturn(JsObj(functions.mapValues(_.toAnonFunc).toSeq: _*)))
     }
 
-    /**
-     * Maps an api result to a Promise object that will be used to fulfill the javascript promise object.
-     */
-    object DefaultApiSuccessMapper extends PromiseMapper {
+  }
 
-      def toPromise(box: Box[Any]): Promise = {
-        box match {
-          case Full(jsExp: JsExp) => Resolve(Some(jsExp)) // prefer using a case class instead
-          case Full(serializable: AnyRef) => Resolve(Some(JsRaw(write(serializable))))
-          case Full(other) => Resolve(Some(JsRaw(other.toString)))
-          case Full(Unit) | Empty => Resolve()
-          case Failure(msg, _, _) => Reject(msg)
-        }
-      }
+  /**
+   * Maps an api result to a Promise object that will be used to fulfill the javascript promise object.
+   */
+  object DefaultApiSuccessMapper extends PromiseMapper {
 
-      def toFuturePromise[T <: Any](future: LAFuture[Box[T]]) = {
-        val fp = new LAFuture[Promise]
-        future.foreach(v => fp.satisfy(toPromise(v)))
-        fp
+    def toPromise(box: Box[Any]): Promise = {
+      box match {
+        case Full(jsExp: JsExp) => Resolve(Some(jsExp)) // prefer using a case class instead
+        case Full(serializable: AnyRef) => Resolve(Some(JsRaw(write(serializable))))
+        case Full(other) => Resolve(Some(JsRaw(other.toString)))
+        case Full(Unit) | Empty => Resolve()
+        case Failure(msg, _, _) => Reject(msg)
       }
     }
-
   }
 
   /**
@@ -294,7 +288,6 @@ object Angular extends DispatchSnippet {
   trait PromiseMapper {
 
     def toPromise(box: Box[Any]): Promise
-    def toFuturePromise[T <: Any](future: LAFuture[Box[T]]): LAFuture[Promise]
   }
 
   /**
@@ -354,21 +347,21 @@ object Angular extends DispatchSnippet {
     }
   }
 
-  protected case class FutureFunctionGenerator(func: () => LAFuture[Promise]) extends LiftAjaxFunctionGenerator {
+  protected case class FutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]]) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc)
 
     private def jsonFunc: String => JsObj = {
 
-      val jsonToFuture:(String) => LAFuture[Promise] = json => JsonParser.parse(json) \\ "id" match {
+      val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json) \\ "id" match {
         case JString(id) => callFuture(id)
         case _ => reject
       }
 
-      val futureToJsObj = (f:LAFuture[Promise]) =>
+      val futureToJsObj = (f:LAFuture[Box[T]]) =>
         if(f.isSatisfied)
-          promiseToJson(f.get)
+          promiseToJson(DefaultApiSuccessMapper.toPromise(f.get))
         else
           JsObj("future" -> JsTrue)
 
@@ -377,19 +370,17 @@ object Angular extends DispatchSnippet {
 
     private def callFuture(id:String) = {
       val f = func()
-      println("Received call "+id)
       S.session map { s =>
-        f.foreach{ p =>
-          println("Future resolved to" + p)
-          s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, p))
+        f.foreach{ box =>
+          s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box))
         }
       }
       f
     }
 
     private val reject = {
-      val f = new LAFuture[Promise]
-      f.satisfy(Reject("invalid json"))
+      val f = new LAFuture[Box[T]]
+      f.satisfy(Failure("invalid json"))
       f
     }
   }

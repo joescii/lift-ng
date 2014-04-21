@@ -26,8 +26,10 @@ angular
       var id = random();
       var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
 
-      $rootScope.$on('lift-ng-future', function(e, response){
-        console.log('Response! '+response);
+      var cleanup = $rootScope.$on('lift-ng-future', function(e, response){
+        console.log('Response!');
+        console.log(response);
+        cleanup();
       });
 
       return $http.post('/ajax_request/' + lift_page + '/', req, {
