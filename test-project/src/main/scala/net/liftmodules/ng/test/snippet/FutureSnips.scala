@@ -16,7 +16,6 @@ object FutureSnips extends Loggable {
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("Futures").factory("futureServices", jsObjFactory()
       .future("noArg", {
-        println("Called!!")
         val f = new LAFuture[Box[String]]()
         Schedule.schedule(() => f.satisfy(Full("FromFuture")), 1 second)
         f
@@ -24,6 +23,11 @@ object FutureSnips extends Loggable {
       .future("failure", {
         val f = new LAFuture[Box[String]]()
         Schedule.schedule(() => f.satisfy(Failure("FailureTest")), 1 second)
+        f
+      })
+      .future("stringArg", (arg:String) => {
+        val f = new LAFuture[Box[String]]()
+        Schedule.schedule(() => f.satisfy(Full("FromFuture: "+arg)), 1 second)
         f
       })
       //    .jsonFuture("getFutureVal", (obj:Test2Obj) => {
