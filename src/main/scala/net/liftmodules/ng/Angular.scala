@@ -351,17 +351,8 @@ object Angular extends DispatchSnippet {
     }
   }
 
-  protected case class NoArgFutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]]) extends LiftAjaxFunctionGenerator {
-    def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
-
-    private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc)
-
-    private def jsonFunc: String => JsObj = {
-
-      val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json) \\ "id" match {
-        case JString(id) => callFuture(id)
-        case _ => reject
-      }
+  protected abstract class FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
+    protected def jsonFunc[T <: Any](jsonToFuture: (String) => LAFuture[Box[T]]): String => JsObj = {
 
       val futureToJsObj = (f:LAFuture[Box[T]]) =>
         if(f.isSatisfied)
@@ -372,8 +363,7 @@ object Angular extends DispatchSnippet {
       jsonToFuture andThen futureToJsObj
     }
 
-    private def callFuture(id:String) = {
-      val f = func()
+    protected def callFuture[T <: Any](f: LAFuture[Box[T]], id:String) = {
       S.session map { s =>
         f.foreach{ box =>
           s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box))
@@ -382,15 +372,35 @@ object Angular extends DispatchSnippet {
       f
     }
 
-    private val reject = {
+    protected def reject[T <: Any] = {
       val f = new LAFuture[Box[T]]
       f.satisfy(Failure("invalid json"))
       f
     }
   }
 
-  protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]]) extends LiftAjaxFunctionGenerator {
-    def toAnonFunc = null
+  protected case class NoArgFutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]]) extends FutureFunctionGenerator {
+    def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
+
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
+
+    val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json) \\ "id" match {
+      case JString(id) => callFuture(func(), id)
+      case _ => reject[T]
+    }
+  }
+
+  protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]]) extends FutureFunctionGenerator {
+    private val ParamName = "str"
+
+    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
+
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
+
+    val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json).extractOpt[RequestString] match {
+      case Some(RequestString(id, data)) => callFuture(func(data), id)
+      case _ => reject[T]
+    }
   }
 
   //  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
