@@ -210,6 +210,47 @@ angular.module("lift.pony")
   )
 ```
 
+#### Futures
+All of the examples thus far have assumed the value can be calculated quickly without expensive blocking or asynchronous calls.  Since it is quite common to perform expensive operations or call APIs which return a `Future[T]`, it is important that **lift-ng** likewise supports returning an `LAFuture`.
+
+The same signatures for `jsonCall` are supported for futures:
+
+```scala
+angular.module("lift.pony")
+  .factory("ponyService", jsObjFactory()
+    .future("getBestPony", {
+      // Create the future
+      val f = new LAFuture[Box[Pony]]()
+      // Do something to get the result
+      futurePonyGetter(f)
+      // Return the future that will contain a Pony
+      f
+    })
+
+    .future("getPonyByName", (name:String) => {
+      // Return a future containing the matching pony
+      futurePonyGetter(name)
+
+    .future("setBestPony", (pony:Pony) => {
+      // Nothing to return
+      val f = new LAFuture[Box[Pony]]()
+      f.satisfy(Empty)
+      f
+    })
+  )
+```
+
+Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, you must also include the `LiftNgFutureActor`:
+
+```html
+<div ng-app="ExampleApp">
+  <div data-lift="comet?type=LiftNgFutureActor"></div>
+  <!-- other stuff -->
+</div>
+```
+
+This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service via `$rootScope`.  For future versions of **lift-ng**, we plan to investigate how to remove this requirement.
+
 ### Non-AJAX
 Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.  Typical examples of this are configuration settings, session values, etc.  To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
 
@@ -330,10 +371,12 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * Injection of i18n/i10n angular js file.
 * Injection of ResourceBundle i18n translation.
+* Remove need for manually including `LiftNgFutureActor` to gain `LAFuture` support.
+* Remove need to include both `liftproxy.js` and the `Angular` snippet.
 
 ## Change log
 
-* *0.3.0*: Implemented support for a factory/service to return an `LAFuture[Any]`
+* *0.3.0*: Implemented support for a factory/service to return an `LAFuture[Box[T]]`
 * *0.2.3*: Implemented `string`, `anyVal`, and `json` on `JsonObjFactory` to allow providing values which are known at page load time and do not otherwise change.
 * *0.2.2*: Implemented `AngularActor.assign` for assigning scope variables. `Failure(msg)` message is sent to the client for `$q.reject`. Changed interpretation of `Empty` to mean `Resolve` rather than `Reject`.
 * *0.2.1*: Implemented `scope.broadcast` and `scope.emit` for `AngularActor`
