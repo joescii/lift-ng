@@ -21,6 +21,11 @@
           <input id="failure-button" type="button" value="Failure" ng-click="click()"/>
           <span id="failure-output" ng-bind="output">Hard-coded</span>
         </div>
+        <div ng-controller="StringArgController">
+          <input id="string-input" type="text" ng-bind="input"/>
+          <input id="string-button" type="button" value="String Arg" ng-click="click()"/>
+          <span id="string-output" ng-bind="output">Hard-coded</span>
+        </div>
         <!--<div ng-controller="TestController">-->
           <!--<input id="inputA" type="text" ng-model="inputA"/>-->
           <!--<span id="outputA" ng-bind="outputA">OutputA</span>-->

@@ -16,6 +16,12 @@ class FuturesSpec extends BaseSpec {
     eventually{id("failure-output").element.text should be ("FailureTest")}
   }
 
+  "The angular service with a string arg" should "send 'FromFuture: arg' up to the client" in {
+    textField("string-input").value = "arg"
+    click on "string-button"
+    eventually(id("string-output").element.text should be ("FromFuture: arg"))
+  }
+
   "The futures page" should "reload" in {
     go to s"$index/futures"
     eventually { pageTitle should be ("App: Futures") }

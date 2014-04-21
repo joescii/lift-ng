@@ -22,6 +22,15 @@ angular.module('FutureApp', ['Futures'])
     );
   };
 }])
+.controller('StringArgController', ['$scope', 'futureServices', function($scope, svc) {
+  $scope.output = "";
+
+  $scope.click = function() {
+    svc.stringArg($scope.input).then(function (str) {
+      $scope.output = str;
+    });
+  };
+}])
 .controller('TestController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.outputA = "";
   $scope.outputB = "";
