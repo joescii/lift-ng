@@ -212,12 +212,16 @@ object Angular extends DispatchSnippet {
     }
 
     def future[T <: Any](functionName: String, func: => LAFuture[Box[T]]): JsObjFactory = {
-      registerFunction(functionName, FutureFunctionGenerator(() => func))
+      registerFunction(functionName, NoArgFutureFunctionGenerator(() => func))
     }
 
-    def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
-      registerFunction(functionName, null)
+    def future[T <: Any](functionName: String, func: String => LAFuture[Box[T]]): JsObjFactory = {
+      registerFunction(functionName, StringFutureFunctionGenerator(func))
     }
+
+//    def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
+//      registerFunction(functionName, null)
+//    }
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a String value.
@@ -347,7 +351,7 @@ object Angular extends DispatchSnippet {
     }
   }
 
-  protected case class FutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]]) extends LiftAjaxFunctionGenerator {
+  protected case class NoArgFutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]]) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc)
@@ -385,7 +389,11 @@ object Angular extends DispatchSnippet {
     }
   }
 
-//  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
+  protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]]) extends LiftAjaxFunctionGenerator {
+    def toAnonFunc = null
+  }
+
+  //  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
 //    extends LiftAjaxFunctionGenerator {
 //
 //  }
