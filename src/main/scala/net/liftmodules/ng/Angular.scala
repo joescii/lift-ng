@@ -219,9 +219,9 @@ object Angular extends DispatchSnippet {
       registerFunction(functionName, StringFutureFunctionGenerator(func))
     }
 
-//    def jsonFuture[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[T]): JsObjFactory = {
-//      registerFunction(functionName, null)
-//    }
+    def future[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[Box[T]]): JsObjFactory = {
+      registerFunction(functionName, JsonFutureFunctionGenerator(func))
+    }
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a String value.
@@ -403,10 +403,32 @@ object Angular extends DispatchSnippet {
     }
   }
 
-  //  protected case class AjaxFutureJsonToJsonFunctionGenerator[Model <: NgModel : Manifest]
-//    extends LiftAjaxFunctionGenerator {
-//
-//  }
+  protected case class JsonFutureFunctionGenerator[Model <: NgModel : Manifest, T <: Any](func: Model => LAFuture[Box[T]]) extends FutureFunctionGenerator {
+    private val ParamName = "json"
+
+    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
+
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
+
+    val jsonToFuture:(String) => LAFuture[Box[T]] = json => {
+      val parsed = JsonParser.parse(json)
+
+      val idOpt = parsed \\ "id" match {
+        case JString(id) => Some(id)
+        case _ => None
+      }
+      val dataOpt = (parsed \\ "data").extractOpt[Model]
+
+      val fOpt = for {
+        id <- idOpt
+        data <- dataOpt
+      } yield {
+        callFuture(func(data), id)
+      }
+
+      fOpt.openOr(reject[T])
+    }
+  }
 
   protected case class ToStringFunctionGenerator(s:String) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(s))

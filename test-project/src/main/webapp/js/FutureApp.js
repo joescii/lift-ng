@@ -31,12 +31,16 @@ angular.module('FutureApp', ['Futures'])
     });
   };
 }])
-.controller('TestController', ['$scope', 'futureServices', function($scope, svc) {
+.controller('JsonTestController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.outputA = "";
   $scope.outputB = "";
 
-  $scope.clickButton = function() {
-    svc.getFutureVal({
+  $scope.click = function() {
+    console.log({
+      str1: $scope.inputA,
+      str2: $scope.inputB
+    });
+    svc.jsonArg({
       str1: $scope.inputA,
       str2: $scope.inputB
     }).then(

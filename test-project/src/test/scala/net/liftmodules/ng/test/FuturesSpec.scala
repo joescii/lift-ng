@@ -22,6 +22,18 @@ class FuturesSpec extends BaseSpec {
     eventually(id("string-output").element.text should be ("FromFuture: arg"))
   }
 
+  "The angular service with a JSON argument" should "send both text box strings to the server and eventually populate the test " +
+    "text boxes with 'FromFuture argA' and 'FromFuture argB'" in {
+    textField("json-input-a").value = "argA"
+    textField("json-input-b").value = "argB"
+    click on "json-button"
+    eventually {
+      id("json-output-a").element.text should be ("FromFuture argA")
+      id("json-output-b").element.text should be ("FromFuture argB")
+    }
+  }
+
+
   "The futures page" should "reload" in {
     go to s"$index/futures"
     eventually { pageTitle should be ("App: Futures") }
@@ -30,20 +42,17 @@ class FuturesSpec extends BaseSpec {
   "The angular services" should "correctly load concurrently" in {
     click on "no-arg-button"
     click on "failure-button"
+    textField("string-input").value = "arg"
+    click on "string-button"
+    textField("json-input-a").value = "argA"
+    textField("json-input-b").value = "argB"
+    click on "json-button"
     eventually{
       id("no-arg-output").element.text should be ("FromFuture")
       id("failure-output").element.text should be ("FailureTest")
-    }
-  }
-
-  "The angular service with a JSON argument" should "send both text box strings to the server and eventually populate the test " +
-    "text boxes with 'FromFuture client1' and 'FromFuture client2'" ignore {
-    textField("inputA").value = "client1"
-    textField("inputB").value = "client2"
-    click on "button"
-    eventually {
-      id("outputA").element.text should be ("FromFuture client1")
-      id("outputB").element.text should be ("FromFuture client2")
+      id("string-output").element.text should be ("FromFuture: arg")
+      id("json-output-a").element.text should be ("FromFuture argA")
+      id("json-output-b").element.text should be ("FromFuture argB")
     }
   }
 
