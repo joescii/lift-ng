@@ -12,32 +12,32 @@ angular
         return text;
       };
 
+      var q = $q.defer();
       var id = random();
       var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
+      var cleanup = $rootScope.$on('lift-ng-future', function(e, response){
+        console.log('Response!');
+        console.log(response);
+        responseToQ(response);
+      });
+
+      var responseToQ = function(data) {
+        if (data.success) {
+          if (data.data) {
+            q.resolve(data.data);
+          }
+          else {
+            q.resolve();
+          }
+        } else {
+          q.reject(data.msg)
+        }
+        cleanup();
+      };
 
       var returnQ = function(response) {
-        var q = $q.defer();
-        var data = response.data, returnData;
-        var responseToQ = function(data) {
-          if (data.success) {
-            if (data.data) {
-              q.resolve(data.data);
-            }
-            else {
-              q.resolve();
-            }
-          } else {
-            q.reject(data.msg)
-          }
-        };
-        if(data.future) {
-          var cleanup = $rootScope.$on('lift-ng-future', function(e, response){
-            console.log('Response!');
-            console.log(response);
-            responseToQ(response);
-            cleanup();
-          });
-        } else {
+        var data = response.data;
+        if(!data.future) {
           responseToQ(data)
         }
         return q.promise;
