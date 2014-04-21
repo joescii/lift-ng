@@ -36,10 +36,6 @@ angular.module('FutureApp', ['Futures'])
   $scope.outputB = "";
 
   $scope.click = function() {
-    console.log({
-      str1: $scope.inputA,
-      str2: $scope.inputB
-    });
     svc.jsonArg({
       str1: $scope.inputA,
       str2: $scope.inputB
@@ -57,4 +53,14 @@ angular.module('FutureApp', ['Futures'])
       }
     );
   };
-}]);
+}])
+.controller('EmptyResponseController', ['$scope', 'futureServices', function($scope, svc) {
+  $scope.output = "";
+
+  $scope.click = function () {
+    svc.empty().then(function() {
+      $scope.output = "returned";
+    });
+  };
+}])
+;

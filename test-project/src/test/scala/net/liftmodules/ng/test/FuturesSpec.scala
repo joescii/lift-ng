@@ -33,6 +33,11 @@ class FuturesSpec extends BaseSpec {
     }
   }
 
+  "The angular service which returns an Empty" should "resolve its promise after roughly 1 second" in {
+    click on "empty-button"
+    eventually(id("empty-output").element.text should be ("returned"))
+  }
+
 
   "The futures page" should "reload" in {
     go to s"$index/futures"
@@ -47,12 +52,14 @@ class FuturesSpec extends BaseSpec {
     textField("json-input-a").value = "argA"
     textField("json-input-b").value = "argB"
     click on "json-button"
+    click on "empty-button"
     eventually{
       id("no-arg-output").element.text should be ("FromFuture")
       id("failure-output").element.text should be ("FailureTest")
       id("string-output").element.text should be ("FromFuture: arg")
       id("json-output-a").element.text should be ("FromFuture argA")
       id("json-output-b").element.text should be ("FromFuture argB")
+      id("empty-output").element.text should be ("returned")
     }
   }
 

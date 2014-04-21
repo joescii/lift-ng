@@ -33,6 +33,10 @@
           <span id="json-output-b" ng-bind="outputB">OutputB</span>
           <input id="json-button" type="button" value="Test" ng-click="click()"/>
         </div>
+        <div ng-controller="EmptyResponseController">
+          <input id="empty-button" type="button" value="Empty" ng-click="click()"/>
+          <span id="empty-output" ng-bind="output">Hard-coded</span>
+        </div>
       </div>
     </div>
   </body>

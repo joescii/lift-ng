@@ -32,9 +32,13 @@ object FutureSnips extends Loggable {
       })
       .future("jsonArg", (obj:Test2Obj) => {
         import obj._
-        logger.info(s"getFutureVal($obj) received on server.")
         val f = new LAFuture[Box[Test2Obj]]()
-        Schedule.schedule(() => {f.satisfy(Full(Test2Obj(s"FromFuture $str1", s"FromFuture $str2")))}, 1 second)
+        Schedule.schedule(() => f.satisfy(Full(Test2Obj(s"FromFuture $str1", s"FromFuture $str2"))), 1 second)
+        f
+      })
+      .future("empty", {
+        val f = new LAFuture[Box[String]]
+        Schedule.schedule(() => f.satisfy(Empty), 1 second)
         f
       })
     )
