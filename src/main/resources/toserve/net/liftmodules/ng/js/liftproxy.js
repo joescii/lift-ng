@@ -1,6 +1,6 @@
 angular
   .module('zen.lift.proxy', [])
-  .factory('liftProxy', ['$http', '$q', function ($http, $q) {
+  .factory('liftProxy', ['$http', '$q', '$rootScope', function ($http, $q, $rootScope) {
     return function (requestData) {
       var onSuccess = function (response) {
         var data = response.data, returnData;
@@ -22,10 +22,14 @@ angular
 
         return text;
       };
+
       var id = random();
       var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
-      console.log(requestData);
-      console.log(req);
+
+      $rootScope.$on('lift-ng-future', function(e, response){
+        console.log('Response! '+response);
+      });
+
       return $http.post('/ajax_request/' + lift_page + '/', req, {
         headers : {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'

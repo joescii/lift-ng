@@ -5,7 +5,7 @@ import scala.xml.NodeSeq
 
 import net.liftweb.http.RequestVar
 import net.liftweb.common.{Failure, Full, Empty, Box}
-import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer }
+import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer, S }
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
@@ -36,6 +36,7 @@ object Angular extends DispatchSnippet {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
     }
+    LiftRules.addToPackages("net.liftmodules.ng")
 
     // Force loading
     liftproxyjs
@@ -377,6 +378,12 @@ object Angular extends DispatchSnippet {
     private def callFuture(id:String) = {
       val f = func()
       println("Received call "+id)
+      S.session map { s =>
+        f.foreach{ p =>
+          println("Future resolved to" + p)
+          s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, p))
+        }
+      }
       f
     }
 
@@ -433,4 +440,5 @@ object Angular extends DispatchSnippet {
 
   case class RequestData[Model <: NgModel : Manifest](id:String, data:Model)
   case class RequestString(id:String, data:String)
+  case class ReturnData(id:String, data:Any)
 }

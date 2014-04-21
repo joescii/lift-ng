@@ -17,7 +17,9 @@ object FutureSnips extends Loggable {
     angular.module("Futures").factory("futureServices", jsObjFactory()
     .future("noArg", {
       println("Called!!")
-      new LAFuture[Box[String]]()
+      val f = new LAFuture[Box[String]]()
+      Schedule.schedule(() => f.satisfy(Full("Server!")), 1 second)
+      f
     }))
 //    .jsonFuture("getFutureVal", (obj:Test2Obj) => {
 //      import obj._
