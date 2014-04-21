@@ -13,5 +13,5 @@ class LiftNgFutureActor extends AngularActor {
 
   sealed trait Promise{def success:Boolean}
   case class Resolve(data:Any, success:Boolean = true) extends Promise
-  case class Reject(reason:String, success:Boolean = false) extends Promise
+  case class Reject(msg:String, success:Boolean = false) extends Promise
 }

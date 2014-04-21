@@ -8,6 +8,20 @@ angular.module('FutureApp', ['Futures'])
     });
   };
 }])
+.controller('FailureController', ['$scope', '$window', 'futureServices', function($scope, $window, svc) {
+  $scope.output = "";
+
+  $scope.click = function() {
+    svc.failure().then(
+      function (success) {
+        $window.alert("Something broke, and we don't know why");
+      },
+      function(msg){
+        $scope.output = msg;
+      }
+    );
+  };
+}])
 .controller('TestController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.outputA = "";
   $scope.outputB = "";

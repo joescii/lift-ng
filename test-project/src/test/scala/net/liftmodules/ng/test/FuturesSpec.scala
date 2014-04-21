@@ -11,6 +11,11 @@ class FuturesSpec extends BaseSpec {
     eventually{id("no-arg-output").element.text should be ("FromFuture")}
   }
 
+  "The angular service with no arguments which fails" should "send the failure message 'FailureTest' up to the client" in {
+    click on "failure-button"
+    eventually{id("failure-output").element.text should be ("FailureTest")}
+  }
+
   "The angular service with a JSON argument" should "send both text box strings to the server and eventually populate the test " +
     "text boxes with 'FromFuture client1' and 'FromFuture client2'" ignore {
     textField("inputA").value = "client1"
