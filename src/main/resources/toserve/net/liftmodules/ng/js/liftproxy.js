@@ -16,9 +16,11 @@ angular
       var id = random();
       var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
       var cleanup = $rootScope.$on('lift-ng-future', function(e, response){
-        console.log('Response!');
-        console.log(response);
-        responseToQ(response);
+        if(id === response.id) {
+          console.log('Response!');
+          console.log(response);
+          responseToQ(response);
+        }
       });
 
       var responseToQ = function(data) {
