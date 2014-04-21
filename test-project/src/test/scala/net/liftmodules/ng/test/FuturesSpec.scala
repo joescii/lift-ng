@@ -6,8 +6,13 @@ class FuturesSpec extends BaseSpec {
     eventually { pageTitle should be ("App: Futures") }
   }
 
+  "The angular service with no arguments" should "send 'FromFuture' up to the client after roughly 1 second" in {
+    click on "no-arg-button"
+    eventually{id("no-arg-output").element.text should be ("FromFuture")}
+  }
+
   "The angular service with a JSON argument" should "send both text box strings to the server and eventually populate the test " +
-    "text boxes with 'FromFuture client1' and 'FromFuture client2'" in {
+    "text boxes with 'FromFuture client1' and 'FromFuture client2'" ignore {
     textField("inputA").value = "client1"
     textField("inputB").value = "client2"
     click on "button"
