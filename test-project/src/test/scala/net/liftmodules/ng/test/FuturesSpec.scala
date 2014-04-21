@@ -38,6 +38,11 @@ class FuturesSpec extends BaseSpec {
     eventually(id("empty-output").element.text should be ("returned"))
   }
 
+  "The angular service which is satisfied immediately" should "resolve its promise" in {
+    click on "satisfied-button"
+    eventually(id("satisfied-output").element.text should be ("satisfied"))
+  }
+
 
   "The futures page" should "reload" in {
     go to s"$index/futures"
@@ -53,6 +58,7 @@ class FuturesSpec extends BaseSpec {
     textField("json-input-b").value = "argB"
     click on "json-button"
     click on "empty-button"
+    click on "satisfied-button"
     eventually{
       id("no-arg-output").element.text should be ("FromFuture")
       id("failure-output").element.text should be ("FailureTest")
@@ -60,6 +66,7 @@ class FuturesSpec extends BaseSpec {
       id("json-output-a").element.text should be ("FromFuture argA")
       id("json-output-b").element.text should be ("FromFuture argB")
       id("empty-output").element.text should be ("returned")
+      id("satisfied-output").element.text should be ("satisfied")
     }
   }
 

@@ -57,9 +57,18 @@ angular.module('FutureApp', ['Futures'])
 .controller('EmptyResponseController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 
-  $scope.click = function () {
+  $scope.click = function() {
     svc.empty().then(function() {
       $scope.output = "returned";
+    });
+  };
+}])
+.controller('SatisfiedTestController', ['$scope', 'futureServices', function($scope, svc) {
+  $scope.output = "";
+
+  $scope.click = function() {
+    svc.satisfied().then(function() {
+      $scope.output = "satisfied";
     });
   };
 }])

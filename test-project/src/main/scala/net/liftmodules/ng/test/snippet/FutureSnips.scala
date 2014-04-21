@@ -41,6 +41,11 @@ object FutureSnips extends Loggable {
         Schedule.schedule(() => f.satisfy(Empty), 1 second)
         f
       })
+      .future("satisfied", {
+        val f = new LAFuture[Box[Nothing]]
+        f.satisfy(Empty)
+        f
+      })
     )
   )
 }
