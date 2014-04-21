@@ -27,9 +27,6 @@ class ActorRootScopeSpecs extends BaseSpec {
     click on button
     eventually { id(span).element.text should be ("0") }
     eventually { id(span).element.text should be ("1") }
-    eventually { id(span).element.text should be ("2") }
-    eventually { id(span).element.text should be ("3") }
-    eventually { id(span).element.text should be ("4") }
   }
 
   def cometJsonCheck(button:String, spanInt:String, spanChar:String) = {
@@ -41,18 +38,6 @@ class ActorRootScopeSpecs extends BaseSpec {
     eventually {
       id(spanInt).element.text should be ("1")
       id(spanChar).element.text should be ("b")
-    }
-    eventually {
-      id(spanInt).element.text should be ("2")
-      id(spanChar).element.text should be ("c")
-    }
-    eventually {
-      id(spanInt).element.text should be ("3")
-      id(spanChar).element.text should be ("d")
-    }
-    eventually {
-      id(spanInt).element.text should be ("4")
-      id(spanChar).element.text should be ("e")
     }
   }
 
