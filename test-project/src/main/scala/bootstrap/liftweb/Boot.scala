@@ -28,6 +28,7 @@ class Boot {
       Menu.i("Snippets") / "snippets",
       Menu.i("Futures") / "futures",
       Menu.i("Static") / "static",
+      Menu.i("i18n") / "i18n",
       Menu.i("Actors - Root Scope") / "actorsRootScope",
       Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Actors - Assignment") / "actorsAssignment",
