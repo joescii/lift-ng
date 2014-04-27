@@ -13,6 +13,7 @@ import net.liftweb.json.Serialization.write
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import net.liftweb.actor.LAFuture
 import net.liftweb.json.JsonAST.JString
+import net.liftweb.util.PassThru
 
 /**
  * Dynamically generates angular modules at page render time.
@@ -35,6 +36,7 @@ object Angular extends DispatchSnippet {
   def init():Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
+      case "i18n" => AngularI18n
     }
     LiftRules.addToPackages("net.liftmodules.ng")
 
@@ -70,8 +72,8 @@ object Angular extends DispatchSnippet {
     HeadRendered.set(true)
     Script(AngularModules.is.foldLeft(liftproxyjs)((jsCmd, module) => jsCmd & module.cmd))
   }
-  
-  private lazy val liftproxyjs:JsCmd = 
+
+  private lazy val liftproxyjs:JsCmd =
     LiftRules.loadResourceAsString("/net/liftmodules/ng/js/liftproxy.js").map(JsRaw(_):JsCmd).openOr(Noop)
   
 
@@ -495,3 +497,13 @@ object Angular extends DispatchSnippet {
   case class RequestString(id:String, data:String)
   case class ReturnData(id:String, data:Any)
 }
+
+object AngularI18n extends DispatchSnippet {
+  /** Implementation of dispatch to allow us to add ourselves as a snippet */
+  override def dispatch = {
+    case _ => { render }
+  }
+
+  def render = PassThru
+}
+
