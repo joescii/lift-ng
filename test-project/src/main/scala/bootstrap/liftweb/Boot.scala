@@ -59,6 +59,8 @@ class Boot {
     JQueryModule.InitParam.JQuery=JQueryModule.JQuery172
     JQueryModule.init()
 
+    LiftRules.resourceNames = "testBundle" :: LiftRules.resourceNames
+
     Angular.init()
   }
 }
