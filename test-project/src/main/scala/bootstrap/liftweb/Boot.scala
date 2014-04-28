@@ -11,6 +11,9 @@ import Loc._
 import net.liftmodules.JQueryModule
 import net.liftweb.http.js.jquery._
 import net.liftmodules.ng.Angular
+import java.util.ResourceBundle
+import java.util
+import net.liftweb.util
 
 
 /**

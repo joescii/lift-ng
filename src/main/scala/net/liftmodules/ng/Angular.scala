@@ -13,7 +13,7 @@ import net.liftweb.json.Serialization.write
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import net.liftweb.actor.LAFuture
 import net.liftweb.json.JsonAST.JString
-import net.liftweb.util.PassThru
+import com.joescii.j2jsi18n.JsResourceBundle
 
 /**
  * Dynamically generates angular modules at page render time.
@@ -501,9 +501,19 @@ object Angular extends DispatchSnippet {
 object AngularI18n extends DispatchSnippet {
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
   override def dispatch = {
-    case _ => { render }
+    case _ => { _ => render }
   }
 
-  def render = PassThru
+  def render:NodeSeq = {
+    val names = S.attr("name").map(_.toString).toList
+    println(names)
+    val rsrcs = LiftRules.resourceNames.zip(S.resourceBundles).filter{ case (name, b) => names.contains(name) }.toMap
+    val moduleDeclaration = Call("angular.module", "i18n", JsArray())
+    val module = rsrcs.foldLeft(moduleDeclaration){ case (module, (name, bundle)) =>
+      val jsb = new JsResourceBundle(bundle)
+      Call(JsVar(module.toJsCmd, "factory").toJsCmd, name, AnonFunc(JsReturn(JsRaw(jsb.toJs))))
+    }
+    Script(module)
+  }
 }
 
