@@ -333,27 +333,20 @@ angular.module('ExampleApp', [])
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
 
-```html
-<script id="my-i18n_js"  data-lift="i18n?name=bundleName"></script>
-```
-
-Your bundle is made available via the `i18n` bundle with service name coinciding with the bundle name:
-
-```javascript
-angular.module('ExampleApp', ['i18n'])
-.controller('ExampleController', ['$scope', 'bundleName', function($scope, i18n) {
-  // ...
-}]);
-```
-
-Given this resource bundle:
+Given a resource bundle named `bundleName.properties`:
 
 ```text
 hello=Howdy!
 goodbye=Goodbye, {0}!
 ```
 
-The service/factory given to your controller will have a string field named `hello` and a function named `goodbye`:
+Add it as a service available to your Angular app with this HTML:
+
+```html
+<script id="my-i18n_js"  data-lift="i18n?name=bundleName"></script>
+```
+
+Your bundle is made available via the `i18n` module with service/factory name coinciding with the bundle name.  In this example, the object will have a string field named `hello` and a function named `goodbye`:
 
 ```javascript
 angular.module('ExampleApp', ['i18n'])
