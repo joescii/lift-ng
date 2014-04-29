@@ -394,11 +394,11 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* `AngularActor.scope.parent` support
-* Optional handling for comet events received before Angular has initialized (see issue #1)
+* Support handling parameters of type `json.JValue`.
+* Support returning values of type `JsExp`.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
-* Injection of i18n/i10n angular js file.
-* Injection of ResourceBundle i18n translation.
+* Optional handling for comet events received before Angular has initialized (see issue #1)
+* `AngularActor.scope.parent` support
 * Remove need for manually including `LiftNgFutureActor` to gain `LAFuture` support.
 * Remove need to include both `liftproxy.js` and the `Angular` snippet.
 
