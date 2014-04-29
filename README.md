@@ -52,7 +52,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.3.0" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.3.1" % "compile"
   )
 }
 ```
@@ -330,6 +330,41 @@ angular.module('ExampleApp', [])
 }]);
 ```
 
+### i18n Internationalization
+If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
+
+```html
+<script id="my-i18n_js"  data-lift="i18n?name=bundleName"></script>
+```
+
+Your bundle is made available via the `i18n` bundle with service name coinciding with the bundle name:
+
+```javascript
+angular.module('ExampleApp', ['i18n'])
+.controller('ExampleController', ['$scope', 'bundleName', function($scope, i18n) {
+  // ...
+}]);
+```
+
+Given this resource bundle:
+
+```text
+hello=Howdy!
+goodbye=Goodbye, {0}!
+```
+
+The service/factory given to your controller will have a string field named `hello` and a function named `goodbye`:
+
+```javascript
+angular.module('ExampleApp', ['i18n'])
+.controller('ExampleController', ['$scope', 'bundleName', function($scope, i18n) {
+  $scope.hello = i18n.hello;
+  $scope.goodbye = i18n.goodbye($scope.username);
+}]);
+```
+
+For more details about this resource bundle object, see [j2js-i18n](https://github.com/barnesjd/j2js-i18n).
+
 ## Scaladocs
 
 The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.  There should not be any differences among the supported versions of Scala.  Nonetheless all are listed here for good measure.
@@ -376,6 +411,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.3.1*: Added i18n service.
 * *0.3.0*: Implemented support for a factory/service to return an `LAFuture[Box[T]]`
 * *0.2.3*: Implemented `string`, `anyVal`, and `json` on `JsonObjFactory` to allow providing values which are known at page load time and do not otherwise change.
 * *0.2.2*: Implemented `AngularActor.assign` for assigning scope variables. `Failure(msg)` message is sent to the client for `$q.reject`. Changed interpretation of `Empty` to mean `Resolve` rather than `Reject`.
