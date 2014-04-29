@@ -32,6 +32,7 @@ class Boot {
       Menu.i("Futures") / "futures",
       Menu.i("Static") / "static",
       Menu.i("i18n - 1 name") / "i18n-1name",
+      Menu.i("i18n - Non-English") / "i18n-non-english",
       Menu.i("Actors - Root Scope") / "actorsRootScope",
       Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Actors - Assignment") / "actorsAssignment",
@@ -62,7 +63,10 @@ class Boot {
     JQueryModule.InitParam.JQuery=JQueryModule.JQuery172
     JQueryModule.init()
 
-    LiftRules.resourceNames = "testBundle" :: LiftRules.resourceNames
+    LiftRules.resourceNames =
+      "testBundle" ::
+      "nonEnglish" ::
+      LiftRules.resourceNames
 
     Angular.init()
   }
