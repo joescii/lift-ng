@@ -366,9 +366,9 @@ Each bundle is another service available in the `i18n` bundle.  Also notice in t
 
 ```javascript
 angular.module('ExampleApp', ['i18n'])
-.controller('ExampleController', ['$scope', 'bundleName', 'lift', function($scope, bundleName, lift) {
-  $scope.hello = bundleName.hello;
-  $scope.goodbye = bundleName.goodbye($scope.username);
+.controller('ExampleController', ['$scope', 'bundleName', 'lift', function($scope, bundle, lift) {
+  $scope.hello = bundle.hello;
+  $scope.goodbye = bundle.goodbye($scope.username);
   $scope.lostPasswd = lift["lost.password"];
 }]);
 ```
