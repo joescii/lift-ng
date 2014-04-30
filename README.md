@@ -356,6 +356,23 @@ angular.module('ExampleApp', ['i18n'])
 }]);
 ```
 
+You may also specify multiple bundle names.  Here we include the default Lift bundle:
+
+```html
+<script id="my-i18n_js"  data-lift="i18n?names=bundleName,lift"></script>
+```
+
+Each bundle is another service available in the `i18n` bundle.  Also notice in this example we show keys which aren't valid JavaScript identifiers are also available.
+
+```javascript
+angular.module('ExampleApp', ['i18n'])
+.controller('ExampleController', ['$scope', 'bundleName', 'lift', function($scope, bundleName, lift) {
+  $scope.hello = bundleName.hello;
+  $scope.goodbye = bundleName.goodbye($scope.username);
+  $scope.lostPasswd = lift["lost.password"];
+}]);
+```
+
 For more details about this resource bundle object, see [j2js-i18n](https://github.com/barnesjd/j2js-i18n).
 
 ## Scaladocs
