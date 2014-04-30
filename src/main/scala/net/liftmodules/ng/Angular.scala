@@ -505,7 +505,9 @@ object AngularI18n extends DispatchSnippet {
   }
 
   def render:NodeSeq = {
-    val names = S.attr("name").map(_.toString).toList
+    val fromName  = S.attr("name").map(_.toString).toList
+    val fromNames = S.attr("names").map(_.toString.split(',')).toList.flatten
+    val names = fromName ++ fromNames
     val rsrcs = LiftRules.resourceNames.zip(S.resourceBundles).filter{ case (name, b) => names.contains(name) }.toMap
     val moduleDeclaration = Call("angular.module", "i18n", JsArray())
     val module = rsrcs.foldLeft(moduleDeclaration){ case (module, (name, bundle)) =>

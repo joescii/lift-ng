@@ -33,6 +33,7 @@ class Boot {
       Menu.i("Static") / "static",
       Menu.i("i18n - 1 name") / "i18n-1name",
       Menu.i("i18n - Non-English") / "i18n-non-english",
+      Menu.i("i18n - 2 names") / "i18n-2names",
       Menu.i("Actors - Root Scope") / "actorsRootScope",
       Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Actors - Assignment") / "actorsAssignment",
