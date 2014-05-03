@@ -67,7 +67,7 @@ object Angular extends DispatchSnippet {
     require(!HeadRendered.is, "render has already been called once")
 
     HeadRendered.set(true)
-    <script id="liftproxy_js" src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script> ++
+    <script src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script> ++
     Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
   }
 
