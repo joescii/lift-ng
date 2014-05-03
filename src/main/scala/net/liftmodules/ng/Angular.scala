@@ -40,9 +40,6 @@ object Angular extends DispatchSnippet {
     }
     LiftRules.addToPackages("net.liftmodules.ng")
 
-    // Force loading
-    liftproxyjs
-
     ResourceServer.allow {
       case "net" :: "liftmodules" :: "ng" :: "js" :: _ => true
     }
@@ -70,12 +67,9 @@ object Angular extends DispatchSnippet {
     require(!HeadRendered.is, "render has already been called once")
 
     HeadRendered.set(true)
-    Script(AngularModules.is.foldLeft(liftproxyjs)((jsCmd, module) => jsCmd & module.cmd))
+    <script id="liftproxy_js" src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script> ++
+    Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
   }
-
-  private lazy val liftproxyjs:JsCmd =
-    LiftRules.loadResourceAsString("/net/liftmodules/ng/js/liftproxy.js").map(JsRaw(_):JsCmd).openOr(Noop)
-  
 
   /**
    * Registers the module with the RequestVar so that it may be rendered in base.html.
