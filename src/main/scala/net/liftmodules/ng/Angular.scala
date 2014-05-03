@@ -14,6 +14,8 @@ import net.liftweb.json.{DefaultFormats, JsonParser}
 import net.liftweb.actor.LAFuture
 import net.liftweb.json.JsonAST.JString
 import com.joescii.j2jsi18n.JsResourceBundle
+import net.liftweb.util.Props.RunModes
+import net.liftweb.util.Props
 
 /**
  * Dynamically generates angular modules at page render time.
@@ -59,6 +61,12 @@ object Angular extends DispatchSnippet {
     case _ => { _ => render }
   }
 
+  private val liftproxySrc =
+    "/classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version + (Props.mode match {
+      case RunModes.Development => ".js"
+      case _ => ".min.js"
+    })
+
   /**
    * Renders all the modules that have been added to the RequestVar.
    */
@@ -67,7 +75,7 @@ object Angular extends DispatchSnippet {
     require(!HeadRendered.is, "render has already been called once")
 
     HeadRendered.set(true)
-    val liftproxySrc = "/classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version+".js"
+
     <script src={liftproxySrc}></script> ++
     Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
   }
