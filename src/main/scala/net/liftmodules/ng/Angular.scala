@@ -67,7 +67,8 @@ object Angular extends DispatchSnippet {
     require(!HeadRendered.is, "render has already been called once")
 
     HeadRendered.set(true)
-    <script src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script> ++
+    val liftproxySrc = "/classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version+".js"
+    <script src={liftproxySrc}></script> ++
     Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
   }
 

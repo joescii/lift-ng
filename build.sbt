@@ -30,6 +30,14 @@ scalacOptions <<= scalaVersion map { v: String =>
   if (v.startsWith("2.9.")) opts else opts ++ ("-feature" :: "-language:postfixOps" :: Nil)
 }
 
+buildInfoSettings
+
+sourceGenerators in Compile <+= buildInfo
+
+buildInfoKeys := Seq[BuildInfoKey](version)
+
+buildInfoPackage := "net.liftmodules.ng"
+
 publishTo <<= version { _.endsWith("SNAPSHOT") match {
     case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
     case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
