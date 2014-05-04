@@ -337,7 +337,7 @@ object Angular extends DispatchSnippet {
 
   protected case class AjaxNoArgToJsonFunctionGenerator(jsFunc: () => Promise) extends LiftAjaxFunctionGenerator {
 
-    def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
+    def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost((id) => promiseToJson(jsFunc()))
   }
@@ -347,7 +347,7 @@ object Angular extends DispatchSnippet {
 
     private val ParamName = "str"
 
-    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
+    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
@@ -365,7 +365,7 @@ object Angular extends DispatchSnippet {
 
     private val ParamName = "json"
 
-    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
+    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData: JsExp = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
@@ -407,7 +407,7 @@ object Angular extends DispatchSnippet {
   }
 
   protected case class NoArgFutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]]) extends FutureFunctionGenerator {
-    def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy", liftPostData)))
+    def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
 
@@ -420,7 +420,7 @@ object Angular extends DispatchSnippet {
   protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]]) extends FutureFunctionGenerator {
     private val ParamName = "str"
 
-    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
+    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
@@ -433,7 +433,7 @@ object Angular extends DispatchSnippet {
   protected case class JsonFutureFunctionGenerator[Model <: NgModel : Manifest, T <: Any](func: Model => LAFuture[Box[T]]) extends FutureFunctionGenerator {
     private val ParamName = "json"
 
-    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy", liftPostData)))
+    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
