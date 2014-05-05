@@ -76,8 +76,11 @@ object Angular extends DispatchSnippet {
 
     HeadRendered.set(true)
 
-    <script src={liftproxySrc}></script> ++
-    Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
+    val liftproxy = <script src={liftproxySrc}></script>
+    val modules = Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
+    val futureActor = <div data-lift="comet?type=LiftNgFutureActor"></div>
+
+    liftproxy ++ modules ++ futureActor
   }
 
   /**

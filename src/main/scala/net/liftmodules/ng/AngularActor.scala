@@ -19,6 +19,12 @@ trait AngularActor extends CometActor with Loggable {
   /** Render a div for us to hook into */
   def render = <div id={id}></div>
 
+  private implicit val formats = DefaultFormats // Some crap needed for stringify
+  protected def stringify(obj:AnyRef):String = obj match {
+      case s:String => "'"+s+"'"
+      case _ => write(obj)
+    }
+
   trait Scope {
     // TODO: Use an Int and change this to obj:Any??
     /** Performs a <code>\$broadcast()</code> with the given event name and object argument */
@@ -37,12 +43,6 @@ trait AngularActor extends CometActor with Loggable {
     protected val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
     /** Variable assignment for \$rootScope */
     protected val varRoot  = "var r=s.$root;"
-
-    private implicit val formats = DefaultFormats // Some crap needed for stringify
-    private def stringify(obj:AnyRef):String = obj match {
-      case s:String => "'"+s+"'"
-      case _ => write(obj)
-    }
 
     private def eventInvoke(scopeVar:String, method:String, event:String, obj:AnyRef):String =
       scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});"

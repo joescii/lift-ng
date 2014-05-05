@@ -1,6 +1,6 @@
 angular
   .module('zen.lift.proxy', [])
-  .factory('liftProxy', ['$http', '$q', '$rootScope', function ($http, $q, $rootScope) {
+  .service('liftProxy', ['$http', '$q', function ($http, $q) {
     var svc = {
       callbacks: {},
       request: function (requestData) {
@@ -18,11 +18,6 @@ angular
         var id = random();
         var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
         var cleanup = function() {delete svc.callbacks[id]};
-        svc.callbacks[id] = function(response) {
-          if(id === response.id) {
-            responseToQ(response);
-          }
-        };
 
         var responseToQ = function(data) {
           if (data.success) {
@@ -37,6 +32,8 @@ angular
           }
           cleanup();
         };
+
+        svc.callbacks[id] = responseToQ;
 
         var returnQ = function(response) {
           var data = response.data;
@@ -53,7 +50,7 @@ angular
         }).then(returnQ);
       },
       response: function(response) {
-
+        svc.callbacks[response.id](response);
       }
     };
 
