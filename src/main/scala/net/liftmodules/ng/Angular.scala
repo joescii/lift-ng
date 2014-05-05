@@ -45,6 +45,9 @@ object Angular extends DispatchSnippet {
     ResourceServer.allow {
       case "net" :: "liftmodules" :: "ng" :: "js" :: _ => true
     }
+
+    // TODO: Pass app CSS selector
+    // TODO: Pass future default
   }
   
   implicit val formats = DefaultFormats
