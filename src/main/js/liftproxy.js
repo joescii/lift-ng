@@ -1,5 +1,5 @@
 angular
-  .module('zen.lift.proxy', [])
+  .module('lift-ng', [])
   .service('liftProxy', ['$http', '$q', function ($http, $q) {
     var svc = {
       callbacks: {},

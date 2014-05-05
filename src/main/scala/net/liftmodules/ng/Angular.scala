@@ -51,7 +51,7 @@ case class WebManagedLibs()
  * Usage:
  * {{{
  * def render = renderIfNotAlreadyDefined(
- *   angular.module("zen.lift.goals")
+ *   angular.module("lift.goals")
  *     .factory("goals", jsObjFactory()
  *       .jsonCall("getJoined", GoalsClient.getGoals())
  *       .jsonCall("join", (goalId: String) => GoalsClient.joinIndividualGoal(getUsername, getDisplayName, goalId))
@@ -526,7 +526,7 @@ object Angular extends DispatchSnippet {
 
   trait LiftAjaxFunctionGenerator extends AjaxFunctionGenerator {
 
-    def moduleDependencies: Set[String] = Set("zen.lift.proxy")
+    def moduleDependencies: Set[String] = Set("lift-ng")
 
     def serviceDependencies: Set[String] = Set("liftProxy")
 
