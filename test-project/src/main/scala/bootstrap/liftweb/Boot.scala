@@ -69,6 +69,12 @@ class Boot {
       "nonEnglish" ::
       LiftRules.resourceNames
 
-    Angular.init()
+    angular()
+  }
+
+  def angular() = {
+    import net.liftmodules.ng._
+    
+    Angular.init(UnmanagedLibs(futures = false))
   }
 }

@@ -12,7 +12,7 @@ import JsCmds._
 
 class LiftNgFutureActor extends AngularActor {
   def callback(p:Promise) = partialUpdate {
-    val element = "var e=angular.element(document.querySelector('[ng-app]'));"
+    val element = "var e=angular.element(document.querySelector('"+Angular.appSelectorDefault+"'));"
     JsRaw(element+"e.scope().$apply(function(){e.injector().get('liftProxy').response("+stringify(p)+")});")
   }
 
