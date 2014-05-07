@@ -12,8 +12,15 @@ import JsCmds._
 
 class LiftNgFutureActor extends AngularActor {
   def callback(p:Promise) = partialUpdate {
-    val element = "var e=angular.element(document.querySelector('"+Angular.appSelectorDefault+"'));"
-    JsRaw(element+"e.scope().$apply(function(){e.injector().get('liftProxy').response("+stringify(p)+")});")
+    val js =
+      "var es=document.querySelectorAll('"+Angular.appSelectorDefault+"');"+
+      "var e,i,l;" +
+      "i=0;" +
+      "for(l=es.length;i<l;i++){" +
+        "e=angular.element(es[i]);" +
+        "e.scope().$apply(function(){e.injector().get('liftProxy').response("+stringify(p)+")});" +
+      "}"
+    JsRaw(js)
   }
 
   override def lowPriority = {
