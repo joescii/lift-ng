@@ -30,6 +30,7 @@ class Boot {
       Menu.i("Home") / "index", // the simple way to declare a menu
       Menu.i("Snippets") / "snippets",
       Menu.i("Futures") / "futures",
+      Menu.i("Two Apps") / "twoApps",
       Menu.i("Static") / "static",
       Menu.i("i18n - 1 name") / "i18n-1name",
       Menu.i("i18n - Non-English") / "i18n-non-english",
@@ -75,6 +76,6 @@ class Boot {
   def angular() = {
     import net.liftmodules.ng._
     
-    Angular.init(UnmanagedLibs(futures = false))
+    Angular.init(UnmanagedLibs(futures = false, appSelector = ".application"))
   }
 }
