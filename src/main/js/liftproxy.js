@@ -17,7 +17,7 @@ angular
         var q = $q.defer();
         var id = random();
         var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
-        var cleanup = function() {delete svc.callbacks[id]};
+        var cleanup = function() {delete svc.callbacks[id];};
 
         var responseToQ = function(data) {
           if (data.success) {
@@ -50,7 +50,10 @@ angular
         }).then(returnQ);
       },
       response: function(response) {
-        svc.callbacks[response.id](response);
+        // The callback won't exist in the case of multiple apps on one page.
+        var cb = svc.callbacks[response.id];
+        if(typeof cb !== "undefined" && cb !== null)
+          cb(response);
       }
     };
 
