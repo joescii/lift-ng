@@ -52,7 +52,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.3.1" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.0" % "compile"
   )
 }
 ```
@@ -66,7 +66,13 @@ class Boot {
   def boot {
     // Other stuff...
     
-    net.liftmodules.ng.Angular.init()
+    net.liftmodules.ng.Angular.init(
+      // Set to true if you plan to use futures. False otherwise to avoid an unneeded comet
+      futures = true,
+
+      // Set to the CSS selector for finding your apps in the page.
+      appSelector = "[ng-app]"
+    )
   }
 }
 ```

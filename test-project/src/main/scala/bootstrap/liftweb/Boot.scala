@@ -75,7 +75,8 @@ class Boot {
 
   def angular() = {
     import net.liftmodules.ng._
-    
-    Angular.init(UnmanagedLibs(futures = false, appSelector = ".application"))
+
+    AngularJS.init()
+    Angular.init(futures = false, appSelector = ".application")
   }
 }
