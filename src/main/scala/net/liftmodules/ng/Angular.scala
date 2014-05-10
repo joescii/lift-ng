@@ -18,33 +18,6 @@ import net.liftweb.util.Props.RunModes
 import net.liftweb.util.Props
 
 
-/** Base trait for lift-ng configuration */
-sealed trait AngularConfig {
-  def futures:Boolean
-  def appSelector:String
-}
-
-/** Angular configuration for unmanaged angular js libs.  That is, you will add the angular scripts to the html
-  * files yourself.
-  *
-  * @param futures true to include future support (and hence add a comet to your page), false otherwise
-  * @param appSelector the CSS selector to find your app in the page
-  */
-case class UnmanagedLibs(
-  futures:Boolean = true,
-  appSelector:String = "[ng-app]"
-) extends AngularConfig
-
-/** Angular configuration for managed angular js libs.  TODO */
-case class ManagedLibs(
-  futures:Boolean = true,
-  appSelector:String = "[ng-app]",
-  defaultModules:Seq[String] = Seq()
-) //extends AngularConfig
-
-/** Angular configuration for web-managed js libs. TODO */
-case class WebManagedLibs()
-
 /**
  * Dynamically generates angular modules at page render time.
  *
@@ -65,8 +38,12 @@ object Angular extends DispatchSnippet {
   private [ng] var futuresDefault:Boolean = true
   private [ng] var appSelectorDefault:String = "[ng-app]"
   
-  /** Init function to be called in Boot */
-  def init(config:AngularConfig):Unit = {
+  /**
+    * Init function to be called in Boot
+    * @param futures true to include future support (and hence add a comet to your page), false otherwise
+    * @param appSelector the CSS selector to find your app in the page
+    */
+  def init(futures:Boolean = true, appSelector:String = "[ng-app]"):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
       case "i18n" => AngularI18n
@@ -77,11 +54,8 @@ object Angular extends DispatchSnippet {
       case "net" :: "liftmodules" :: "ng" :: "js" :: _ => true
     }
 
-    config match {
-      case UnmanagedLibs(futures, appSelector) =>
-        futuresDefault = futures
-        appSelectorDefault = appSelector
-    }
+    futuresDefault = futures
+    appSelectorDefault = appSelector
   }
 
   private def bool(s:String, default:Boolean):Boolean = {
