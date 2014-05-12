@@ -113,7 +113,7 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <!-- The angular library (manually) -->
 <script type="text/javascript" src="/scripts/angular.js"></script>
 
-<!-- Or better yet, via [lift-ng-js](https://github.com/barnesjd/lift-ng-js) -->
+<!-- Or better yet, via lift-ng-js. (https://github.com/barnesjd/lift-ng-js) -->
 <script data-lift="AngularJS"></script>
 
 <!-- Prerequisite stuff the plugin needs -->
