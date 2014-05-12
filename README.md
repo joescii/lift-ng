@@ -110,12 +110,14 @@ object NgPonyService {
 This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services as well as some plumbing from this plugin.  
 
 ```html
-<!-- The angular library -->
+<!-- The angular library (manually) -->
 <script type="text/javascript" src="/scripts/angular.js"></script>
+
+<!-- Or better yet, via [lift-ng-js](https://github.com/barnesjd/lift-ng-js) -->
+<script data-lift="AngularJS"></script>
 
 <!-- Prerequisite stuff the plugin needs -->
 <script data-lift="Angular"></script>
-<script src="/classpath/net/liftmodules/ng/js/liftproxy.js"></script>
 
 <!-- The NgPonyService snippet defined above -->
 <script data-lift="NgPonyService"></script>
@@ -246,16 +248,7 @@ angular.module("lift.pony")
   )
 ```
 
-Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, you must also include the `LiftNgFutureActor`:
-
-```html
-<div ng-app="ExampleApp">
-  <div data-lift="comet?type=LiftNgFutureActor"></div>
-  <!-- other stuff -->
-</div>
-```
-
-This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service via `$rootScope`.  For future versions of **lift-ng**, we plan to investigate how to remove this requirement.
+Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.  By default, we look for any elements containing the `ng-app` attribute.  This can be overridden in the `Angular.init()` call via the `appSelector` property.  This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service.
 
 ### Non-AJAX
 Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.  Typical examples of this are configuration settings, session values, etc.  To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
@@ -422,11 +415,10 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * Optional handling for comet events received before Angular has initialized (see issue #1)
 * `AngularActor.scope.parent` support
-* Remove need for manually including `LiftNgFutureActor` to gain `LAFuture` support.
-* Remove need to include both `liftproxy.js` and the `Angular` snippet.
 
 ## Change log
 
+* *0.4.0*: Now only requires `Angular` snippet in your template(s).
 * *0.3.1*: Added i18n service.
 * *0.3.0*: Implemented support for a factory/service to return an `LAFuture[Box[T]]`
 * *0.2.3*: Implemented `string`, `anyVal`, and `json` on `JsonObjFactory` to allow providing values which are known at page load time and do not otherwise change.
