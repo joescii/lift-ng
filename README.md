@@ -418,6 +418,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.4.1*: Now works for web apps running in a non-root context, fixing Issue #2.
 * *0.4.0*: Now only requires `Angular` snippet in your template(s).
 * *0.3.1*: Added i18n service.
 * *0.3.0*: Implemented support for a factory/service to return an `LAFuture[Box[T]]`
