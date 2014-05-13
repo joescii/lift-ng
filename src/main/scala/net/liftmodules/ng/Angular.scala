@@ -98,9 +98,10 @@ object Angular extends DispatchSnippet {
     val includeFutures = S.attr("futures").map(bool(_, futuresDefault)).openOr(futuresDefault)
 
     val liftproxy = <script src={liftproxySrc}></script>
+    val modules = Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
     val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor"></div> else NodeSeq.Empty
 
-    liftproxy ++ futureActor
+    liftproxy ++ modules ++ futureActor
   }
 
   /**
