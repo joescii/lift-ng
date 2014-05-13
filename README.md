@@ -413,12 +413,12 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
-* Optional handling for comet events received before Angular has initialized (see issue #1)
+* Optional handling for comet events received before Angular has initialized (see [Issue #1](https://github.com/barnesjd/lift-ng/issues/1))
 * `AngularActor.scope.parent` support
 
 ## Change log
 
-* *0.4.1*: Now works for web apps running in a non-root context, fixing Issue #2.
+* *0.4.1*: Now works for web apps running in a non-root context, fixing [Issue #2](https://github.com/barnesjd/lift-ng/issues/2).
 * *0.4.0*: Now only requires `Angular` snippet in your template(s).
 * *0.3.1*: Added i18n service.
 * *0.3.0*: Implemented support for a factory/service to return an `LAFuture[Box[T]]`
