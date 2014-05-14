@@ -52,7 +52,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.0" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.2" % "compile"
   )
 }
 ```
@@ -418,6 +418,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.4.2*: Reverted a change made in 0.4.0 which allows more flexibility in the placement of angular services in the DOM, fixing part 2 of [Issue #2](https://github.com/barnesjd/lift-ng/issues/2)
 * *0.4.1*: Now works for web apps running in a non-root context, fixing [Issue #2](https://github.com/barnesjd/lift-ng/issues/2).
 * *0.4.0*: Now only requires `Angular` snippet in your template(s).
 * *0.3.1*: Added i18n service.
