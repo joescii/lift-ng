@@ -55,7 +55,7 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := (
-        <url>https://github.com/barnesjd/lift-ng</url>
+        <url>https://github.com/joescii/lift-ng</url>
         <licenses>
             <license>
               <name>Apache 2.0 License</name>
@@ -64,8 +64,8 @@ pomExtra := (
             </license>
          </licenses>
          <scm>
-            <url>git@github.com:barnesjd/lift-ng.git</url>
-            <connection>scm:git:git@github.com:barnesjd/lift-ng.git</connection>
+            <url>git@github.com:joescii/lift-ng.git</url>
+            <connection>scm:git:git@github.com:joescii/lift-ng.git</connection>
          </scm>
          <developers>
             <developer>
@@ -74,9 +74,9 @@ pomExtra := (
               <url>https://github.com/htmldoug</url>
             </developer>
             <developer>
-              <id>barnesjd</id>
+              <id>joescii</id>
               <name>Joe Barnes</name>
-              <url>https://github.com/barnesjd</url>
+              <url>https://github.com/joescii</url>
             </developer>
          </developers>
  )

@@ -83,7 +83,7 @@ class Boot {
 
 ## Usage
 
-Below are a few usage examples.  Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/barnesjd/lift-ng/tree/master/test-project) for fully functional examples
+Below are a few usage examples.  Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples
 
 ### AJAX
 
@@ -113,7 +113,7 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <!-- The angular library (manually) -->
 <script type="text/javascript" src="/scripts/angular.js"></script>
 
-<!-- Or better yet, via lift-ng-js. (https://github.com/barnesjd/lift-ng-js) -->
+<!-- Or better yet, via lift-ng-js. (https://github.com/joescii/lift-ng-js) -->
 <script data-lift="AngularJS"></script>
 
 <!-- Prerequisite stuff the plugin needs -->
@@ -372,7 +372,7 @@ angular.module('ExampleApp', ['i18n'])
 }]);
 ```
 
-For more details about this resource bundle object, see [j2js-i18n](https://github.com/barnesjd/j2js-i18n).
+For more details about this resource bundle object, see [j2js-i18n](https://github.com/joescii/j2js-i18n).
 
 ## Scaladocs
 
@@ -387,8 +387,8 @@ The latest version of scaladocs are hosted thanks to [cloudbees](http://www.clou
 As with any open source project, contributions are greatly appreciated.  If you find an issue or have a feature idea, we'd love to know about it!  Any of the following will help this effort tremendously.
 
 1. Issue a Pull Request with the fix/enhancement and unit tests to validate the changes.  OR
-2. Issue a Pull Request with failing tests in the [test-project](https://github.com/barnesjd/lift-ng/tree/master/test-project) to show what needs to be changed OR
-3. At a minimum, [open an issue](https://github.com/barnesjd/lift-ng/issues/new) to let us know about what you've discovered.
+2. Issue a Pull Request with failing tests in the [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) to show what needs to be changed OR
+3. At a minimum, [open an issue](https://github.com/joescii/lift-ng/issues/new) to let us know about what you've discovered.
 
 ### Pull Requests
 
@@ -404,7 +404,7 @@ Try to include as much as you are able, such as tests, documentation, updates to
 
 ### Testing
 
-Part of contributing your changes will involve testing.  The [test-project](https://github.com/barnesjd/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** plugin via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
+Part of contributing your changes will involve testing.  The [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** plugin via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
 
 ## Wish list
 
@@ -413,13 +413,13 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
-* Optional handling for comet events received before Angular has initialized (see [Issue #1](https://github.com/barnesjd/lift-ng/issues/1))
+* Optional handling for comet events received before Angular has initialized (see [Issue #1](https://github.com/joescii/lift-ng/issues/1))
 * `AngularActor.scope.parent` support
 
 ## Change log
 
-* *0.4.2*: Reverted a change made in 0.4.0 which allows more flexibility in the placement of angular services in the DOM, fixing part 2 of [Issue #2](https://github.com/barnesjd/lift-ng/issues/2)
-* *0.4.1*: Now works for web apps running in a non-root context, fixing [Issue #2](https://github.com/barnesjd/lift-ng/issues/2).
+* *0.4.2*: Reverted a change made in 0.4.0 which allows more flexibility in the placement of angular services in the DOM, fixing part 2 of [Issue #2](https://github.com/joescii/lift-ng/issues/2)
+* *0.4.1*: Now works for web apps running in a non-root context, fixing [Issue #2](https://github.com/joescii/lift-ng/issues/2).
 * *0.4.0*: Now only requires `Angular` snippet in your template(s).
 * *0.3.1*: Added i18n service.
 * *0.3.0*: Implemented support for a factory/service to return an `LAFuture[Box[T]]`
