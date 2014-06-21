@@ -262,6 +262,70 @@ angular.module("lift.pony")
   )
 ```
 
+#### Testing
+Testing services provided by **lift-ng** with Jasmine (etc) is the same as you would test any Angular service.
+
+```javascript
+describe("pony", function(){
+  // Service mock
+  var ponyService = {};
+
+  // Handle to the rootScope
+  var rootScope = {};
+
+  // Handle to the scope
+  var scope = {};
+
+  // Set up the pony module
+  beforeEach(function(){module('pony');});
+
+  // Mock out the service
+  beforeEach(function() {
+    angular.mock.module(function($provide) {
+      $provide.value('lift.pony', ponyService);
+    });
+  });
+
+  // Build the mock with a $q promise
+  beforeEach(inject(function($q) {
+    ponyService.defer = $q.defer();
+    ponyService.getBestPony = function() {
+      return this.defer.promise;
+    };
+  }));
+
+  // Create a controller for each test
+  beforeEach(inject(function($rootScope, $controller) {
+    rootScope = $rootScope;
+    scope = $rootScope.$new();
+    $controller('PonyCtrl', {
+      $scope: scope,
+      ponyService: ponyService   // This can be done explicitly as here, or we can count on the angular.mock.module call
+    });
+  });
+
+  // Write a test
+  it('should call the service when onClick is called', function() {
+    // Before onClick, the pony will be undefined.
+    expect(scope.pony).toBeUndefined();
+
+    // Provide a pony to be returned
+    var pony = {
+      name: 'Doug'
+      img; 'doug.jpg'
+    };
+    ponyService.defer.resolve(pony);
+
+    // Simulate the click
+    scope.onClick();
+
+    // Expect that pony has now been set.
+    expect(scope.pony).toEqual(pony);
+  });
+});
+
+```
+
 Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.  By default, we look for any elements containing the `ng-app` attribute.  This can be overridden in the `Angular.init()` call via the `appSelector` property.  This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service.
 
 ### Non-AJAX
