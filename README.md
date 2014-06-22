@@ -300,9 +300,9 @@ describe("pony", function(){
     scope = $rootScope.$new();
     $controller('PonyCtrl', {
       $scope: scope,
-      ponyService: ponyService   // Specifying our service explicitly is optional
+      ponyService: ponyService
     });
-  });
+  }));
 
   // Write a test
   it('should call the service when onClick is called', function() {
@@ -311,19 +311,21 @@ describe("pony", function(){
 
     // Provide a pony to be returned
     var pony = {
-      name: 'Doug'
-      img; 'doug.jpg'
+      name: 'Doug',
+      img: 'doug.jpg'
     };
     ponyService.defer.resolve(pony);
 
     // Simulate the click
     scope.onClick();
 
+    // This call lets the $q callback happen
+    rootScope.$digest();
+
     // Expect that pony has now been set.
     expect(scope.pony).toEqual(pony);
   });
 });
-
 ```
 
 Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.  By default, we look for any elements containing the `ng-app` attribute.  This can be overridden in the `Angular.init()` call via the `appSelector` property.  This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service.
