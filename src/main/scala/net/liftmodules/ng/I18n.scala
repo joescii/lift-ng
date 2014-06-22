@@ -17,7 +17,8 @@ object AngularI18n extends DispatchSnippet {
     val fromName  = S.attr("name").map(_.toString).toList
     val fromNames = S.attr("names").map(_.toString.split(',')).toList.flatten
     val names = fromName ++ fromNames
-    Script(toModule(names))
+    val src = "lift-ng/i18n?"+(names.map("name="+_).mkString("&"))
+    <script src={src}></script>
   }
 
   def toModule(names:List[String]) = {
@@ -36,7 +37,9 @@ object AngularI18nRest extends RestHelper {
   }
 
   serve {
-    case "lift-ng" :: "i18n" :: name :: Nil Get _ =>
-      new JavaScriptResponse(AngularI18n.toModule(List(name)), Nil, Nil, 200)
+    case "lift-ng" :: "i18n" :: Nil Get _ => {
+      val names = S.params("name")
+      new JavaScriptResponse(AngularI18n.toModule(names), Nil, Nil, 200)
+    }
   }
 }
