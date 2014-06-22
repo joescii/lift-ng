@@ -330,6 +330,8 @@ describe("pony", function(){
 });
 ```
 
+In regards to testing the server-side code, we recommend implementing your service logic in a standalone module which handles all of the complex business logic.  Then utilize **lift-ng** to merely expose those services to your angular app.  This way your business logic is decoupled from **lift-ng** and easily testable.
+
 ### Non-AJAX
 Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.  Typical examples of this are configuration settings, session values, etc.  To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
 
