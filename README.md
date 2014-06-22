@@ -262,6 +262,8 @@ angular.module("lift.pony")
   )
 ```
 
+Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.  By default, we look for any elements containing the `ng-app` attribute.  This can be overridden in the `Angular.init()` call via the `appSelector` property.  This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service.
+
 #### Testing
 Testing services provided by **lift-ng** with Jasmine (etc) can be accomplished in the same manner as you would test any Angular service.
 
@@ -327,8 +329,6 @@ describe("pony", function(){
   });
 });
 ```
-
-Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.  By default, we look for any elements containing the `ng-app` attribute.  This can be overridden in the `Angular.init()` call via the `appSelector` property.  This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service.
 
 ### Non-AJAX
 Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.  Typical examples of this are configuration settings, session values, etc.  To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
