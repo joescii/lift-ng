@@ -263,7 +263,7 @@ angular.module("lift.pony")
 ```
 
 #### Testing
-Testing services provided by **lift-ng** with Jasmine (etc) is the same as you would test any Angular service.
+Testing services provided by **lift-ng** with Jasmine (etc) can be accomplished in the same manner as you would test any Angular service.
 
 ```javascript
 describe("pony", function(){
@@ -300,7 +300,7 @@ describe("pony", function(){
     scope = $rootScope.$new();
     $controller('PonyCtrl', {
       $scope: scope,
-      ponyService: ponyService   // This can be done explicitly as here, or we can count on the angular.mock.module call
+      ponyService: ponyService   // Specifying our service explicitly is optional
     });
   });
 
