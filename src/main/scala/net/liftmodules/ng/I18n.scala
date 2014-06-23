@@ -8,6 +8,7 @@ import scala.xml.NodeSeq
 import net.liftweb.http.rest.RestHelper
 import java.security.MessageDigest
 import java.math.BigInteger
+import net.liftweb.http.js.JE
 
 object AngularI18n extends DispatchSnippet {
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
@@ -19,8 +20,16 @@ object AngularI18n extends DispatchSnippet {
     val fromName  = S.attr("name").map(_.toString).toList
     val fromNames = S.attr("names").map(_.toString.split(',')).toList.flatten
     val names = fromName ++ fromNames
-    val src = "net/liftmodules/ng/i18n?"+(names.map(urlParam).mkString("&"))
+    val src = "net/liftmodules/ng/i18n?"+(names.map("name="+_).mkString("&"))+"&sum="+(module(names).digest)
     <script src={src}></script>
+  }
+
+  case class Module(js:JE.Call, digest:String)
+
+  val module: List[String] => Module = scalaz.Memo.immutableHashMapMemo { names =>
+    val module = toModule(names)
+    val sum = digest(module.toString)
+    Module(module, sum)
   }
 
   def toModule(names:List[String]) = {
@@ -37,12 +46,6 @@ object AngularI18n extends DispatchSnippet {
     val digest = md5.digest(str.getBytes("UTF-8"))
     new BigInteger(1, digest).toString(16)
   }
-
-  def urlParam(name:String):String = {
-    val module = toModule(List(name)).toString()
-    val sum = digest(module)
-    "name="+name+"&sum="+sum
-  }
 }
 
 object AngularI18nRest extends RestHelper {
@@ -53,7 +56,7 @@ object AngularI18nRest extends RestHelper {
   serve {
     case "net" :: "liftmodules" :: "ng" :: "i18n" :: Nil Get _ => {
       val names = S.params("name")
-      new JavaScriptResponse(AngularI18n.toModule(names), Nil, Nil, 200)
+      new JavaScriptResponse(AngularI18n.module(names).js, Nil, Nil, 200)
     }
   }
 }
