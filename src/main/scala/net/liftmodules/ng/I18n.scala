@@ -19,7 +19,7 @@ object AngularI18n extends DispatchSnippet {
     val fromName  = S.attr("name").map(_.toString).toList
     val fromNames = S.attr("names").map(_.toString.split(',')).toList.flatten
     val names = fromName ++ fromNames
-    val src = "lift-ng/i18n?"+(names.map(urlParam).mkString("&"))
+    val src = "net/liftmodules/ng/i18n?"+(names.map(urlParam).mkString("&"))
     <script src={src}></script>
   }
 
@@ -40,7 +40,6 @@ object AngularI18n extends DispatchSnippet {
 
   def urlParam(name:String):String = {
     val module = toModule(List(name)).toString()
-    println(module)
     val sum = digest(module)
     "name="+name+"&sum="+sum
   }
@@ -52,7 +51,7 @@ object AngularI18nRest extends RestHelper {
   }
 
   serve {
-    case "lift-ng" :: "i18n" :: Nil Get _ => {
+    case "net" :: "liftmodules" :: "ng" :: "i18n" :: Nil Get _ => {
       val names = S.params("name")
       new JavaScriptResponse(AngularI18n.toModule(names), Nil, Nil, 200)
     }
