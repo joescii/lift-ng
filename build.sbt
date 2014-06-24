@@ -20,9 +20,9 @@ resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositori
 
 libraryDependencies <++= liftVersion { v =>
   Seq(
-    "net.liftweb"   %% "lift-webkit"  % v     % "provided",
-    "com.joescii"   %  "j2js-i18n"    % "0.1" % "compile",
-    "org.scalaz"    %% "scalaz-core"  % "7.0.6"
+    "net.liftweb"   %% "lift-webkit"  % v       % "provided",
+    "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile",
+    "org.scalaz"    %% "scalaz-core"  % "7.0.0" % "compile"  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
   )
 }
 
