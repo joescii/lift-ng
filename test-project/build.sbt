@@ -2,7 +2,7 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.4.3-SNAPSHOT"
+version := "0.4.3"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
@@ -17,7 +17,7 @@ seq(webSettings :_*)
 
 unmanagedResourceDirectories in Test <+= (baseDirectory) { _ / "src/main/webapp" }
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 

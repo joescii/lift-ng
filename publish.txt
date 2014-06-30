@@ -3,7 +3,7 @@ alias pub=publish-signed
 clean 
 
 set liftVersion  in ThisBuild:="3.0-SNAPSHOT"
-set scalaVersion in ThisBuild:="2.10.3"
+set scalaVersion in ThisBuild:="2.10.4"
 update
 pub
 

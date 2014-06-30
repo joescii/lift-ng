@@ -10,7 +10,7 @@ import java.security.MessageDigest
 import java.math.BigInteger
 import net.liftweb.http.js.JE
 
-object AngularI18n extends DispatchSnippet {
+object AngularI18n extends DispatchSnippet with scalaz.Memos {
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
   override def dispatch = {
     case _ => { _ => render }
@@ -26,7 +26,7 @@ object AngularI18n extends DispatchSnippet {
 
   case class Module(js:JE.Call, digest:String)
 
-  val module: List[String] => Module = scalaz.Memo.immutableHashMapMemo { names =>
+  val module: List[String] => Module = immutableHashMapMemo { names =>
     val module = toModule(names)
     val sum = digest(module.toString)
     Module(module, sum)
