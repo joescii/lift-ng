@@ -2,7 +2,7 @@ name := "ng"
 
 organization := "net.liftmodules"
 
-version := "0.4.2"
+version := "0.4.3"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
@@ -12,7 +12,7 @@ name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
 
 scalaVersion <<= scalaVersion ?? "2.9.1"  // This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
-crossScalaVersions := Seq("2.10.3", "2.9.2", "2.9.1-1", "2.9.1")
+crossScalaVersions := Seq("2.10.4", "2.9.2", "2.9.1")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 
@@ -20,8 +20,9 @@ resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositori
 
 libraryDependencies <++= liftVersion { v =>
   Seq(
-    "net.liftweb"   %% "lift-webkit"  % v     % "provided",
-    "com.joescii"   %  "j2js-i18n"    % "0.1" % "compile"
+    "net.liftweb"   %% "lift-webkit"  % v       % "provided",
+    "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile",
+    "org.scalaz"    %% "scalaz-core"  % "6.0.4" % "compile"  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
   )
 }
 
