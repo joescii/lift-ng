@@ -1,6 +1,6 @@
 package net.liftmodules.ng
 
-import net.liftweb.http.{JavaScriptResponse, LiftRules, DispatchSnippet, S}
+import net.liftweb.http._
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import com.joescii.j2jsi18n.JsResourceBundle
@@ -9,6 +9,10 @@ import net.liftweb.http.rest.RestHelper
 import java.security.MessageDigest
 import java.math.BigInteger
 import net.liftweb.http.js.JE
+import java.util.Locale
+import net.liftweb.http.js.JE.Call
+import net.liftweb.http.js.JE.JsVar
+import net.liftweb.http.js.JE.JsRaw
 
 object AngularI18n extends DispatchSnippet with scalaz.Memos {
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
@@ -20,13 +24,18 @@ object AngularI18n extends DispatchSnippet with scalaz.Memos {
     val fromName  = S.attr("name").map(_.toString).toList
     val fromNames = S.attr("names").map(_.toString.split(',')).toList.flatten
     val names = fromName ++ fromNames
-    val src = "net/liftmodules/ng/i18n?"+(names.map("name="+_).mkString("&"))+"&sum="+(module(names).digest)
+    val src =
+      "net/liftmodules/ng/i18n?"+
+        (names.map("name="+_).mkString("&"))+
+        "&loc="+S.locale.toString+
+        "&sum="+(module(names, S.locale.toString).digest)
     <script src={src}></script>
   }
 
   case class Module(js:JE.Call, digest:String)
 
-  val module: List[String] => Module = immutableHashMapMemo { names =>
+  val module = immutableHashMapMemo { t:(List[String], String) =>
+    val (names, loc) = t
     val module = toModule(names)
     val sum = digest(module.toString)
     Module(module, sum)
@@ -56,7 +65,10 @@ object AngularI18nRest extends RestHelper {
   serve {
     case "net" :: "liftmodules" :: "ng" :: "i18n" :: Nil Get _ => {
       val names = S.params("name")
-      new JavaScriptResponse(AngularI18n.module(names).js, Nil, Nil, 200)
+      val res = S.param("loc").map { loc =>
+        new JavaScriptResponse(AngularI18n.module(names, loc).js, Nil, Nil, 200)
+      }.openOr(NotFoundResponse())
+      res
     }
   }
 }
