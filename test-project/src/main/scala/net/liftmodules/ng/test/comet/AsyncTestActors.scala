@@ -83,7 +83,7 @@ class EarlyEmitActor extends AngularActor { self =>
 
   self ! nums.next()
 
-  for(t <- 500 to 3000 by 500) {
+  for(t <- 500 to 5000 by 500) {
     Schedule(() => {self ! nums.next()}, t.millis)
   }
 }

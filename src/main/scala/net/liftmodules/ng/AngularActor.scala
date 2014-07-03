@@ -28,11 +28,11 @@ trait AngularActor extends CometActor with Loggable {
   trait Scope {
     // TODO: Use an Int and change this to obj:Any??
     /** Performs a <code>\$broadcast()</code> with the given event name and object argument */
-    def broadcast(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "broadcast", event, obj))
+    def broadcast(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd("broadcast", event, obj))
     /** Performs a <code>\$emit()</code> with the given event name and object argument */
-    def emit(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd(scopeVar, "emit", event, obj))
-    /** Performs assigns the second argument to the scope variable/field specified in the first argument */
-    def assign(field:String, obj:AnyRef):Unit = partialUpdate(assignCmd(scopeVar, field, obj))
+    def emit(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd("emit", event, obj))
+    /** Performs assignment of the second argument to the scope variable/field specified in the first argument */
+    def assign(field:String, obj:AnyRef):Unit = partialUpdate(assignCmd(field, obj))
 
     /** Variables needed to perform any of our angular actions (will be \$scope and possibly \$rootScope) */
     protected def vars:String
@@ -42,17 +42,38 @@ trait AngularActor extends CometActor with Loggable {
     /** Variable assignment for \$scope */
     protected val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
     /** Variable assignment for \$rootScope */
-    protected val varRoot  = "var r=s.$root;"
+    protected val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
 
-    private def eventInvoke(scopeVar:String, method:String, event:String, obj:AnyRef):String =
-      scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});"
+    /** Interval between tries to unload our early-arrival event queue */
+    private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
 
-    private def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd =
-      JsRaw(vars+eventInvoke(scopeVar, method, event, obj))
+    /** Sends an event command, i.e. broadcast or emit */
+    private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {
+      doCmd(scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});")
+    }
 
-    private def assignCmd(scopeVar:String, field:String, obj:AnyRef):JsCmd = {
-      val assignment = scopeVar+".$apply(function(){"+scopeVar+"."+field+"="+stringify(obj)+";});"
-      JsRaw(vars+assignment)
+    /** Sends an assignment command */
+    private def assignCmd(field:String, obj:AnyRef):JsCmd = {
+      doCmd(scopeVar+".$apply(function(){"+scopeVar+"."+field+"="+stringify(obj)+";});")
+    }
+
+    /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
+    private def doCmd(f:String):JsCmd = {
+      val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
+      val fn = "var f=function(){"+f+"};"
+      val dequeue = "var d=function(){" +
+        "if(net_liftmodules_ng_q[0].t()){"+
+          "for(i=0;i<net_liftmodules_ng_q.length;i++){" +
+            "net_liftmodules_ng_q[i].f();"+
+          "}"+
+          "net_liftmodules_ng_q=void 0;"+
+        "}else{"+
+          "setTimeout(function(){d();},"+interval+");"+
+        "}"+
+      "};"
+      val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},"+interval+");}" +
+        "net_liftmodules_ng_q.push({t:t,f:f});"
+      JsRaw(vars+ready+fn+dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
     }
   }
 
