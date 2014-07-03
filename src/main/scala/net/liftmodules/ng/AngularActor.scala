@@ -47,15 +47,19 @@ trait AngularActor extends CometActor with Loggable {
     private def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd = {
       val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
       val fn = "var f=function(){"+scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});};"
-      val enqueue =
-        "if(typeof q==='undefined'){q=[];setTimeout(function(){" +
+      val dequeue = "var d=function(){" +
+        "if(q[0].t()){"+
           "for(i=0;i<q.length;i++){" +
             "q[i].f();"+
           "}"+
           "q=void 0;"+
-        "},3000);}" +
+        "}else{"+
+          "setTimeout(function(){d();},500);"+
+        "}"+
+      "};"
+      val enqueue = "if(typeof q==='undefined'){q=[];setTimeout(function(){d();},500);}" +
         "q.push({t:t,f:f});"
-      JsRaw(vars+ready+fn+"if(typeof q==='undefined'&&t()){f();}else{"+enqueue+"}")
+      JsRaw(vars+ready+fn+dequeue+"if(typeof q==='undefined'&&t()){f();}else{"+enqueue+"}")
     }
 
     private def assignCmd(scopeVar:String, field:String, obj:AnyRef):JsCmd = {
