@@ -52,9 +52,10 @@ trait AngularActor extends CometActor with Loggable {
           "for(i=0;i<q.length;i++){" +
             "q[i].f();"+
           "}"+
+          "q=void 0;"+
         "},3000);}" +
-        "q.push({f:f});"
-      JsRaw(vars+ready+fn+"if(t()){f();}else{"+enqueue+"}")
+        "q.push({t:t,f:f});"
+      JsRaw(vars+ready+fn+"if(typeof q==='undefined'&&t()){f();}else{"+enqueue+"}")
     }
 
     private def assignCmd(scopeVar:String, field:String, obj:AnyRef):JsCmd = {
