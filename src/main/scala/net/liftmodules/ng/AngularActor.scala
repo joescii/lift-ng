@@ -44,11 +44,18 @@ trait AngularActor extends CometActor with Loggable {
     /** Variable assignment for \$rootScope */
     protected val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
 
-    private def eventInvoke(scopeVar:String, method:String, event:String, obj:AnyRef):String =
-      scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});"
-
-    private def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd =
-      JsRaw(vars+"if(typeof "+scopeVar+"==='undefined'){console.log('enqueued');}else{"+eventInvoke(scopeVar, method, event, obj)+"}")
+    private def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd = {
+      val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
+      val fn = "var f=function(){"+scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});};"
+      val enqueue =
+        "if(typeof q==='undefined'){q=[];setTimeout(function(){" +
+          "for(i=0;i<q.length;i++){" +
+            "q[i].f();"+
+          "}"+
+        "},3000);}" +
+        "q.push({f:f});"
+      JsRaw(vars+ready+fn+"if(t()){f();}else{"+enqueue+"}")
+    }
 
     private def assignCmd(scopeVar:String, field:String, obj:AnyRef):JsCmd = {
       val assignment = scopeVar+".$apply(function(){"+scopeVar+"."+field+"="+stringify(obj)+";});"
