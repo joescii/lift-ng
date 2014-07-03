@@ -66,7 +66,7 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.4" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.5" % "compile"
   )
 }
 ```
@@ -411,6 +411,8 @@ angular.module('ExampleApp', [])
 }]);
 ```
 
+Note that messages sent prior to a page bootstrapping the Angular application will be queued up and released in order once the application is ready.  The retry interval defaults to 100 milliseconds and can be configured in your Lift application's props files with the `net.liftmodules.ng.AngularActor.retryInterval` Int property.
+
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
 
@@ -492,16 +494,17 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
+* 1-way client-server model binding
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * Optional handling for comet events received before Angular has initialized (see [Issue #1](https://github.com/joescii/lift-ng/issues/1))
-* 1-way client-server model binding
 * Make the DSL prettier
 * `AngularActor.scope.parent` support
 
 ## Change log
 
+* *0.4.5*: Now queues and releases async (`AngularActor`) messages arriving prior to Angular bootstrapping, resolving [Issue #1](https://github.com/joescii/lift-ng/issues/1).
 * *0.4.4*: Fixed the last version, which would serve the same i18n locale resource for every requested locale.
 * *0.4.3*: Enhanced i18n service to be served restfully, allowing the browser to cache the service if it has not changed. Dropped 2.9.1-1 support. Began compiling 2.10 with 2.10.4.
 * *0.4.2*: Reverted a change made in 0.4.0 which allows more flexibility in the placement of angular services in the DOM, fixing part 2 of [Issue #2](https://github.com/joescii/lift-ng/issues/2)
