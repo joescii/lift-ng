@@ -42,13 +42,13 @@ trait AngularActor extends CometActor with Loggable {
     /** Variable assignment for \$scope */
     protected val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
     /** Variable assignment for \$rootScope */
-    protected val varRoot  = "var r=s.$root;"
+    protected val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
 
     private def eventInvoke(scopeVar:String, method:String, event:String, obj:AnyRef):String =
       scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});"
 
     private def eventCmd(scopeVar:String, method:String, event:String, obj:AnyRef):JsCmd =
-      JsRaw(vars+eventInvoke(scopeVar, method, event, obj))
+      JsRaw(vars+"if(typeof "+scopeVar+"==='undefined'){console.log('enqueued');}else{"+eventInvoke(scopeVar, method, event, obj)+"}")
 
     private def assignCmd(scopeVar:String, field:String, obj:AnyRef):JsCmd = {
       val assignment = scopeVar+".$apply(function(){"+scopeVar+"."+field+"="+stringify(obj)+";});"
