@@ -31,7 +31,7 @@ trait AngularActor extends CometActor with Loggable {
     def broadcast(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd("broadcast", event, obj))
     /** Performs a <code>\$emit()</code> with the given event name and object argument */
     def emit(event:String, obj:AnyRef):Unit = partialUpdate(eventCmd("emit", event, obj))
-    /** Performs assigns the second argument to the scope variable/field specified in the first argument */
+    /** Performs assignment of the second argument to the scope variable/field specified in the first argument */
     def assign(field:String, obj:AnyRef):Unit = partialUpdate(assignCmd(field, obj))
 
     /** Variables needed to perform any of our angular actions (will be \$scope and possibly \$rootScope) */
@@ -44,14 +44,20 @@ trait AngularActor extends CometActor with Loggable {
     /** Variable assignment for \$rootScope */
     protected val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
 
+    /** Interval between tries to unload our early-arrival event queue */
+    private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
+
+    /** Sends an event command, i.e. broadcast or emit */
     private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {
       doCmd(scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});")
     }
 
+    /** Sends an assignment command */
     private def assignCmd(field:String, obj:AnyRef):JsCmd = {
       doCmd(scopeVar+".$apply(function(){"+scopeVar+"."+field+"="+stringify(obj)+";});")
     }
 
+    /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
     private def doCmd(f:String):JsCmd = {
       val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
       val fn = "var f=function(){"+f+"};"
@@ -62,10 +68,10 @@ trait AngularActor extends CometActor with Loggable {
           "}"+
           "net_liftmodules_ng_q=void 0;"+
         "}else{"+
-          "setTimeout(function(){d();},500);"+
+          "setTimeout(function(){d();},"+interval+");"+
         "}"+
       "};"
-      val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},500);}" +
+      val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},"+interval+");}" +
         "net_liftmodules_ng_q.push({t:t,f:f});"
       JsRaw(vars+ready+fn+dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
     }
