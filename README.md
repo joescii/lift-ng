@@ -494,11 +494,11 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* 1-way client-server model binding
+* 2-way client-server model binding
+* Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
-* Optional handling for comet events received before Angular has initialized (see [Issue #1](https://github.com/joescii/lift-ng/issues/1))
 * Make the DSL prettier
 * `AngularActor.scope.parent` support
 
