@@ -7,7 +7,7 @@
 
     <div ng-controller="EarlyEmitController">
       <div data-lift="comet?type=EarlyEmitActor"></div>
-      Last message: {{earlyEmitOut[earlyEmitOut.length - 1]}}
+      Last message: <span id="last-msg">{{earlyEmitOut[earlyEmitOut.length - 1]}}</span>
       <div ng-repeat="out in earlyEmitOut">
         <span class="early-emit-out">{{out}}</span>
       </div>
