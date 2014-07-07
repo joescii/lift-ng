@@ -38,7 +38,8 @@ class Boot {
       Menu.i("Actors - Root Scope") / "actorsRootScope",
       Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Actors - Assignment") / "actorsAssignment",
-      Menu.i("Delay") / "delay"
+      Menu.i("Delay") / "delay",
+      Menu.i("Server 2 Client Binding") / "server2ClientBind"
     )
 
     // set the sitemap.  Note if you don't want access control for
