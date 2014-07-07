@@ -50,6 +50,10 @@ class PushPonies extends AngularActor {
 
 We recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the functionality of this plugin.  See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
 
+## Jump Start
+
+The quickest jump start you can get on **lift-ng** is via the [giter8 template](https://github.com/joescii/lift-ng.g8).
+
 ## Configuration
 
 Add the Sonatype.org Releases repo as a resolver in your `build.sbt` or `Build.scala` as appropriate.
