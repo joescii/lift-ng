@@ -22,7 +22,8 @@ libraryDependencies <++= liftVersion { v =>
   Seq(
     "net.liftweb"   %% "lift-webkit"  % v       % "provided",
     "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile",
-    "org.scalaz"    %% "scalaz-core"  % "6.0.4" % "compile"  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
+    "org.scalaz"    %% "scalaz-core"  % "6.0.4" % "compile",  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
+    "org.scalatest" %% "scalatest"    % "1.9.2" % "test"
   )
 }
 
