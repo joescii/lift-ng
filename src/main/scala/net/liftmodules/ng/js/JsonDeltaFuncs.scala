@@ -70,7 +70,9 @@ object JsonDeltaFuncs {
       (updates ++ voids).reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
   }
 
-  implicit class ToJsonDeltaFunc(j: JValue) {
+  implicit def ToJsonDeltaFunc(j: JValue) = new JValueWithDfn(j)
+
+  class JValueWithDfn(j:JValue) {
     /** Calculates the delta function to convert this JSON object into the argument */
     def dfn(other: JValue): JsVar => JsCmd = obj.dfn(j, other)
   }
