@@ -28,7 +28,7 @@ object JsonDeltaFuncs {
    */
   private def dfnArrays(xs: List[JValue], ys: List[JValue]): JsVar => JsCmd = {
     ref =>
-      val len = Math.max(xs.length, ys.length)
+      val len = scala.math.max(xs.length, ys.length)
       val xsp = xs.padTo(len, JNull)
 
       val deltas = for {
