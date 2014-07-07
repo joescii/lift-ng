@@ -25,6 +25,35 @@ trait AngularActor extends CometActor with Loggable {
       case _ => write(obj)
     }
 
+  /** Interval between tries to unload our early-arrival event queue */
+  private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
+
+  /** Variable assignment for \$scope */
+  private val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
+  /** Variable assignment for \$rootScope */
+  private val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
+
+  /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
+  protected def doCmd(root:Boolean, f:JsCmd):JsCmd = {
+    val scopeVar = if(root) "r" else "s"
+    val vars = if(root) varScope + varRoot else varScope
+    val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
+    val fn = "var f=function(){"+scopeVar+".$apply(function(){"+f.toJsCmd+"});};"
+    val dequeue = "var d=function(){" +
+      "if(net_liftmodules_ng_q[0].t()){"+
+        "for(i=0;i<net_liftmodules_ng_q.length;i++){" +
+           "net_liftmodules_ng_q[i].f();"+
+          "}"+
+        "net_liftmodules_ng_q=void 0;"+
+      "}else{"+
+        "setTimeout(function(){d();},"+interval+");"+
+      "}"+
+    "};"
+    val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},"+interval+");}" +
+      "net_liftmodules_ng_q.push({t:t,f:f});"
+    JsRaw(vars+ready+fn+dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
+  }
+
   trait Scope {
     // TODO: Use an Int and change this to obj:Any??
     /** Performs a <code>\$broadcast()</code> with the given event name and object argument */
@@ -34,52 +63,22 @@ trait AngularActor extends CometActor with Loggable {
     /** Performs assignment of the second argument to the scope variable/field specified in the first argument */
     def assign(field:String, obj:AnyRef):Unit = partialUpdate(assignCmd(field, obj))
 
-    /** Variables needed to perform any of our angular actions (will be \$scope and possibly \$rootScope) */
-    protected def vars:String
-    /** The variable name of the scope variable for this scope (either \$scope or \$rootScope) */
-    protected def scopeVar:String
-
-    /** Variable assignment for \$scope */
-    protected val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
-    /** Variable assignment for \$rootScope */
-    protected val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
-
-    /** Interval between tries to unload our early-arrival event queue */
-    private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
+    protected def root:Boolean
+    private def scopeVar = if(root) "r" else "s"
 
     /** Sends an event command, i.e. broadcast or emit */
     private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {
-      doCmd(scopeVar+".$apply(function(){"+scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+");});")
+      doCmd(root, JsRaw(scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+")"))
     }
 
     /** Sends an assignment command */
     private def assignCmd(field:String, obj:AnyRef):JsCmd = {
-      doCmd(scopeVar+".$apply(function(){"+scopeVar+"."+field+"="+stringify(obj)+";});")
-    }
-
-    /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
-    private def doCmd(f:String):JsCmd = {
-      val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
-      val fn = "var f=function(){"+f+"};"
-      val dequeue = "var d=function(){" +
-        "if(net_liftmodules_ng_q[0].t()){"+
-          "for(i=0;i<net_liftmodules_ng_q.length;i++){" +
-            "net_liftmodules_ng_q[i].f();"+
-          "}"+
-          "net_liftmodules_ng_q=void 0;"+
-        "}else{"+
-          "setTimeout(function(){d();},"+interval+");"+
-        "}"+
-      "};"
-      val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},"+interval+");}" +
-        "net_liftmodules_ng_q.push({t:t,f:f});"
-      JsRaw(vars+ready+fn+dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
+      doCmd(root, JsRaw(scopeVar+"."+field+"="+stringify(obj)))
     }
   }
 
   private class ChildScope extends Scope {
-    override val vars = varScope
-    override val scopeVar = "s"
+    override val root = false
   }
 
   /** Your handle to the \$scope object for your actor */
@@ -87,8 +86,7 @@ trait AngularActor extends CometActor with Loggable {
 
   /** Your handle to the \$rootScope object for your actor */
   object rootScope extends Scope {
-    override val vars = varScope+varRoot
-    override val scopeVar = "r"
+    override val root = true
   }
 
 }
