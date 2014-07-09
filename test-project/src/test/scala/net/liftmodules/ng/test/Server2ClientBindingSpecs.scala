@@ -12,4 +12,25 @@ class Server2ClientBindingSpecs extends BaseSpec {
     eventually { id("output").element.text should be ("1") }
     eventually { id("output").element.text should be ("2") }
   }
+
+  "The next button" should "load the next box without impacting the others" in {
+    click on "button-next"
+    eventually { textField("input0").value should not be empty }
+    textField("input0").value = "test0"
+
+    click on "button-next"
+    eventually { textField("input1").value should not be empty }
+    textField("input1").value = "test1"
+
+    click on "button-next"
+    eventually { textField("input2").value should not be empty }
+    textField("input2").value = "test2"
+
+    click on "button-next"
+    eventually { textField("input3").value should not be empty }
+
+    textField("input0").value should be ("test0")
+    textField("input1").value should be ("test1")
+    textField("input2").value should be ("test2")
+  }
 }

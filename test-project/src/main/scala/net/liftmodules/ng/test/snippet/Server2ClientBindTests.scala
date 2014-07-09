@@ -7,6 +7,10 @@ import net.liftweb.http.S
 import net.liftweb.util.Schedule
 
 object Server2ClientBindTests {
+  case class ListWrap[A](l:List[A] = List.empty[A]) extends NgModel {
+    def :+ (a:A) = ListWrap(l :+ a)
+  }
+
   def render = {
     var counting = false
     var count = 0
@@ -23,9 +27,17 @@ object Server2ClientBindTests {
 
     schedule
 
+    var array = ListWrap[String]()
+
     renderIfNotAlreadyDefined(angular.module("S2cBindServices").factory("counterService", jsObjFactory()
       .jsonCall("toggle", {
         counting = !counting
+        Empty
+      })
+    ).factory("arrSvc", jsObjFactory()
+      .jsonCall("next", {
+        array = array :+ (new java.util.Date().toString)
+        session.sendCometActorMessage("ArrayBindActor", Empty, array)
         Empty
       })
     ))

@@ -14,6 +14,13 @@
           <div data-lift="comet?type=CounterBindActor"></div>
           <input id="button" type="button" value="Start Counter" ng-click="counter.toggle()"/>
           <span id="output" ng-bind="currentCount">Output1</span>
+
+          <div data-lift="comet?type=ArrayBindActor"></div>
+          <div><input id="input0" type="text" ng-model="array.l[0]"/></div>
+          <div><input id="input1" type="text" ng-model="array.l[1]"/></div>
+          <div><input id="input2" type="text" ng-model="array.l[2]"/></div>
+          <div><input id="input3" type="text" ng-model="array.l[3]"/></div>
+          <input id="button-next" type="button" value="Next" ng-click="arrSvc.next()"/>
         </div>
       </div>
     </div>

@@ -16,9 +16,9 @@ trait BindingActor extends AngularActor {
 
   private implicit val formats = DefaultFormats
   override def lowPriority = {
-    case m:NgModel => doEverything(m, parse(write(m)))
-    case s:String  => doEverything(s, JString(s))
-    case i:Int     => doEverything(i, JInt(i))
+    case m:NgModel  => doEverything(m, parse(write(m)))
+    case s:String   => doEverything(s, JString(s))
+    case i:Int      => doEverything(i, JInt(i))
     case e => logger.warn("Received un-handled model '"+e+"' of type '"+e.getClass.getName+"'.")
   }
 
