@@ -11,7 +11,8 @@
       <h2>Server to Client Binding tests</h2>
       <div ng-app="Server2ClientBindingApp">
         <div ng-controller="Controller">
-          <input id="button" type="button" value="Start Counter" ng-click="counter.startCounter()"/>
+          <div data-lift="comet?type=CounterBindActor"></div>
+          <input id="button" type="button" value="Start Counter" ng-click="counter.toggle()"/>
           <span id="output" ng-bind="currentCount">Output1</span>
         </div>
       </div>

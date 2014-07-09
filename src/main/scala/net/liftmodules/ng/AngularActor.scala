@@ -34,7 +34,7 @@ trait AngularActor extends CometActor with Loggable {
   private val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
 
   /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
-  protected def doCmd(root:Boolean, f:JsCmd):JsCmd = {
+  protected def buildCmd(root:Boolean, f:JsCmd):JsCmd = {
     val scopeVar = if(root) "r" else "s"
     val vars = if(root) varScope + varRoot else varScope
     val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
@@ -68,12 +68,12 @@ trait AngularActor extends CometActor with Loggable {
 
     /** Sends an event command, i.e. broadcast or emit */
     private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {
-      doCmd(root, JsRaw(scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+")"))
+      buildCmd(root, JsRaw(scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+")"))
     }
 
     /** Sends an assignment command */
     private def assignCmd(field:String, obj:AnyRef):JsCmd = {
-      doCmd(root, JsRaw(scopeVar+"."+field+"="+stringify(obj)))
+      buildCmd(root, JsRaw(scopeVar+"."+field+"="+stringify(obj)))
     }
   }
 
