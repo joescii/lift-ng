@@ -21,7 +21,7 @@ trait BindingActor extends AngularActor {
     case m:NgModel  => parse(write(m))
     case s:String   => JString(s)
     case i:Int      => JInt(i)
-    case e => logger.warn("Received un-handled model '"+e+"' of type '"+e.getClass.getName+"'."); JNull
+    case e => JNull
   }
 
   private implicit val formats = DefaultFormats
