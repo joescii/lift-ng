@@ -17,10 +17,10 @@ trait AngularActor extends CometActor with Loggable {
   private def rand = "NG"+randomString(18)
   private val id:String = rand
 
-  val divToRender:NodeSeq = <div id={id}></div>
+  val nodesToRender:NodeSeq = <div id={id}></div>
 
   /** Render a div for us to hook into */
-  def render = divToRender
+  def render = nodesToRender
 
   private implicit val formats = DefaultFormats // Some crap needed for stringify
   protected def stringify(obj:AnyRef):String = obj match {

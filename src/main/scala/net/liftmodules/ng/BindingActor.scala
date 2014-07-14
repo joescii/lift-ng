@@ -15,7 +15,7 @@ trait BindingActor extends AngularActor {
   var stateModel:Any = null
   var stateJson:JValue = JNull
 
-  override def render = divToRender ++ Script(buildCmd(root = false, SetExp(JsVar("s."+bindTo), stateJson)))
+  override def render = nodesToRender ++ Script(buildCmd(root = false, SetExp(JsVar("s."+bindTo), stateJson)))
 
   def toJValue(m:Any):JValue = m match {
     case m:NgModel  => parse(write(m))
