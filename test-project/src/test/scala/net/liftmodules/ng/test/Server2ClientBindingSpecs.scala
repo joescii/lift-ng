@@ -33,4 +33,15 @@ class Server2ClientBindingSpecs extends BaseSpec {
     textField("input1").value should be ("test1")
     textField("input2").value should be ("test2")
   }
+
+  "Refreshing the page" should "load all of the values from the server" in {
+    reloadPage()
+
+    eventually {
+      textField("input0").value should not be empty
+      textField("input1").value should not be empty
+      textField("input2").value should not be empty
+      textField("input3").value should not be empty
+    }
+  }
 }

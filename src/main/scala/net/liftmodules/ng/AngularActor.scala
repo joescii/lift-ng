@@ -10,14 +10,17 @@ import JsCmds._
 import StringHelpers._
 import json.Serialization._
 import json.DefaultFormats
+import scala.xml.NodeSeq
 
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with Loggable {
   private def rand = "NG"+randomString(18)
   private val id:String = rand
 
+  val divToRender:NodeSeq = <div id={id}></div>
+
   /** Render a div for us to hook into */
-  def render = <div id={id}></div>
+  def render = divToRender
 
   private implicit val formats = DefaultFormats // Some crap needed for stringify
   protected def stringify(obj:AnyRef):String = obj match {
