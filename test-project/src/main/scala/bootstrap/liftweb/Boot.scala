@@ -78,6 +78,11 @@ class Boot {
     import net.liftmodules.ng._
 
     AngularJS.init()
-    Angular.init(futures = false, appSelector = ".application")
+    Angular.init(
+      futures = false,
+      appSelector = ".application",
+      includeJsModule = false,
+      includeJsScript = true
+    )
   }
 }
