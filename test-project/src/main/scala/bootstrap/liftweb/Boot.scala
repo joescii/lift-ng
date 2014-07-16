@@ -38,7 +38,8 @@ class Boot {
       Menu.i("Actors - Root Scope") / "actorsRootScope",
       Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Actors - Assignment") / "actorsAssignment",
-      Menu.i("Delay") / "delay"
+      Menu.i("Delay") / "delay",
+      Menu.i("head.js") / "head-js"
     )
 
     // set the sitemap.  Note if you don't want access control for
