@@ -43,3 +43,12 @@ libraryDependencies <++= version { ver =>
 (testOnly in Test) <<= (testOnly in Test) dependsOn (start in container.Configuration)
 
 parallelExecution in Test := false
+
+buildInfoSettings
+
+sourceGenerators in Compile <+= buildInfo
+
+buildInfoKeys := Seq[BuildInfoKey](version)
+
+buildInfoPackage := "net.liftmodules.ng.test"
+
