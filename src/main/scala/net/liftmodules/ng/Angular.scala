@@ -110,10 +110,15 @@ object Angular extends DispatchSnippet {
     val includeFutures = S.attr("futures").map(bool(_, futuresDefault)).openOr(futuresDefault)
 
     val liftproxy = if(includeJsScript) <script src={liftproxySrc}></script> else NodeSeq.Empty
+    val jsModule = if(includeJsModule) Script(JsRaw(
+      "var NET_LIFTMODULES_NG=NET_LIFTMODULES_NG||{};" +
+      "NET_LIFTMODULES_NG.version=NET_LIFTMODULES_NG.version||\"" + BuildInfo.version + "\";" +
+      "NET_LIFTMODULES_NG.jsPath=NET_LIFTMODULES_NG.jsPath||\"" + liftproxySrc +"\";"
+      )) else NodeSeq.Empty
     val modules = Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
     val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor"></div> else NodeSeq.Empty
 
-    liftproxy ++ modules ++ futureActor
+    liftproxy ++ jsModule ++ modules ++ futureActor
   }
 
   /**
