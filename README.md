@@ -91,8 +91,8 @@ class Boot {
       // Set to the CSS selector for finding your apps in the page.
       appSelector = "[ng-app]",
 
-      // Set to true to include a JS module named NET_LIFTMODULES_NG for accessing the lift-ng version
-      // and the path for including liftproxy.js. Set to false if you don't need this.
+      // Set to true to include a JS module named NET_LIFTMODULES_NG for accessing the lift-ng
+      // version and the path for including liftproxy.js. Set to false if you don't need this.
       includeJsModule = false,
 
       // Set to true to include a script tag with the src set to the path for liftproxy.js. Set to
