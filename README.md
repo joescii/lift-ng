@@ -70,12 +70,12 @@ libraryDependencies ++= {
 
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.5" % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.6" % "compile"
   )
 }
 ```
 
-And invoke `Angular.init()` in your `Boot` class.
+And invoke `Angular.init()` in your `Boot` class (shown here with the default values).
 
 ```scala
 package bootstrap.liftweb
@@ -89,15 +89,25 @@ class Boot {
       futures = true,
 
       // Set to the CSS selector for finding your apps in the page.
-      appSelector = "[ng-app]"
+      appSelector = "[ng-app]",
+
+      // Set to true to include a JS module named NET_LIFTMODULES_NG for accessing the lift-ng version
+      // and the path for including liftproxy.js. Set to false if you don't need this.
+      includeJsModule = false,
+
+      // Set to true to include a script tag with the src set to the path for liftproxy.js. Set to
+      // false if you want to handle that yourself by referring to the path in NET_LIFTMODULES_NG.
+      includeJsScript = true
     )
   }
 }
 ```
 
+If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you initialize with `includeJsModule = true` and `includeJsScript = false`.  This will prevent our `Angular` snippet from including the `liftproxy.js` file, and drop the `NET_LIFTMODULES_NG` javascript module into the global space.  With this you can get the full path to the `liftproxy.js` file via `NET_LIFTMODULES_NG.path` and get just the lift-ng version alone with `NET_LIFTMODULES_NG.version`.
+
 ## Supported Versions
 
-**lift-ng** is built and released to support Lift editions 2.5 and 2.6 with Scala versions 2.9.1, 2.9.2, and 2.10; and Lift edition 3.0 with Scala version 2.10.4.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.  It has been developed against Angular 1.1.5+
+**lift-ng** is built and released to support Lift edition 2.5 with Scala versions 2.9.1, 2.9.2, and 2.10; Lift edition 2.6 with Scala versions 2.9.1, 2.9.2, 2.10, 2.11; and Lift edition 3.0 with Scala version 2.10.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
 ## Usage
 
@@ -508,6 +518,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.4.6*: Added `includeJsModule` and `includeJsScript` parameters to `Angular.init()` to give developers control over how the `liftproxy.js` file is downloaded.
 * *0.4.5*: Now queues and releases async (`AngularActor`) messages arriving prior to Angular bootstrapping, resolving [Issue #1](https://github.com/joescii/lift-ng/issues/1).
 * *0.4.4*: Fixed the last version, which would serve the same i18n locale resource for every requested locale.
 * *0.4.3*: Enhanced i18n service to be served restfully, allowing the browser to cache the service if it has not changed. Dropped 2.9.1-1 support. Began compiling 2.10 with 2.10.4.
