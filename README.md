@@ -14,7 +14,7 @@ Hence you can manipulate the DOM at the time you know the information, while on 
 * Security is handled for you, making it virtually impossible to have your http endpoints successfully attacked.
 
 AngularJS as a front end should appeal to Scala and Lift developers for the following reasons:
-* JQuery is a pain.
+* JQuery is a pain for non-trivial applications.
 * AngularJS does a fantastic job of managing complex client-side interactions for you.
 * With **lift-ng** in particular, you get to utilize Lift's reactive features such as asynchronous comet updates to the client and returning `LAFuture[T]` results for services.
 
@@ -125,7 +125,7 @@ object NgPonyService {
 }
 ```
 
-This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services as well as some plumbing from this plugin.  
+This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services as well as some plumbing from this module.
 
 ```html
 <!-- The angular library (manually) -->
@@ -134,7 +134,7 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <!-- Or better yet, via lift-ng-js. (https://github.com/joescii/lift-ng-js) -->
 <script data-lift="AngularJS"></script>
 
-<!-- Prerequisite stuff the plugin needs -->
+<!-- Prerequisite stuff the module needs -->
 <script data-lift="Angular"></script>
 
 <!-- The NgPonyService snippet defined above -->
@@ -501,7 +501,7 @@ Try to include as much as you are able, such as tests, documentation, updates to
 
 ### Testing
 
-Part of contributing your changes will involve testing.  The [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** plugin via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
+Part of contributing your changes will involve testing.  The [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** module via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
 
 ## Wish list
 
