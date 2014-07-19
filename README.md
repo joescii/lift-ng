@@ -103,7 +103,7 @@ class Boot {
 }
 ```
 
-If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you initialize with `includeJsModule = true` and `includeJsScript = false`.  This will prevent our `Angular` snippet from including the `liftproxy.js` file, and drop the `NET_LIFTMODULES_NG` javascript module into the global space.  With this you can get the full path to the `liftproxy.js` file via `NET_LIFTMODULES_NG.path` and get just the lift-ng version alone with `NET_LIFTMODULES_NG.version`.
+If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you should initialize with `includeJsModule = true` and `includeJsScript = false`.  This will prevent our `Angular` snippet from including the `liftproxy.js` file, and drop the `NET_LIFTMODULES_NG` javascript module into the global space.  With this you can get the full path to the `liftproxy.js` file via `NET_LIFTMODULES_NG.path` or get just the lift-ng version alone with `NET_LIFTMODULES_NG.version`.
 
 ## Supported Versions
 
