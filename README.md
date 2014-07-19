@@ -1,54 +1,27 @@
 # lift-ng
 
-AngularJS support for Lift
+lift-ng is the most powerful, most secure AngularJS backend available today.
 
-**lift-ng** is a liftmodule for easing the utilization of [AngularJS](http://docs.angularjs.org/guide/overview) in a Lift application.  The basic premise is to make it a cinch to create server back-end services for injection into your AngularJS components.  This has resulted in the creation of a Scala DSL to closely emulate the way you would define a service in JavaScript.  For a taste, compare this JavaScript...
+The design philosophy of **lift-ng** is to capture the spirit of both [Lift](http://liftweb.net) and [AngularJS](http://docs.angularjs.org/guide/overview) into one package.
+The result is a secure-by-default framework facilitating powerful and robust client/server interactions for building today's modern web applications.
+By utilizing Scala's powerfully-flexible language, **lift-ng** provides a DSL that is natural to use for AngularJS developers and Scala developers alike.
 
-```javascript
-angular.module('lift.pony', [])
-  .factory("ponyService", function() {
-    return {
-      getBestPony: function(arg) {
-        // Return the best pony (client-side)
-        return BestPony;
-      }
-    };
-  });
-```
+Lift as a backend should appeal to AngularJS developers for the following reasons:
+* Lift's templating is unlike most web application frameworks in that it is plain HTML.
+There is no massaging of your Angular templates to make the framework happy.
+* The approach of manipulating the templates on the server by Lift is similar to how you manipulate them on the client with AngularJS.
+Hence you can manipulate the DOM at the time you know the information, while on the client or earlier while on the server.
+* Security is handled for you, making it virtually impossible to have your http endpoints successfully attacked.
 
-... to this Scala **lift-ng**
-
-```scala
-angular.module("lift.pony")
-  .factory("ponyService", jsObjFactory()
-    .jsonCall("getBestPony", (arg) => {
-      // Return the best pony (server-side)
-      Full(BestPony)
-    })
-  )
-```
-
-Both will create an angular module named `lift.pony` with a service named `ponyService` with a function named `getBestPony`, yet the former runs on the client-side, and the latter runs on the server-side.
-
-In addition to supporting client-side initiated service requests, **lift-ng** supports pushes from the server via [comet](#comet).  For this, you will have a server-side actor with access to the scope of the companion client-side DOM element:
-
-```scala
-class PushPonies extends AngularActor {
-  override def lowPriority = {
-    case best:Pony =>
-      rootScope.emit("emit-pony", best)
-      rootScope.broadcast("broadcast-pony", best)
-      rootScope.assign("best.pony", best)
-      scope.emit("emit-pony", best)
-      scope.broadcast("broadcast-pony", best)
-      scope.assign("best.pony", best)
-  }
-}
-```
+AngularJS as a front end should appeal to Scala and Lift developers for the following reasons:
+* JQuery is a pain.
+* AngularJS does a fantastic job of managing complex client-side interactions for you.
+* With **lift-ng** in particular, you get to utilize Lift's reactive features such as asynchronous comet updates to the client and returning `LAFuture[T]` results for services.
 
 ## Tutorial
 
-We recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the functionality of this plugin.  See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
+If you are not comfortable with either Lift or AngularJS, we recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the original functionality of this plugin.
+See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
 
 ## Jump Start
 
@@ -56,13 +29,8 @@ The quickest jump start you can get on **lift-ng** is via the [giter8 template](
 
 ## Configuration
 
-Add the Sonatype.org Releases repo as a resolver in your `build.sbt` or `Build.scala` as appropriate.
-
-```scala
-resolvers += "Sonatype.org Releases" at "https://oss.sonatype.org/content/repositories/releases/"
-```
-
-Add this `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
+If you don't want to utilize the giter8 project, you can configure your Lift project to use **lift-ng** manually.
+Add `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
 
 ```scala
 libraryDependencies ++= {
@@ -101,11 +69,43 @@ class Boot {
 
 ## Usage
 
-Below are a few usage examples.  Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples
+Below are usage examples of each of the major features of **lift-ng**.
+Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples
 
-### AJAX
+### AJAX Services
 
-Continuing with the sample code from the introduction, you will need a snippet which contains the definition of the angular service/factory which can be called from the client code.
+Most AngularJS backends provide RESTful http endpoints for the application to receive data from the server.
+**lift-ng** is certainly no exception by providing a server-side DSL for creating services.
+Compare the following AngularJS factory
+
+```javascript
+angular.module('lift.pony', [])
+  .factory("ponyService", function() {
+    return {
+      getBestPony: function(arg) {
+        // Return the best pony (client-side)
+        return BestPony;
+      }
+    };
+  });
+```
+
+... to this **lift-ng** DSL in Scala
+
+```scala
+angular.module("lift.pony")
+  .factory("ponyService", jsObjFactory()
+    .jsonCall("getBestPony", (arg) => {
+      // Return the best pony (server-side)
+      Full(BestPony)
+    })
+  )
+```
+
+Both will create an angular module named `lift.pony` with a service named `ponyService` with a function named `getBestPony`, yet the former runs on the client-side, and the latter runs on the server-side.
+
+To flesh out this example completely, you will define a [Lift snippet](http://exploring.liftweb.net/master/index-5.html) to provide the service to the resulting HTML.
+Here, we have elected to create an object named `NgPonyService`, delivering the snippet via Lift's default snippet method name, `render`
 
 ```scala
 object NgPonyService {
@@ -334,10 +334,19 @@ describe("pony", function(){
 });
 ```
 
-In regards to testing the server-side code, we recommend implementing your service logic in a standalone module which handles all of the complex business logic.  Then utilize **lift-ng** to merely expose those services to your angular app.  This way your business logic is decoupled from **lift-ng** and easily testable.
+#### Under the Services' hood
+Unlike most AngularJS RESTful http backends, you have no further work to do to secure your application.
+Rather than a fixed named endpoint, **lift-ng** dynamically creates an http endpoint for each service per page load.
+The name given to the end points is a securely-randomized number that is difficult to predict for an attacker attempting to utilize cross-site scripting techniques for instance.
+
+In regards to testing the server-side code, we recommend implementing your service logic in a standalone module which handles all of the complex business logic.
+Then utilize **lift-ng** to merely expose those services to your angular app.
+This way your business logic is decoupled from **lift-ng** and easily testable.
 
 ### Non-AJAX
-Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.  Typical examples of this are configuration settings, session values, etc.  To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
+Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.
+Typical examples of this are configuration settings, session values, etc.
+To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
 
 ```scala
 angular.module("StaticServices")
