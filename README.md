@@ -12,6 +12,8 @@ There is no massaging of your Angular templates to make the framework happy.
 * The approach of manipulating the templates on the server by Lift is similar to how you manipulate them on the client with AngularJS.
 Hence you can manipulate the DOM at the time you know the information, while on the client or earlier while on the server.
 * Security is handled for you, making it virtually impossible to have your http endpoints successfully attacked.
+(More on [Lift's security](http://seventhings.liftweb.net/security))
+* Your application will be built on the rock-solid JVM as a time-tested Java servlet on the most mature Scala web framework.
 
 AngularJS as a front end should appeal to Scala and Lift developers for the following reasons:
 * JQuery is a pain for non-trivial applications.
