@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+      <script data-lift="AngularJS"></script>
+      <script id="c2sBindApp_js"        src="/js/Client2ServerBindApp.js" type="text/javascript"></script>
+      <script id="liftmodules-ng_js"  data-lift="Angular"></script>
+
+      <h2>Client to Server Binding tests</h2>
+      <div ng-app="Client2ServerBindingApp">
+        <div ng-controller="Controller">
+          <div data-lift="comet?type=C2sBindActor"></div>
+          <div data-lift="comet?type=C2sReturnActor"></div>
+          <input type="text" id="inputTxt" ng-model="input"/>
+          <div id="returned" ng-bind="returned">Value from server</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
