@@ -8,3 +8,11 @@ class CounterBindActor extends BindingActor {
 class ArrayBindActor extends BindingActor {
   override val bindTo = "array"
 }
+
+class C2sBindActor extends BindingActor {
+  override val bindTo = "inputTxt"
+}
+
+class C2sReturnActor extends AngularActor {
+
+}
