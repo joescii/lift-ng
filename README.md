@@ -26,20 +26,24 @@ See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen
 ## Jump Start
 
 The quickest jump start you can get on **lift-ng** is via the [giter8 template](https://github.com/joescii/lift-ng.g8).
+Otherwise, you should first [get started with Lift](http://liftweb.net/getting_started) and configure the project to include the **lift-ng** module as outlined below.
 
 ## Configuration
 
-If you don't want to utilize the giter8 project, you can configure your Lift project to use **lift-ng** manually.
+You can configure an existing Lift project to use **lift-ng** manually.
 Add `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
+Optionally add `lift-ng-js` as a dependency if you would like us to manage the delivery of your AngularJS library javascript files.
 
 ```scala
 libraryDependencies ++= {
-  val liftEdition = "2.5" // Also supported: "2.6" and "3.0"
-
+  val liftVersion = "2.5.1" // Also supported: "2.6" and "3.0"
+  val liftEdition = liftVersion.substring(0,3)
+  val ngVersion = "1.2.20"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.5" % "compile"
-  )
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.4.5"            % "compile",
+    "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
+   )
 }
 ```
 
