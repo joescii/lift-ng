@@ -10,7 +10,7 @@ class ArrayBindActor extends BindingActor {
 }
 
 class C2sBindActor extends BindingActor {
-  override val bindTo = "inputTxt"
+  override val bindTo = "input"
 }
 
 class C2sReturnActor extends AngularActor {

@@ -7,11 +7,11 @@ class Client2ServerBindingSpecs extends BaseSpec {
   }
 
   "The input text" should "be reflected in the output text" ignore {
-    textField("inputTxt").value = "a"
+    textField("input").value = "a"
     eventually { id("output").element.text should be ("a") }
-    textField("inputTxt").value = "ab"
+    textField("input").value = "ab"
     eventually { id("output").element.text should be ("ab") }
-    textField("inputTxt").value = "abc"
+    textField("input").value = "abc"
     eventually { id("output").element.text should be ("abc") }
   }
 }
