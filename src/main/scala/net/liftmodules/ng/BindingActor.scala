@@ -13,15 +13,17 @@ trait BindingActor extends AngularActor {
   /** The client `\$scope` element to bind to */
   def bindTo:String
 
+  case class FromClient(model:String)
+
   var stateModel:Any = null
   var stateJson:JValue = JNull
 
   override def render = nodesToRender ++ Script(buildCmd(root = false,
     SetExp(JsVar("s()."+bindTo), stateJson) &
-    Call("s().$watch", JString(bindTo), AnonFunc("updated",
-      Call("console.log", JsVar("updated")) &
-      ajaxCall(JsVar("updated"), s => {
-        logger.debug(s)
+    Call("s().$watch", JString(bindTo), AnonFunc("m",
+      JsCrVar("u", Call("JSON.stringify", JsRaw("{data:m,id:'"+id+"'}"))) &
+      ajaxCall(JsVar("u"), s => {
+        this ! FromClient(s)
         Noop
     })))
   ))
@@ -35,13 +37,14 @@ trait BindingActor extends AngularActor {
 
   private implicit val formats = DefaultFormats
   override def lowPriority = {
-    case m:NgModel  => doEverything(m)
-    case s:String   => doEverything(s)
-    case i:Int      => doEverything(i)
+    case m:NgModel  => fromServer(m)
+    case s:String   => fromServer(s)
+    case i:Int      => fromServer(i)
+    case FromClient(json) => fromClient(json)
     case e => logger.warn("Received un-handled model '"+e+"' of type '"+e.getClass.getName+"'.")
   }
 
-  private def doEverything(m:Any) = {
+  private def fromServer(m:Any) = {
     val mJs = toJValue(m)
     val diff = stateJson dfn mJs
     val cmd = buildCmd(root = false, diff(JsVar("s()."+bindTo)))
@@ -49,5 +52,9 @@ trait BindingActor extends AngularActor {
 
     stateJson = mJs
     stateModel = m
+  }
+
+  private def fromClient(json:String) = {
+    logger.debug("From Client: "+json)
   }
 }
