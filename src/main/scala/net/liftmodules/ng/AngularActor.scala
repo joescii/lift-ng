@@ -11,6 +11,7 @@ import StringHelpers._
 import json.Serialization._
 import json.DefaultFormats
 import scala.xml.NodeSeq
+import net.liftweb.json.JsonAST.JString
 
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with Loggable {
@@ -31,17 +32,18 @@ trait AngularActor extends CometActor with Loggable {
   /** Interval between tries to unload our early-arrival event queue */
   private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
 
+  private val varElement = JsCrVar("e", Call("angular.element", Call("document.querySelector", JString("#"+id))))// "var s=angular.element(document.querySelector('#"+id+"')).scope();"
   /** Variable assignment for \$scope */
-  private val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
+  private val varScope = JsCrVar("s", Call("e.scope"))
   /** Variable assignment for \$rootScope */
-  private val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
+  private val varRoot  = JsCrVar("r", JsRaw("(typeof s==='undefined')?void 0:s.$root"))// "var r=(typeof s==='undefined')?void 0:s.$root;"
 
   /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
   protected def buildCmd(root:Boolean, f:JsCmd):JsCmd = {
     val scopeVar = if(root) "r" else "s"
-    val vars = if(root) varScope + varRoot else varScope
-    val ready = "var t=function(){return typeof " + scopeVar + "!=='undefined';};"
-    val fn = "var f=function(){"+scopeVar+".$apply(function(){"+f.toJsCmd+"});};"
+    val vars = varElement & varScope & (if(root) varRoot else Noop)
+    val ready = JsCrVar("t", AnonFunc(JsReturn(JsRaw("typeof " + scopeVar + "!=='undefined'"))))
+    val fn = JsCrVar("f", AnonFunc(Call(scopeVar+".$apply", AnonFunc(f))))
     val dequeue = "var d=function(){" +
       "if(net_liftmodules_ng_q[0].t()){"+
         "for(i=0;i<net_liftmodules_ng_q.length;i++){" +
@@ -54,7 +56,9 @@ trait AngularActor extends CometActor with Loggable {
     "};"
     val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},"+interval+");}" +
       "net_liftmodules_ng_q.push({t:t,f:f});"
-    JsRaw(vars+ready+fn+dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
+    val cmds = vars & ready & fn & JsRaw(dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
+    logger.debug(cmds)
+    cmds
   }
 
   trait Scope {
