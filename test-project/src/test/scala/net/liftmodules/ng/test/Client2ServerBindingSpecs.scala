@@ -6,7 +6,7 @@ class Client2ServerBindingSpecs extends BaseSpec {
     eventually { pageTitle should be ("App: Client 2 Server Binding") }
   }
 
-  "The input text" should "be reflected in the output text" in {
+  "The input text" should "be reflected in the output text" ignore {
     textField("inputTxt").value = "a"
     eventually { id("output").element.text should be ("a") }
     textField("inputTxt").value = "ab"
