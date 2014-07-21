@@ -17,8 +17,8 @@ trait BindingActor extends AngularActor {
   var stateJson:JValue = JNull
 
   override def render = nodesToRender ++ Script(buildCmd(root = false,
-    SetExp(JsVar(scopeExp+"."+bindTo), stateJson) &
-    Call(scopeExp+".$watch", JString(bindTo), AnonFunc("updated",
+    SetExp(JsVar("s()."+bindTo), stateJson) &
+    Call("s().$watch", JString(bindTo), AnonFunc("updated",
       Call("console.log", JsVar("updated")) &
       ajaxCall(JsVar("updated"), s => {
         logger.debug(s)
@@ -44,7 +44,7 @@ trait BindingActor extends AngularActor {
   private def doEverything(m:Any) = {
     val mJs = toJValue(m)
     val diff = stateJson dfn mJs
-    val cmd = buildCmd(root = false, diff(JsVar(scopeExp+"."+bindTo)))
+    val cmd = buildCmd(root = false, diff(JsVar("s()."+bindTo)))
     partialUpdate(cmd)
 
     stateJson = mJs
