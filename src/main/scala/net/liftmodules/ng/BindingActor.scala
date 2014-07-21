@@ -1,7 +1,7 @@
 package net.liftmodules.ng
 
 import Angular.NgModel
-import net.liftweb.json.{ DefaultFormats, parse }
+import net.liftweb.json.{JsonParser, DefaultFormats, parse}
 import net.liftweb.json.Serialization._
 import net.liftweb.json.JsonAST._
 import net.liftweb.http.js.JE._
@@ -13,7 +13,7 @@ trait BindingActor extends AngularActor {
   /** The client `\$scope` element to bind to */
   def bindTo:String
 
-  case class FromClient(model:String)
+  case class ClientJson(json:String)
 
   var stateModel:Any = null
   var stateJson:JValue = JNull
@@ -21,9 +21,9 @@ trait BindingActor extends AngularActor {
   override def render = nodesToRender ++ Script(buildCmd(root = false,
     SetExp(JsVar("s()."+bindTo), stateJson) &
     Call("s().$watch", JString(bindTo), AnonFunc("m",
-      JsCrVar("u", Call("JSON.stringify", JsRaw("{data:m,id:'"+id+"'}"))) &
+      JsCrVar("u", Call("JSON.stringify", JsRaw("{data:m}"))) &
       ajaxCall(JsVar("u"), s => {
-        this ! FromClient(s)
+        this ! ClientJson(s)
         Noop
     })))
   ))
@@ -40,7 +40,7 @@ trait BindingActor extends AngularActor {
     case m:NgModel  => fromServer(m)
     case s:String   => fromServer(s)
     case i:Int      => fromServer(i)
-    case FromClient(json) => fromClient(json)
+    case ClientJson(json) => fromClient(json)
     case e => logger.warn("Received un-handled model '"+e+"' of type '"+e.getClass.getName+"'.")
   }
 
@@ -55,6 +55,10 @@ trait BindingActor extends AngularActor {
   }
 
   private def fromClient(json:String) = {
-    logger.debug("From Client: "+json)
+//    implicit val formats = DefaultFormats
+//    implicit val mf = manifest[String]
+
+    val jUpdate = JsonParser.parse(json) \\ "data"
+    logger.debug("From Client: "+jUpdate)
   }
 }
