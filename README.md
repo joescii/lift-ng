@@ -485,6 +485,10 @@ The latest version of scaladocs are hosted thanks to [cloudbees](http://www.clou
 * [Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
 * [Scala 2.9.1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1/api/index.html#package)
 
+## Community/Support
+
+Need help?  Hit us up on the [Lift Google group](https://groups.google.com/forum/#!forum/liftweb).  We'd love to help you out and hear about what you're building.
+
 ## Contributing
 
 As with any open source project, contributions are greatly appreciated.  If you find an issue or have a feature idea, we'd love to know about it!  Any of the following will help this effort tremendously.
@@ -513,7 +517,7 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* 2-way client-server model binding
+* 2-way client-server model binding (See [binding branch](https://github.com/joescii/lift-ng/tree/binding) for the source. Grab version 0.5.0-SNAPSHOT for a preview)
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
