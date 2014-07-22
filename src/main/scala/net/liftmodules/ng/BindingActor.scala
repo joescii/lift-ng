@@ -12,10 +12,13 @@ import net.liftweb.http.SHtml._
 abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   /** The client `\$scope` element to bind to */
   def bindTo:String
+  def initialValue:M
+
+  def onClientUpdate(m:M):M = m
 
   case class ClientJson(json:String)
 
-  var stateModel:Any = null
+  var stateModel:M = initialValue
   var stateJson:JValue = JNull
 
   override def render = nodesToRender ++ Script(buildCmd(root = false,
@@ -30,21 +33,17 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
   def toJValue(m:Any):JValue = m match {
     case m:NgModel  => parse(write(m))
-    case s:String   => JString(s)
-    case i:Int      => JInt(i)
     case e => JNull
   }
 
   private implicit val formats = DefaultFormats
   override def lowPriority = {
-    case m:NgModel  => fromServer(m)
-    case s:String   => fromServer(s)
-    case i:Int      => fromServer(i)
+    case m:M => fromServer(m)
     case ClientJson(json) => fromClient(json)
     case e => logger.warn("Received un-handled model '"+e+"' of type '"+e.getClass.getName+"'.")
   }
 
-  private def fromServer(m:Any) = {
+  private def fromServer(m:M) = {
     val mJs = toJValue(m)
     val diff = stateJson dfn mJs
     val cmd = buildCmd(root = false, diff(JsVar("s()."+bindTo)))
@@ -57,8 +56,13 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   private def fromClient(json:String) = {
 //    implicit val formats = DefaultFormats
 //    implicit val mf = manifest[String]
+    import js.ToWithExtractMerged
 
     val jUpdate = JsonParser.parse(json) \\ "add"
     logger.debug("From Client: "+jUpdate)
+    val updated = jUpdate.extractMerged(stateModel)
+    logger.debug("From Client: "+updated)
+
+    onClientUpdate(updated)
   }
 }
