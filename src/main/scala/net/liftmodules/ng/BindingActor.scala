@@ -9,7 +9,7 @@ import js.JsonDeltaFuncs._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.SHtml._
 
-trait BindingActor extends AngularActor {
+abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   /** The client `\$scope` element to bind to */
   def bindTo:String
 
@@ -20,8 +20,8 @@ trait BindingActor extends AngularActor {
 
   override def render = nodesToRender ++ Script(buildCmd(root = false,
     SetExp(JsVar("s()."+bindTo), stateJson) &
-    Call("s().$watch", JString(bindTo), AnonFunc("m",
-      JsCrVar("u", Call("JSON.stringify", JsRaw("{data:m}"))) &
+    Call("s().$watchCollection", JString(bindTo), AnonFunc("m",
+      JsCrVar("u", Call("JSON.stringify", JsRaw("{add:m}"))) &
       ajaxCall(JsVar("u"), s => {
         this ! ClientJson(s)
         Noop
@@ -58,7 +58,7 @@ trait BindingActor extends AngularActor {
 //    implicit val formats = DefaultFormats
 //    implicit val mf = manifest[String]
 
-    val jUpdate = JsonParser.parse(json) \\ "data"
+    val jUpdate = JsonParser.parse(json) \\ "add"
     logger.debug("From Client: "+jUpdate)
   }
 }
