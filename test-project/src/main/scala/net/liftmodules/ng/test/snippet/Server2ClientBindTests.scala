@@ -10,6 +10,7 @@ object Server2ClientBindTests {
   case class ListWrap[A](l:List[A] = List.empty[A]) extends NgModel {
     def :+ (a:A) = ListWrap(l :+ a)
   }
+  case class Counter(current:Int) extends NgModel
 
   def render = {
     var counting = false
@@ -19,7 +20,7 @@ object Server2ClientBindTests {
 
     def schedule:Unit = Schedule(() => {
       if(counting) {
-        session.sendCometActorMessage("CounterBindActor", Empty, count )
+        session.sendCometActorMessage("CounterBindActor", Empty, Counter(count) )
         count += 1
       }
       schedule

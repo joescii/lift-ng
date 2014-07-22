@@ -2,7 +2,7 @@ package net.liftmodules.ng
 package test.comet
 
 class CounterBindActor extends BindingActor {
-  override val bindTo = "currentCount"
+  override val bindTo = "count"
 }
 
 class ArrayBindActor extends BindingActor {
