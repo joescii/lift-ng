@@ -65,19 +65,21 @@ class Boot {
       // Set to the CSS selector for finding your apps in the page.
       appSelector = "[ng-app]",
 
-      // Set to true to include a JS module named NET_LIFTMODULES_NG for accessing the lift-ng
+      // Set to true to include a JS module named net_liftmodules_ng for accessing the lift-ng
       // version and the path for including liftproxy.js. Set to false if you don't need this.
       includeJsModule = false,
 
       // Set to true to include a script tag with the src set to the path for liftproxy.js. Set to
-      // false if you want to handle that yourself by referring to the path in NET_LIFTMODULES_NG.
+      // false if you want to handle that yourself by referring to the path in net_liftmodules_ng.
       includeJsScript = true
     )
   }
 }
 ```
 
-If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you should initialize with `includeJsModule = true` and `includeJsScript = false`.  This will prevent our `Angular` snippet from including the `liftproxy.js` file, and drop the `NET_LIFTMODULES_NG` javascript module into the global space.  With this you can get the full path to the `liftproxy.js` file via `NET_LIFTMODULES_NG.path` or get just the lift-ng version alone with `NET_LIFTMODULES_NG.version`.
+If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you should initialize with `includeJsModule = true` and `includeJsScript = false`.
+This will prevent our `Angular` snippet from including the `liftproxy.js` file, and drop the `net_liftmodules_ng` javascript module into the global space.
+With this you can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.path` or get just the lift-ng version alone with `net_liftmodules_ng.version`.
 
 ## Supported Versions
 

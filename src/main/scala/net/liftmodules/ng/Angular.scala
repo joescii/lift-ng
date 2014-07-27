@@ -44,7 +44,7 @@ object Angular extends DispatchSnippet {
     * Init function to be called in Boot
     * @param futures true to include {{{net.liftweb.actor.LAFuture}}} support (and hence add a comet to your page), false otherwise
     * @param appSelector the CSS selector to find your app in the page
-    * @param includeJsModule true to include the global JS module/object {{{NET_LIFTMODULES_NG}}}
+    * @param includeJsModule true to include the global JS module/object {{{net_liftmodules_ng}}}
     * @param includeJsScript true to include the prerequisite liftproxy.js file, false if you plan to include it yourself.
     */
   def init(futures:Boolean = true,
@@ -111,9 +111,9 @@ object Angular extends DispatchSnippet {
 
     val liftproxy = if(includeJsScript) <script src={liftproxySrc}></script> else NodeSeq.Empty
     val jsModule = if(includeJsModule) Script(JsRaw(
-      "var NET_LIFTMODULES_NG=NET_LIFTMODULES_NG||{};" +
-      "NET_LIFTMODULES_NG.version=NET_LIFTMODULES_NG.version||\"" + BuildInfo.version + "\";" +
-      "NET_LIFTMODULES_NG.jsPath=NET_LIFTMODULES_NG.jsPath||\"" + liftproxySrc +"\";"
+      "var net_liftmodules_ng=net_liftmodules_ng||{};" +
+      "net_liftmodules_ng.version=net_liftmodules_ng.version||\"" + BuildInfo.version + "\";" +
+      "net_liftmodules_ng.jsPath=net_liftmodules_ng.jsPath||\"" + liftproxySrc +"\";"
       )) else NodeSeq.Empty
     val modules = Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
     val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor"></div> else NodeSeq.Empty
