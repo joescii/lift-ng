@@ -9,6 +9,7 @@ liftVersion <<= liftVersion ?? "2.5.1"
 liftEdition <<= liftVersion { _.substring(0,3) }
 
 resolvers ++= Seq(
+  "staging"   at "https://oss.sonatype.org/service/local/staging/deploy/maven2",
   "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
   "releases"  at "http://oss.sonatype.org/content/repositories/releases"
 )
