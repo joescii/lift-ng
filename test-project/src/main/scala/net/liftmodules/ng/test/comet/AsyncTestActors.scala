@@ -78,14 +78,17 @@ class EarlyEmitActor extends AngularActor { self =>
   val nums  = Stream.from(0).iterator
 
   override def lowPriority = {
+    case "go" => go
     case i:Int => println("emitting"); rootScope.emit("earlyEmit", i.toString)
   }
 
   self ! nums.next()
 
-  for(t <- 500 to 5000 by 500) {
+  def go = for(t <- 500 to 1500 by 500) {
     Schedule(() => {self ! nums.next()}, t.millis)
   }
+
+  go
 }
 
 class ScopeActor extends AngularActor {
