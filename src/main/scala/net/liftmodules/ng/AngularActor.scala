@@ -4,7 +4,7 @@ import net.liftweb._
 import http._
 import common._
 import util._
-import js._
+import http.js._
 import JE._
 import JsCmds._
 import StringHelpers._

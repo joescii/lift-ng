@@ -527,6 +527,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.4.6*: Updated closure compiler. 
 * *0.4.5*: Now queues and releases async (`AngularActor`) messages arriving prior to Angular bootstrapping, resolving [Issue #1](https://github.com/joescii/lift-ng/issues/1).
 * *0.4.4*: Fixed the last version, which would serve the same i18n locale resource for every requested locale.
 * *0.4.3*: Enhanced i18n service to be served restfully, allowing the browser to cache the service if it has not changed. Dropped 2.9.1-1 support. Began compiling 2.10 with 2.10.4.

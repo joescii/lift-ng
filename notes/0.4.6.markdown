@@ -1,0 +1,5 @@
+#liftng 0.4.6
+
+#scala @liftweb @angularjs
+
+Updated closure compiler. 
