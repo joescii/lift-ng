@@ -2,5 +2,6 @@
 
 #scala @liftweb @angularjs
 
-Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 
+Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message.
+Added `includeJsScript` parameter to `Angular.init()` to give developers the ability to download the `liftproxy.js` their own way, such as via [head.js](http://headjs.com/).
 Updated closure compiler. 
