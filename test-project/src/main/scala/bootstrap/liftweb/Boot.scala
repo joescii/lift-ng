@@ -81,7 +81,6 @@ class Boot {
     Angular.init(
       futures = false,
       appSelector = ".application",
-      includeJsModule = true,
       includeJsScript = true
     )
   }

@@ -65,10 +65,6 @@ class Boot {
       // Set to the CSS selector for finding your apps in the page.
       appSelector = "[ng-app]",
 
-      // Set to true to include a JS module named net_liftmodules_ng for accessing the lift-ng
-      // version and the path for including liftproxy.js. Set to false if you don't need this.
-      includeJsModule = false,
-
       // Set to true to include a script tag with the src set to the path for liftproxy.js. Set to
       // false if you want to handle that yourself by referring to the path in net_liftmodules_ng.
       includeJsScript = true
@@ -77,9 +73,10 @@ class Boot {
 }
 ```
 
-If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you should initialize with `includeJsModule = true` and `includeJsScript = false`.
-This will prevent our `Angular` snippet from including the `liftproxy.js` file, and drop the `net_liftmodules_ng` javascript module into the global space.
-With this you can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.path` or get just the lift-ng version alone with `net_liftmodules_ng.version`.
+If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you should initialize with `includeJsScript = false`.
+This will prevent our `Angular` snippet from including the `liftproxy.js` file.
+Instead, you can use the global `ng_liftmodules_ng` object to include the file yourself.
+You can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.path` or get just the lift-ng version alone with `net_liftmodules_ng.version`.
 
 ## Supported Versions
 
@@ -540,7 +537,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 ## Change log
 
 * *0.4.6*: Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 
-Added `includeJsModule` and `includeJsScript` parameters to `Angular.init()` to give developers control over how the `liftproxy.js` file is downloaded.
+Added `includeJsScript` parameter to `Angular.init()` to give developers the ability to download the `liftproxy.js` their own way, such as via [head.js](http://headjs.com/).
 Updated closure compiler. 
 * *0.4.5*: Now queues and releases async (`AngularActor`) messages arriving prior to Angular bootstrapping, resolving [Issue #1](https://github.com/joescii/lift-ng/issues/1).
 * *0.4.4*: Fixed the last version, which would serve the same i18n locale resource for every requested locale.
