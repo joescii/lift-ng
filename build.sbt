@@ -88,6 +88,8 @@ pomExtra := (
          </developers>
  )
 
+licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
+
 seq(lsSettings :_*)
 
 (LsKeys.tags in LsKeys.lsync) := Seq("lift", "angular")
