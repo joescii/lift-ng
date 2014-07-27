@@ -100,4 +100,4 @@ seq(lsSettings :_*)
 
 (LsKeys.ghRepo in LsKeys.lsync) := Some("lift-ng")
 
-(LsKeys.ghBranch in LsKeys.lsync) := Some("implicitly")
+(LsKeys.ghBranch in LsKeys.lsync) := Some("master")
