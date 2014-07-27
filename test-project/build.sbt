@@ -38,9 +38,9 @@ libraryDependencies <++= version { ver =>
   )
 }
 
-(test in Test) <<= (test in Test) dependsOn (start in container.Configuration)
+(Keys.test in Test) <<= (Keys.test in Test) dependsOn (start in container.Configuration)
 
-(testOnly in Test) <<= (testOnly in Test) dependsOn (start in container.Configuration)
+(Keys.testOnly in Test) <<= (Keys.testOnly in Test) dependsOn (start in container.Configuration)
 
 parallelExecution in Test := false
 

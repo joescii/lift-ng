@@ -4,12 +4,13 @@ import net.liftweb._
 import http._
 import common._
 import util._
-import js._
+import http.js._
 import JE._
 import JsCmds._
 import StringHelpers._
 import json.Serialization._
 import json.DefaultFormats
+import json.JsonAST._
 
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with Loggable {
@@ -35,17 +36,18 @@ trait AngularActor extends CometActor with Loggable {
     def assign(field:String, obj:AnyRef):Unit = partialUpdate(assignCmd(field, obj))
 
     /** Variables needed to perform any of our angular actions (will be \$scope and possibly \$rootScope) */
-    protected def vars:String
+    protected def vars:JsCmd
     /** The variable name of the scope variable for this scope (either \$scope or \$rootScope) */
     protected def scopeVar:String
 
-    /** Variable assignment for \$scope */
-    protected val varScope = "var s=angular.element(document.querySelector('#"+id+"')).scope();"
-    /** Variable assignment for \$rootScope */
-    protected val varRoot  = "var r=(typeof s==='undefined')?void 0:s.$root;"
-
     /** Interval between tries to unload our early-arrival event queue */
     private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
+
+    protected val varElement = JsCrVar("e", Call("angular.element", Call("document.querySelector", JString("#"+id))))// "var s=angular.element(document.querySelector('#"+id+"')).scope();"
+    /** Variable assignment for \$scope */
+    protected val varScope = JsCrVar("s", AnonFunc(JsReturn(Call("e.scope"))))
+    /** Variable assignment for \$rootScope */
+    protected val varRoot  = JsCrVar("r", AnonFunc(JsReturn(JsRaw("(typeof s()==='undefined')?void 0:s().$root"))))// "var r=(typeof s==='undefined')?void 0:s.$root;"
 
     /** Sends an event command, i.e. broadcast or emit */
     private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {
@@ -73,13 +75,13 @@ trait AngularActor extends CometActor with Loggable {
       "};"
       val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},"+interval+");}" +
         "net_liftmodules_ng_q.push({t:t,f:f});"
-      JsRaw(vars+ready+fn+dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
+      vars & JsRaw(ready+fn+dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
     }
   }
 
   private class ChildScope extends Scope {
-    override val vars = varScope
-    override val scopeVar = "s"
+    override val vars = varElement&varScope
+    override val scopeVar = "s()"
   }
 
   /** Your handle to the \$scope object for your actor */
@@ -87,8 +89,8 @@ trait AngularActor extends CometActor with Loggable {
 
   /** Your handle to the \$rootScope object for your actor */
   object rootScope extends Scope {
-    override val vars = varScope+varRoot
-    override val scopeVar = "r"
+    override val vars = varElement&varScope&varRoot
+    override val scopeVar = "r()"
   }
 
 }

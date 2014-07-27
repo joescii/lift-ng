@@ -1,0 +1,6 @@
+#liftng 0.4.6
+
+#scala @liftweb @angularjs
+
+Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 
+Updated closure compiler. 

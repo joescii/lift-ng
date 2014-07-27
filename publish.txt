@@ -3,11 +3,12 @@ alias pub=publish-signed
 clean 
 
 set liftVersion  in ThisBuild:="3.0-SNAPSHOT"
-set scalaVersion in ThisBuild:="2.10.4"
-update
-pub
+set crossScalaVersions := Seq("2.10.4")
++ update
++ pub
 
 set liftVersion  in ThisBuild:="2.6-SNAPSHOT"
+set crossScalaVersions := Seq("2.10.4", "2.9.2", "2.9.1")
 + update
 + pub
 set scalaVersion in ThisBuild:="2.11.1"
@@ -15,5 +16,6 @@ update
 pub
 
 set liftVersion  in ThisBuild:="2.5.1"
+set crossScalaVersions := Seq("2.10.4", "2.9.2", "2.9.1")
 + update
 + pub

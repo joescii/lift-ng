@@ -1,0 +1,7 @@
+#liftng 0.4.5 
+
+#scala @liftweb @angularjs
+
+Now queues and releases async (AngularActor) messages arriving prior to Angular bootstrapping, resolving Issue [#1][1].
+
+[1]: https://github.com/joescii/lift-ng/issues/1

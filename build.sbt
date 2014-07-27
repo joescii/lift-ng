@@ -2,6 +2,8 @@ name := "ng"
 
 organization := "net.liftmodules"
 
+homepage := Some(url("https://github.com/joescii/lift-ng"))
+
 version := "0.4.6-SNAPSHOT"
 
 liftVersion <<= liftVersion ?? "2.5.1"
@@ -9,6 +11,10 @@ liftVersion <<= liftVersion ?? "2.5.1"
 liftEdition <<= liftVersion { _.substring(0,3) }
 
 name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
+
+// Necessary beginning with sbt 0.13, otherwise Lift editions get messed up.
+// E.g. "2.5" gets converted to "2-5"
+moduleName := name.value
 
 scalaVersion <<= scalaVersion ?? "2.9.1"  // This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
@@ -81,3 +87,17 @@ pomExtra := (
             </developer>
          </developers>
  )
+
+licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
+
+seq(lsSettings :_*)
+
+(LsKeys.tags in LsKeys.lsync) := Seq("lift", "angular")
+
+(description in LsKeys.lsync) := "lift-ng is the most powerful, most secure AngularJS backend available today"
+
+(LsKeys.ghUser in LsKeys.lsync) := Some("joescii")
+
+(LsKeys.ghRepo in LsKeys.lsync) := Some("lift-ng")
+
+(LsKeys.ghBranch in LsKeys.lsync) := Some("master")

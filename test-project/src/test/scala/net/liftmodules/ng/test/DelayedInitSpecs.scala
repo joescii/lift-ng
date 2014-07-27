@@ -11,18 +11,20 @@ class DelayedInitSpecs extends BaseSpec {
     eventually { pageTitle should be ("App: Delay") }
   }
 
-  "The integers" should "load starting at 6" in {
-    eventually { id("last-msg").element.text should be ("6") }
-    eventually { id("last-msg").element.text should be ("7") }
-    eventually { id("last-msg").element.text should be ("8") }
-    eventually { id("last-msg").element.text should be ("9") }
-    eventually { id("last-msg").element.text should be ("10") }
+  "The integers 1 - 3" should "load" in {
+    eventually { id("last-msg").element.text should be ("3") }
+    val divs = findAll(className("early-emit-out"))
+    val ints = 0 to 3 map (_.toString)
+    divs.drop(1).map(_.text).toList should equal (ints)
   }
 
-  "The final list" should "contain all integers in order" in {
+  "The integers 4 - 6" should "load after pressing 'Go'" in {
+    click on "button-go"
+    eventually { id("last-msg").element.text should be ("4") }
+    eventually { id("last-msg").element.text should be ("5") }
+    eventually { id("last-msg").element.text should be ("6") }
     val divs = findAll(className("early-emit-out"))
-    divs.drop(1).zipWithIndex.foreach { case (div, i) =>
-      div.text should be (i.toString)
-    }
+    val ints = 0 to 6 map (_.toString)
+    divs.drop(1).map(_.text).toList should equal (ints)
   }
 }
