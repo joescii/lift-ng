@@ -4,7 +4,7 @@ organization := "net.liftmodules"
 
 homepage := Some(url("https://github.com/joescii/lift-ng"))
 
-version := "0.4.6-SNAPSHOT"
+version := "0.4.5"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
@@ -100,4 +100,4 @@ seq(lsSettings :_*)
 
 (LsKeys.ghRepo in LsKeys.lsync) := Some("lift-ng")
 
-(LsKeys.ghBranch in LsKeys.lsync) := Some("master")
+(LsKeys.ghBranch in LsKeys.lsync) := Some("implicitly")
