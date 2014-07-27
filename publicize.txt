@@ -1,0 +1,11 @@
+set liftVersion in ThisBuild:="3.0-SNAPSHOT"
+set crossScalaVersions := Seq("2.10.4")
+lsync
+
+set liftVersion in ThisBuild:="2.6-SNAPSHOT"
+set crossScalaVersions := Seq("2.10.4", "2.9.2", "2.9.1")
+lsync
+
+set liftVersion in ThisBuild:="2.5.1"
+set crossScalaVersions := Seq("2.10.4", "2.9.2", "2.9.1")
+lsync
