@@ -40,7 +40,8 @@ class Boot {
       Menu.i("Actors - Assignment") / "actorsAssignment",
       Menu.i("Delay") / "delay",
       Menu.i("Server 2 Client Binding") / "server2ClientBind",
-      Menu.i("Client 2 Server Binding") / "client2ServerBind"
+      Menu.i("Client 2 Server Binding") / "client2ServerBind",
+      Menu.i("head.js") / "head-js"
     )
 
     // set the sitemap.  Note if you don't want access control for
@@ -79,6 +80,10 @@ class Boot {
     import net.liftmodules.ng._
 
     AngularJS.init()
-    Angular.init(futures = false, appSelector = ".application")
+    Angular.init(
+      futures = false,
+      appSelector = ".application",
+      includeJsScript = true
+    )
   }
 }

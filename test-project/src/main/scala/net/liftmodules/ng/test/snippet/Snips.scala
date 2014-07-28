@@ -74,4 +74,10 @@ object Snips extends Loggable {
     S.session.map { _.sendCometActorMessage("AssignmentActor", Empty, "start") }
     Noop
   })
+
+  def renderCometDelayButton = "* [onclick]" #> ajaxInvoke( () => {
+    S.session.map { _.sendCometActorMessage("EarlyEmitActor", Empty, "go") }
+    Noop
+  })
+
 }

@@ -9,6 +9,7 @@ liftVersion <<= liftVersion ?? "2.5.1"
 liftEdition <<= liftVersion { _.substring(0,3) }
 
 resolvers ++= Seq(
+  "staging"   at "https://oss.sonatype.org/service/local/staging/deploy/maven2",
   "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
   "releases"  at "http://oss.sonatype.org/content/repositories/releases"
 )
@@ -38,8 +39,17 @@ libraryDependencies <++= version { ver =>
   )
 }
 
-(test in Test) <<= (test in Test) dependsOn (start in container.Configuration)
+(Keys.test in Test) <<= (Keys.test in Test) dependsOn (start in container.Configuration)
 
-(testOnly in Test) <<= (testOnly in Test) dependsOn (start in container.Configuration)
+(Keys.testOnly in Test) <<= (Keys.testOnly in Test) dependsOn (start in container.Configuration)
 
 parallelExecution in Test := false
+
+buildInfoSettings
+
+sourceGenerators in Compile <+= buildInfo
+
+buildInfoKeys := Seq[BuildInfoKey](version)
+
+buildInfoPackage := "net.liftmodules.ng.test"
+

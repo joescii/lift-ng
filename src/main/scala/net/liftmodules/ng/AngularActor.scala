@@ -73,6 +73,12 @@ trait AngularActor extends CometActor with Loggable {
     protected def root:Boolean
     private def scopeVar = if(root) "r()" else "s()"
 
+    protected val varElement = JsCrVar("e", Call("angular.element", Call("document.querySelector", JString("#"+id))))// "var s=angular.element(document.querySelector('#"+id+"')).scope();"
+    /** Variable assignment for \$scope */
+    protected val varScope = JsCrVar("s", AnonFunc(JsReturn(Call("e.scope"))))
+    /** Variable assignment for \$rootScope */
+    protected val varRoot  = JsCrVar("r", AnonFunc(JsReturn(JsRaw("(typeof s()==='undefined')?void 0:s().$root"))))// "var r=(typeof s==='undefined')?void 0:s.$root;"
+
     /** Sends an event command, i.e. broadcast or emit */
     private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {
       buildCmd(root, JsRaw(scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+")"))

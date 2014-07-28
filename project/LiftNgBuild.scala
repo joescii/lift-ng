@@ -19,14 +19,15 @@ object LiftNgBuild extends Build {
     jsDsts.toSeq
   }
   
-  import sbtclosure.SbtClosurePlugin._
+  import com.untyped.sbtjs.Plugin._
   
   val liftngSettings = Project.defaultSettings ++ 
-    seq(closureSettings:_*) ++ 
+    seq(jsSettings : _*) ++ 
     Seq(
-      (sourceDirectory in (Compile, ClosureKeys.closure)) <<= (sourceDirectory in Compile)(_ / "js"),
-      (resourceManaged in (Compile, ClosureKeys.closure)) <<= (resourceManaged in Compile)(_ / "toserve" / "net" / "liftmodules" / "ng" / "js"),
-      (ClosureKeys.suffix in (Compile, ClosureKeys.closure)) <<= version ( _ + ".min" ),
+      (sourceDirectory in (Compile, JsKeys.js)) <<= (sourceDirectory in Compile)(_ / "js"),
+      (resourceManaged in (Compile, JsKeys.js)) <<= (resourceManaged in Compile)(_ / "toserve" / "net" / "liftmodules" / "ng" / "js"),
+      JsKeys.filenameSuffix in Compile <<= version ( "-" + _ + ".min" ),
+      (resourceGenerators in Compile) <+= (JsKeys.js in Compile),
       copyJs
     )
   

@@ -1,77 +1,55 @@
 # lift-ng
 
-AngularJS support for Lift
+lift-ng is the most powerful, most secure AngularJS backend available today.
 
-**lift-ng** is a liftmodule for easing the utilization of [AngularJS](http://docs.angularjs.org/guide/overview) in a Lift application.  The basic premise is to make it a cinch to create server back-end services for injection into your AngularJS components.  This has resulted in the creation of a Scala DSL to closely emulate the way you would define a service in JavaScript.  For a taste, compare this JavaScript...
+The design philosophy of **lift-ng** is to capture the spirit of both [Lift](http://liftweb.net) and [AngularJS](http://docs.angularjs.org/guide/overview) into one package.
+The result is a secure-by-default framework facilitating powerful and robust client/server interactions for building today's modern web applications.
+By utilizing Scala's powerfully-flexible language, **lift-ng** provides a DSL that is natural to use for AngularJS developers and Scala developers alike.
 
-```javascript
-angular.module('lift.pony', [])
-  .factory("ponyService", function() {
-    return {
-      getBestPony: function(arg) {
-        // Return the best pony (client-side)
-        return BestPony;
-      }
-    };
-  });
-```
+Lift as a backend should appeal to AngularJS developers for the following reasons:
+* Lift's templating is unlike most web application frameworks in that it is plain HTML.
+There is no massaging of your Angular templates to make the framework happy.
+* The approach of manipulating the templates on the server by Lift is similar to how you manipulate them on the client with AngularJS.
+Hence you can manipulate the DOM at the time you know the information, while on the client or earlier while on the server.
+* Security is handled for you, making it virtually impossible to have your http endpoints successfully attacked.
+(More on [Lift's security](http://seventhings.liftweb.net/security))
+* Your application will be built on the rock-solid JVM as a time-tested Java servlet on the most mature Scala web framework.
 
-... to this Scala **lift-ng**
-
-```scala
-angular.module("lift.pony")
-  .factory("ponyService", jsObjFactory()
-    .jsonCall("getBestPony", (arg) => {
-      // Return the best pony (server-side)
-      Full(BestPony)
-    })
-  )
-```
-
-Both will create an angular module named `lift.pony` with a service named `ponyService` with a function named `getBestPony`, yet the former runs on the client-side, and the latter runs on the server-side.
-
-In addition to supporting client-side initiated service requests, **lift-ng** supports pushes from the server via [comet](#comet).  For this, you will have a server-side actor with access to the scope of the companion client-side DOM element:
-
-```scala
-class PushPonies extends AngularActor {
-  override def lowPriority = {
-    case best:Pony =>
-      rootScope.emit("emit-pony", best)
-      rootScope.broadcast("broadcast-pony", best)
-      rootScope.assign("best.pony", best)
-      scope.emit("emit-pony", best)
-      scope.broadcast("broadcast-pony", best)
-      scope.assign("best.pony", best)
-  }
-}
-```
+AngularJS as a front end should appeal to Scala and Lift developers for the following reasons:
+* JQuery is a pain for non-trivial applications.
+* AngularJS does a fantastic job of managing complex client-side interactions for you.
+* With **lift-ng** in particular, you get to utilize Lift's reactive features such as asynchronous comet updates to the client and returning `LAFuture[T]` results for services.
 
 ## Tutorial
 
-We recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the functionality of this plugin.  See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
+If you are not comfortable with either Lift or AngularJS, we recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the original functionality of this plugin.
+See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
+
+## Jump Start
+
+The quickest jump start you can get on **lift-ng** is via the [giter8 template](https://github.com/joescii/lift-ng.g8).
+Otherwise, you should first [get started with Lift](http://liftweb.net/getting_started) and configure the project to include the **lift-ng** module as outlined below.
 
 ## Configuration
 
-Add the Sonatype.org Releases repo as a resolver in your `build.sbt` or `Build.scala` as appropriate.
-
-```scala
-resolvers += "Sonatype.org Releases" at "https://oss.sonatype.org/content/repositories/releases/"
-```
-
-Add this `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
+You can configure an existing Lift project to use **lift-ng** manually.
+Add `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
+Optionally add `lift-ng-js` as a dependency if you would like us to manage the delivery of your AngularJS library javascript files.
 
 ```scala
 libraryDependencies ++= {
-  val liftEdition = "2.5" // Also supported: "2.6" and "3.0"
-
+  val liftVersion = "2.5.1" // Also supported: "2.6" and "3.0"
+  val liftEdition = liftVersion.substring(0,3)
+  val ngVersion = "1.2.21"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.4.5" % "compile"
-  )
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.4.6"            % "compile",
+    "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
+   )
 }
 ```
 
-And invoke `Angular.init()` in your `Boot` class.
+And invoke `Angular.init()` in your `Boot` class (shown here with the default values).
 
 ```scala
 package bootstrap.liftweb
@@ -85,23 +63,64 @@ class Boot {
       futures = true,
 
       // Set to the CSS selector for finding your apps in the page.
-      appSelector = "[ng-app]"
+      appSelector = "[ng-app]",
+
+      // Set to true to include a script tag with the src set to the path for liftproxy.js. Set to
+      // false if you want to handle that yourself by referring to the path in net_liftmodules_ng.
+      includeJsScript = true
     )
   }
 }
 ```
 
+If you want to handle the downloading of javascript assets yourself with a library such as [head.js](http://headjs.com/), then you should initialize with `includeJsScript = false`.
+This will prevent our `Angular` snippet from including the `liftproxy.js` file.
+Instead, you can use the global `ng_liftmodules_ng` object to include the file yourself.
+You can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.path` or get just the lift-ng version alone with `net_liftmodules_ng.version`.
+
 ## Supported Versions
 
-**lift-ng** is built and released to support Lift editions 2.5 and 2.6 with Scala versions 2.9.1, 2.9.2, and 2.10; and Lift edition 3.0 with Scala version 2.10.4.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.  It has been developed against Angular 1.1.5+
+**lift-ng** is built and released to support Lift edition 2.5 with Scala versions 2.9.1, 2.9.2, and 2.10; Lift edition 2.6 with Scala versions 2.9.1, 2.9.2, and 2.10; and Lift edition 3.0 with Scala version 2.10.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
 ## Usage
 
-Below are a few usage examples.  Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples
+Below are usage examples of each of the major features of **lift-ng**.
+Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples
 
-### AJAX
+### AJAX Services
 
-Continuing with the sample code from the introduction, you will need a snippet which contains the definition of the angular service/factory which can be called from the client code.
+Most AngularJS backends provide RESTful http endpoints for the application to receive data from the server.
+**lift-ng** is certainly no exception by providing a server-side DSL for creating services.
+Compare the following AngularJS factory
+
+```javascript
+angular.module('lift.pony', [])
+  .factory("ponyService", function() {
+    return {
+      getBestPony: function(arg) {
+        // Return the best pony (client-side)
+        return BestPony;
+      }
+    };
+  });
+```
+
+... to this **lift-ng** DSL in Scala
+
+```scala
+angular.module("lift.pony")
+  .factory("ponyService", jsObjFactory()
+    .jsonCall("getBestPony", (arg) => {
+      // Return the best pony (server-side)
+      Full(BestPony)
+    })
+  )
+```
+
+Both will create an angular module named `lift.pony` with a service named `ponyService` with a function named `getBestPony`, yet the former runs on the client-side, and the latter runs on the server-side.
+
+To flesh out this example completely, you will define a [Lift snippet](http://exploring.liftweb.net/master/index-5.html) to provide the service to the resulting HTML.
+Here, we have elected to create an object named `NgPonyService`, delivering the snippet via Lift's default snippet method name, `render`
 
 ```scala
 object NgPonyService {
@@ -121,7 +140,7 @@ object NgPonyService {
 }
 ```
 
-This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services as well as some plumbing from this plugin.  
+This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services as well as some plumbing from this module.
 
 ```html
 <!-- The angular library (manually) -->
@@ -130,7 +149,7 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <!-- Or better yet, via lift-ng-js. (https://github.com/joescii/lift-ng-js) -->
 <script data-lift="AngularJS"></script>
 
-<!-- Prerequisite stuff the plugin needs -->
+<!-- Prerequisite stuff the module needs -->
 <script data-lift="Angular"></script>
 
 <!-- The NgPonyService snippet defined above -->
@@ -330,10 +349,19 @@ describe("pony", function(){
 });
 ```
 
-In regards to testing the server-side code, we recommend implementing your service logic in a standalone module which handles all of the complex business logic.  Then utilize **lift-ng** to merely expose those services to your angular app.  This way your business logic is decoupled from **lift-ng** and easily testable.
+#### Under the Services' hood
+Unlike most AngularJS RESTful http backends, you have no further work to do to secure your application.
+Rather than a fixed named endpoint, **lift-ng** dynamically creates an http endpoint for each service per page load.
+The name given to the end points is a securely-randomized number that is difficult to predict for an attacker attempting to utilize cross-site scripting techniques for instance.
+
+In regards to testing the server-side code, we recommend implementing your service logic in a standalone module which handles all of the complex business logic.
+Then utilize **lift-ng** to merely expose those services to your angular app.
+This way your business logic is decoupled from **lift-ng** and easily testable.
 
 ### Non-AJAX
-Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.  Typical examples of this are configuration settings, session values, etc.  To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
+Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.
+Typical examples of this are configuration settings, session values, etc.
+To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
 
 ```scala
 angular.module("StaticServices")
@@ -466,6 +494,10 @@ The latest version of scaladocs are hosted thanks to [cloudbees](http://www.clou
 * [Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
 * [Scala 2.9.1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1/api/index.html#package)
 
+## Community/Support
+
+Need help?  Hit us up on the [Lift Google group](https://groups.google.com/forum/#!forum/liftweb).  We'd love to help you out and hear about what you're building.
+
 ## Contributing
 
 As with any open source project, contributions are greatly appreciated.  If you find an issue or have a feature idea, we'd love to know about it!  Any of the following will help this effort tremendously.
@@ -488,13 +520,13 @@ Try to include as much as you are able, such as tests, documentation, updates to
 
 ### Testing
 
-Part of contributing your changes will involve testing.  The [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** plugin via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
+Part of contributing your changes will involve testing.  The [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** module via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
 
 ## Wish list
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* 2-way client-server model binding
+* 2-way client-server model binding (See [binding branch](https://github.com/joescii/lift-ng/tree/binding) for the source. Grab version 0.5.0-SNAPSHOT for a preview)
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
@@ -504,6 +536,9 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.4.6*: Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 
+Added `includeJsScript` parameter to `Angular.init()` to give developers the ability to download the `liftproxy.js` their own way, such as via [head.js](http://headjs.com/).
+Updated closure compiler. 
 * *0.4.5*: Now queues and releases async (`AngularActor`) messages arriving prior to Angular bootstrapping, resolving [Issue #1](https://github.com/joescii/lift-ng/issues/1).
 * *0.4.4*: Fixed the last version, which would serve the same i18n locale resource for every requested locale.
 * *0.4.3*: Enhanced i18n service to be served restfully, allowing the browser to cache the service if it has not changed. Dropped 2.9.1-1 support. Began compiling 2.10 with 2.10.4.
