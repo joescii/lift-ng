@@ -57,7 +57,7 @@ trait AngularActor extends CometActor with Loggable {
     val enqueue = "if(typeof net_liftmodules_ng_q==='undefined'){net_liftmodules_ng_q=[];setTimeout(function(){d();},"+interval+");}" +
       "net_liftmodules_ng_q.push({t:t,f:f});"
     val cmds = vars & ready & fn & JsRaw(dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
-    logger.debug(cmds)
+    logger.trace(cmds)
     cmds
   }
 
