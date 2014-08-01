@@ -14,7 +14,8 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   def bindTo:String
   def initialValue:M
 
-  private val lastServerVal = "net_liftmodules_ng_"
+  private val lastServerVal = "net_liftmodules_ng_last_val_"
+  private val clientId = "net_liftmodules_ng_client_id_"
 
   def onClientUpdate(m:M):M = m
 
@@ -23,13 +24,14 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   var stateModel:M = initialValue
   var stateJson:JValue = JNull
 
-  override def render = nodesToRender ++ Script(buildCmd(root = false,
+  override def fixedRender = nodesToRender ++ Script(buildCmd(root = false,
     SetExp(JsVar("s()."+bindTo), stateJson) & // Send the current state with the page
     SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo)) & // Set the last server val to avoid echoing it back
+    SetExp(JsVar("s()."+clientId+bindTo), JString(rand)) &
     Call("s().$watchCollection", JString(bindTo), AnonFunc("n,o",
       // If the new value, n, is not equal to the last server val, send it.
       JsIf(JsNotEq(JsVar("n"), JsRaw("s()."+lastServerVal+bindTo)),
-        JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n}"))) &
+        JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n,id:s()."+clientId+bindTo+"}"))) &
         ajaxCall(JsVar("u"), s => {
           this ! ClientJson(s)
           Noop
@@ -45,20 +47,26 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
   private implicit val formats = DefaultFormats
   override def lowPriority = {
-    case m:M => fromServer(m)
     case ClientJson(json) => fromClient(json)
+    case m:M => fromServer(m)
     case e => logger.warn("Received un-handled model '"+e+"' of type '"+e.getClass.getName+"'.")
   }
 
   private def fromServer(m:M) = {
     val mJs = toJValue(m)
-    val diff = stateJson dfn mJs
-    val cmd = buildCmd(root = false, diff(JsVar("s()."+bindTo)) & // Send the diff
-      SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo))) // And remember what we sent so we can ignore it later
-    partialUpdate(cmd)
-
+    sendDiff("server", mJs)
     stateJson = mJs
     stateModel = m
+  }
+
+  private def sendDiff(id:String, mJs:JValue) = {
+    val diff = stateJson dfn mJs
+    val cmd =
+      JsIf(JsNotEq(JString(id), JsVar("s()."+clientId+bindTo)),
+        buildCmd(root = false, diff(JsVar("s()."+bindTo)) & // Send the diff
+        SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo))) // And remember what we sent so we can ignore it later
+      )
+    partialUpdate(cmd)
   }
 
   private def fromClient(json:String) = {
@@ -66,11 +74,22 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 //    implicit val mf = manifest[String]
     import js.ToWithExtractMerged
 
-    val jUpdate = JsonParser.parse(json) \\ "add"
-    logger.debug("From Client: "+jUpdate)
+    val parsed = JsonParser.parse(json)
+    val jUpdate = parsed \\ "add"
+    val id = (parsed \\ "id").extract[String]
+    logger.debug("From Client ("+id+"): "+jUpdate)
     val updated = jUpdate.extractMerged(stateModel)
-    logger.debug("From Client: "+updated)
+    logger.debug("From Client ("+id+"): "+updated)
 
+    val mJs = jUpdate
+
+    sendDiff(id, mJs)
+
+    // TODO: Do something with the return value, or change it to return unit?
     onClientUpdate(updated)
+
+    // TODO: When jUpdate becomes a diff, make sure we have the whole thing
+    stateJson = jUpdate
+    stateModel = updated
   }
 }

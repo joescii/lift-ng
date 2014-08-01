@@ -15,13 +15,15 @@ import net.liftweb.json.JsonAST.JString
 
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with Loggable {
-  private def rand = "NG"+randomString(18)
+  private [ng] def rand = "NG"+randomString(18)
   private val id:String = rand
 
   val nodesToRender:NodeSeq = <div id={id}></div>
 
+  def render = NodeSeq.Empty
+
   /** Render a div for us to hook into */
-  def render = nodesToRender
+  override def fixedRender = nodesToRender
 
   private implicit val formats = DefaultFormats // Some crap needed for stringify
   protected def stringify(obj:AnyRef):String = obj match {
