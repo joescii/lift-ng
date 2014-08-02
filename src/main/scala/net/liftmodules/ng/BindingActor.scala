@@ -16,6 +16,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
   private val lastServerVal = "net_liftmodules_ng_last_val_"
   private val clientId = "net_liftmodules_ng_client_id_"
+  private val queueCount = "net_liftmodules_ng_queue_count_"
 
   def onClientUpdate(m:M):M = m
 
@@ -28,15 +29,23 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
     SetExp(JsVar("s()."+bindTo), stateJson) & // Send the current state with the page
     SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo)) & // Set the last server val to avoid echoing it back
     SetExp(JsVar("s()."+clientId+bindTo), JString(rand)) &
+    SetExp(JsVar("s()."+queueCount+bindTo), JInt(0)) &
     Call("s().$watchCollection", JString(bindTo), AnonFunc("n,o",
       // If the new value, n, is not equal to the last server val, send it.
       JsIf(JsNotEq(JsVar("n"), JsRaw("s()."+lastServerVal+bindTo)),
-        JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n,id:s()."+clientId+bindTo+"}"))) &
-        ajaxCall(JsVar("u"), s => {
-          this ! ClientJson(s)
-          Noop
-      }), // else remove our last saved value so we can forget about it
-        SetExp(JsVar("s()."+lastServerVal+bindTo), JsNull)
+        JsCrVar("c", JsVar("s()."+queueCount+bindTo+"++")) &
+        Call("setTimeout", AnonFunc(
+          Call("console.log", JsVar("c")) &
+          JsIf(JsEq(JsVar("c+1"), JsVar("s()."+queueCount+bindTo)),
+            JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n,id:s()."+clientId+bindTo+"}"))) &
+            ajaxCall(JsVar("u"), s => {
+              this ! ClientJson(s)
+              Noop
+            })
+          )
+        ), JInt(1000)),
+        // else remove our last saved value so we can forget about it
+      SetExp(JsVar("s()."+lastServerVal+bindTo), JsNull)
     )))
   ))
 
