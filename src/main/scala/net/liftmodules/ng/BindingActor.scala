@@ -12,7 +12,10 @@ import net.liftweb.http.SHtml._
 abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   /** The client `\$scope` element to bind to */
   def bindTo:String
+  /** Initial value on session initialization */
   def initialValue:M
+  /** Milliseconds for the client to delay sending updates, allowing them to batch into one request */
+  def clientSendDelay:Int = 1000
 
   private val lastServerVal = "net_liftmodules_ng_last_val_"
   private val clientId = "net_liftmodules_ng_client_id_"
@@ -43,7 +46,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
               Noop
             })
           )
-        ), JInt(1000)),
+        ), JInt(clientSendDelay)),
         // else remove our last saved value so we can forget about it
       SetExp(JsVar("s()."+lastServerVal+bindTo), JsNull)
     )))
