@@ -9,6 +9,20 @@ import js.JsonDeltaFuncs._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.SHtml._
 
+/**
+ * Simple binding actor for creating a binding actor in one line
+ *
+ * @param bindTo The client `\$scope` element to bind to
+ * @param initialValue Initial value on session initialization
+ * @param onClientUpdate Callback to execute on each update from the client
+ * @param clientSendDelay Milliseconds for the client to delay sending updates, allowing them to batch into one request. Defaults to 1 second (1000)
+ * @tparam M The type of the model to be used in this actor
+ */
+abstract class SimpleBindingActor[M <: NgModel : Manifest]
+  (val bindTo:String, val initialValue:M, override val onClientUpdate:M=>M = { m:M => m }, override val clientSendDelay:Int = 1000)
+  extends BindingActor[M]{}
+
+/** CometActor which implements binding to a model in the target $scope */
 abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   /** The client `\$scope` element to bind to */
   def bindTo:String
@@ -21,7 +35,8 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   private val clientId = "net_liftmodules_ng_client_id_"
   private val queueCount = "net_liftmodules_ng_queue_count_"
 
-  def onClientUpdate(m:M):M = m
+  /** Callback to execute on each update from the client */
+  def onClientUpdate:M=>M = { m:M => m }
 
   case class ClientJson(json:String)
 
