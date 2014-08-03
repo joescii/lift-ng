@@ -15,8 +15,7 @@ import net.liftweb.json.JsonAST.JString
 
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with Loggable {
-  private [ng] def rand = "NG"+randomString(18)
-  private val id:String = rand
+  private val id:String = Angular.rand
 
   val nodesToRender:NodeSeq = <div id={id}></div>
 

@@ -13,7 +13,10 @@ class CounterBindActor extends SimpleBindingActor[Counter] ("count", Counter(0))
 class ArrayBindActor extends SimpleBindingActor[ListWrap[String]] ("array", ListWrap(List.empty[String]))
 
 class C2sBindActor extends SimpleBindingActor[Message] ("input", Message(""), { m:Message =>
-  S.session.map(_.sendCometActorMessage("C2sReturnActor", Empty, m))
+  for {
+    session <- S.session
+    comet <- session.findComet("C2sReturnActor")
+  } { comet ! m }
   m
 })
 

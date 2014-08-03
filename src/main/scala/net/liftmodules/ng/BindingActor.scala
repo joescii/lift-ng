@@ -32,7 +32,6 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   def clientSendDelay:Int = 1000
 
   private val lastServerVal = "net_liftmodules_ng_last_val_"
-  private val clientId = "net_liftmodules_ng_client_id_"
   private val queueCount = "net_liftmodules_ng_queue_count_"
 
   /** Callback to execute on each update from the client */
@@ -43,10 +42,10 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   var stateModel:M = initialValue
   var stateJson:JValue = JNull
 
+  // TODO: Move all this crap to our js file
   override def fixedRender = nodesToRender ++ Script(buildCmd(root = false,
     SetExp(JsVar("s()."+bindTo), stateJson) & // Send the current state with the page
     SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo)) & // Set the last server val to avoid echoing it back
-    SetExp(JsVar("s()."+clientId+bindTo), JString(rand)) &
     SetExp(JsVar("s()."+queueCount+bindTo), JInt(0)) &
     Call("s().$watchCollection", JString(bindTo), AnonFunc("n,o",
       // If the new value, n, is not equal to the last server val, send it.
@@ -55,7 +54,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
         Call("setTimeout", AnonFunc(
           Call("console.log", JsVar("c")) &
           JsIf(JsEq(JsVar("c+1"), JsVar("s()."+queueCount+bindTo)),
-            JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n,id:s()."+clientId+bindTo+"}"))) &
+            JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n}"))) &
             ajaxCall(JsVar("u"), s => {
               this ! ClientJson(s)
               Noop
@@ -81,18 +80,17 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
   private def fromServer(m:M) = {
     val mJs = toJValue(m)
-    sendDiff("server", mJs)
+    sendDiff(mJs)
     stateJson = mJs
     stateModel = m
   }
 
-  private def sendDiff(id:String, mJs:JValue) = {
+  private def sendDiff(mJs:JValue) = {
     val diff = stateJson dfn mJs
-    val cmd =
-      JsIf(JsNotEq(JString(id), JsVar("s()."+clientId+bindTo)),
-        buildCmd(root = false, diff(JsVar("s()."+bindTo)) & // Send the diff
-        SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo))) // And remember what we sent so we can ignore it later
-      )
+    val cmd = buildCmd(root = false, diff(
+      JsVar("s()."+bindTo)) & // Send the diff
+      SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo)) // And remember what we sent so we can ignore it later
+    )
     partialUpdate(cmd)
   }
 
@@ -103,14 +101,11 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
     val parsed = JsonParser.parse(json)
     val jUpdate = parsed \\ "add"
-    val id = (parsed \\ "id").extract[String]
-    logger.debug("From Client ("+id+"): "+jUpdate)
+    logger.debug("From Client: "+jUpdate)
     val updated = jUpdate.extractMerged(stateModel)
-    logger.debug("From Client ("+id+"): "+updated)
+    logger.debug("From Client: "+updated)
 
-    val mJs = jUpdate
-
-    sendDiff(id, mJs)
+    // TODO: If we have some kind of session sync mode, then send it to other comets
 
     // TODO: Do something with the return value, or change it to return unit?
     onClientUpdate(updated)

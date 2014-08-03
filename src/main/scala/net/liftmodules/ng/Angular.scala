@@ -16,6 +16,14 @@ import net.liftweb.json.JsonAST.JString
 import com.joescii.j2jsi18n.JsResourceBundle
 import net.liftweb.util.Props.RunModes
 import net.liftweb.util.Props
+import net.liftweb.util.StringHelpers._
+import scala.Some
+import net.liftweb.http.js.JE.Str
+import net.liftweb.json.JsonAST.JString
+import net.liftweb.common.Full
+import net.liftweb.http.js.JE.JsVar
+import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.http.js.JE.Call
 
 
 /**
@@ -38,7 +46,8 @@ object Angular extends DispatchSnippet {
   private [ng] var futuresDefault:Boolean = true
   private [ng] var appSelectorDefault:String = "[ng-app]"
   private [ng] var includeJsScript:Boolean = true
-  
+  private [ng] def rand = "NG"+randomString(18)
+
   /**
     * Init function to be called in Boot
     * @param futures true to include {{{net.liftweb.actor.LAFuture}}} support (and hence add a comet to your page), false otherwise
@@ -84,7 +93,8 @@ object Angular extends DispatchSnippet {
   private object HeadRendered extends RequestVar[Boolean](false)
   
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
-  override def dispatch = { 
+  override def dispatch = {
+    case "bind" => { _ => bind }
     case _ => { _ => render }
   }
 
@@ -93,6 +103,11 @@ object Angular extends DispatchSnippet {
       case RunModes.Development => ".js"
       case _ => ".min.js"
     })
+
+  def bind: NodeSeq = S.attr("type").map { t =>
+    val lift = "comet?type="+t+"&name="+rand
+    <div data-lift={lift}></div>
+  }.openOr(NodeSeq.Empty)
 
   /**
    * Renders all the modules that have been added to the RequestVar.
