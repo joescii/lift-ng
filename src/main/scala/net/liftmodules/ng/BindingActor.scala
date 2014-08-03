@@ -48,12 +48,10 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
     SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo)) & // Set the last server val to avoid echoing it back
     SetExp(JsVar("s()."+queueCount+bindTo), JInt(0)) &
     Call("s().$watchCollection", JString(bindTo), AnonFunc("n,o",
-      Call("console.log",JsVar("DeepDiff.diff(n,o)")) &
       // If the new value, n, is not equal to the last server val, send it.
       JsIf(JsNotEq(JsVar("n"), JsRaw("s()."+lastServerVal+bindTo)),
         JsCrVar("c", JsVar("s()."+queueCount+bindTo+"++")) &
         Call("setTimeout", AnonFunc(
-          Call("console.log", JsVar("c")) &
           JsIf(JsEq(JsVar("c+1"), JsVar("s()."+queueCount+bindTo)),
             JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n}"))) &
             ajaxCall(JsVar("u"), s => {
