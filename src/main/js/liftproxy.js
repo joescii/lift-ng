@@ -44,7 +44,6 @@ angular
         };
 
         return $http.post(net_liftmodules_ng.contextPath + '/ajax_request/' + lift_page + '/', req, {
-        //return $http.post('ajax_request/' + lift_page + '/', req, {
           headers : {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
           }
