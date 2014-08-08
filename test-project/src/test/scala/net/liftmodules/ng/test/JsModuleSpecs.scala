@@ -11,6 +11,6 @@ class JsModuleSpecs extends BaseSpec {
   }
 
   "The path" should "match" in {
-    id("path").element.text should be ("classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version+".js")
+    id("path").element.text should be ("/classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version+".js")
   }
 }

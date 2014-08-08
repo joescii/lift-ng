@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+      <script data-lift="AngularJS"></script>
+      <script id="liftmodules-ng_js"  data-lift="Angular"></script>
+      <script id="staticServices_js"                                      type="text/javascript" data-lift="StaticServices"></script>
+      <script id="staticApp_js"       src="/js/StaticApp.js"              type="text/javascript"></script>
+
+      <h2>Static service tests (in Subdir)</h2>
+      <div ng-app="StaticApp">
+        <div ng-controller="TestController">
+          <span id="outputStr" ng-bind="outputStr">OutputStr</span>
+          <span id="outputInt" ng-bind="outputInt">OutputInt</span>
+          <span id="outputStrField" ng-bind="outputObj.str">OutputStrField</span>
+          <span id="outputIntField" ng-bind="outputObj.num">OutputIntField</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

@@ -99,7 +99,7 @@ object Angular extends DispatchSnippet {
   }
 
   private val liftproxySrc =
-    "classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version + (Props.mode match {
+    LiftRules.context.path + "/classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version + (Props.mode match {
       case RunModes.Development => ".js"
       case _ => ".min.js"
     })
@@ -123,6 +123,7 @@ object Angular extends DispatchSnippet {
     val liftproxy = if(includeJsScript) <script src={liftproxySrc}></script> else NodeSeq.Empty
     val jsModule = Script(JsRaw(
       "var net_liftmodules_ng=net_liftmodules_ng||{};" +
+      "net_liftmodules_ng.contextPath=net_liftmodules_ng.contextPath||\"" + LiftRules.context.path + "\";" +
       "net_liftmodules_ng.version=net_liftmodules_ng.version||\"" + BuildInfo.version + "\";" +
       "net_liftmodules_ng.jsPath=net_liftmodules_ng.jsPath||\"" + liftproxySrc +"\";"
     ))

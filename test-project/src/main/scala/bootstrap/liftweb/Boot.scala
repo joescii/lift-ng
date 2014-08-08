@@ -41,7 +41,8 @@ class Boot {
       Menu.i("Delay") / "delay",
       Menu.i("Server 2 Client Binding") / "server2ClientBind",
       Menu.i("Client 2 Server Binding") / "client2ServerBind",
-      Menu.i("head.js") / "head-js"
+      Menu.i("head.js") / "head-js",
+      Menu.i("Subdir") / "subdir" / "index"
     )
 
     // set the sitemap.  Note if you don't want access control for
