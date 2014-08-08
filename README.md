@@ -43,7 +43,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.21"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.4.6"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.4.7"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
@@ -536,6 +536,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.4.7*: Updated to work on pages that are in subdirectories.  See [Pull Request #4](https://github.com/joescii/lift-ng/pull/4).  Thank you [voetha](https://github.com/voetha) for the contribution!
 * *0.4.6*: Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 
 Added `includeJsScript` parameter to `Angular.init()` to give developers the ability to download the `liftproxy.js` their own way, such as via [head.js](http://headjs.com/).
 Updated closure compiler. 

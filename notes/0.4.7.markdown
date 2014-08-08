@@ -1,0 +1,5 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+* Updated to work on pages that are in subdirectories.  See [Pull Request #4](https://github.com/joescii/lift-ng/pull/4).  Thank you [voetha](https://github.com/voetha) for the contribution!
