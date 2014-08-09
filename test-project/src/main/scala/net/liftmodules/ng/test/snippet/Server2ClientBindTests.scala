@@ -38,7 +38,7 @@ object Server2ClientBindTests {
     ).factory("arrSvc", jsObjFactory()
       .jsonCall("next", {
         array = array :+ (new java.util.Date().toString)
-        session.findComet("ArrayBindActor").foreach( _ ! array )
+        session.findComet("ArrayBindActor", Empty).foreach( _ ! array )
         Empty
       })
     ))

@@ -105,8 +105,10 @@ object Angular extends DispatchSnippet {
     })
 
   def bind: NodeSeq = S.attr("type").map { t =>
-    val lift = "comet?type="+t+"&name="+rand
-    <div data-lift={lift}></div>
+    val cometUnnamed = "comet?type="+t
+    val cometNamed   = cometUnnamed+"&randomname=true"
+    <div data-lift={cometUnnamed}></div>
+    <div data-lift={cometNamed}></div>
   }.openOr(NodeSeq.Empty)
 
   /**

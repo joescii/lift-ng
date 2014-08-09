@@ -27,8 +27,7 @@ class Server2ClientBindingSpecs extends BaseSpec {
     textField("input2").value should be ("test2")
   }
 
-  // This test isn't valid unless we tie the session actors together
-  "Refreshing the page" should "load all of the values from the server" ignore {
+  "Refreshing the page" should "load all of the values from the server" in {
     reloadPage()
 
     eventually {

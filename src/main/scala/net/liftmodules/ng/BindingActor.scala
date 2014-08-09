@@ -42,11 +42,10 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   var stateModel:M = initialValue
   var stateJson:JValue = JNull
 
+  override def fixedRender = nodesToRender ++ (if(name.isDefined) namedRender else unnamedRender)
+
   // TODO: Move all this crap to our js file
-  override def fixedRender = nodesToRender ++ Script(buildCmd(root = false,
-    SetExp(JsVar("s()."+bindTo), stateJson) & // Send the current state with the page
-    SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo)) & // Set the last server val to avoid echoing it back
-    SetExp(JsVar("s()."+queueCount+bindTo), JInt(0)) &
+  private def namedRender = Script(buildCmd(root = false,
     Call("s().$watchCollection", JString(bindTo), AnonFunc("n,o",
       // If the new value, n, is not equal to the last server val, send it.
       JsIf(JsNotEq(JsVar("n"), JsRaw("s()."+lastServerVal+bindTo)),
@@ -63,6 +62,12 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
         // else remove our last saved value so we can forget about it
       SetExp(JsVar("s()."+lastServerVal+bindTo), JsNull)
     )))
+  ))
+
+  private def unnamedRender = Script(buildCmd(root = false,
+    SetExp(JsVar("s()."+bindTo), stateJson) & // Send the current state with the page
+    SetExp(JsVar("s()."+lastServerVal+bindTo), JsVar("s()."+bindTo)) & // Set the last server val to avoid echoing it back
+    SetExp(JsVar("s()."+queueCount+bindTo), JInt(0)) // This prevents us from sending a server-sent value back to the server
   ))
 
   def toJValue(m:Any):JValue = m match {
