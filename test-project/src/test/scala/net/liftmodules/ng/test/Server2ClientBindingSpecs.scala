@@ -17,14 +17,9 @@ class Server2ClientBindingSpecs extends BaseSpec {
 
     click on "button-next"
     eventually { textField("input2").value should not be empty }
-    textField("input2").value = "test2"
-
-    click on "button-next"
-    eventually { textField("input3").value should not be empty }
 
     textField("input0").value should be ("test0")
     textField("input1").value should be ("test1")
-    textField("input2").value should be ("test2")
   }
 
   "Refreshing the page" should "load all of the values from the server" in {
@@ -34,8 +29,20 @@ class Server2ClientBindingSpecs extends BaseSpec {
       textField("input0").value should not be empty
       textField("input1").value should not be empty
       textField("input2").value should not be empty
-      textField("input3").value should not be empty
     }
+  }
+
+  "The next button" should "load only the 4th input box" in {
+    textField("input0").value = "test0"
+    textField("input1").value = "test1"
+    textField("input2").value = "test2"
+
+    click on "button-next"
+    eventually { textField("input3").value should not be empty }
+
+    textField("input0").value should be ("test0")
+    textField("input1").value should be ("test1")
+    textField("input2").value should be ("test2")
   }
 
   "The button on the page" should "trigger a counter" in {

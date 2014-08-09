@@ -3,7 +3,7 @@ package test.snippet
 
 import Angular._
 import net.liftweb.common.Empty
-import net.liftweb.http.S
+import net.liftweb.http.{SessionVar, S}
 import net.liftweb.util.Schedule
 
 object Server2ClientBindTests {
@@ -11,6 +11,8 @@ object Server2ClientBindTests {
     def :+ (a:A) = ListWrap(l :+ a)
   }
   case class Counter(current:Int) extends NgModel
+
+  object array extends SessionVar[ListWrap[String]](ListWrap[String]())
 
   def render = {
     var counting = false
@@ -28,8 +30,6 @@ object Server2ClientBindTests {
 
     schedule
 
-    var array = ListWrap[String]()
-
     renderIfNotAlreadyDefined(angular.module("S2cBindServices").factory("counterService", jsObjFactory()
       .jsonCall("toggle", {
         counting = !counting
@@ -37,8 +37,9 @@ object Server2ClientBindTests {
       })
     ).factory("arrSvc", jsObjFactory()
       .jsonCall("next", {
-        array = array :+ (new java.util.Date().toString)
-        session.findComet("ArrayBindActor", Empty).foreach( _ ! array )
+        array.update(_ :+ (new java.util.Date().toString))
+        println(array.is)
+        session.findComet("ArrayBindActor", Empty).foreach( _ ! array.is )
         Empty
       })
     ))
