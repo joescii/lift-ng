@@ -28,7 +28,7 @@ abstract class SimpleBindingActor[M <: NgModel : Manifest]
   extends BindingActor[M]{}
 
 private[ng] case class FromClient(json: String, clientId: String)
-private[ng] case class ToClient(cmd: JsCmd, excluding:Box[String])
+private[ng] case class ToClient(cmd: JsCmd)
 
 /** CometActor which implements binding to a model in the target $scope */
 abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
@@ -78,7 +78,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
     ))
 
     override def receive: PartialFunction[Any, Unit] = {
-      case FromClient(json, id) => fromClient(json)
+      case FromClient(json, id) => fromClient(json, id)
       case m: M => fromServer(m)
       case e => logger.warn("Received un-handled model '" + e + "' of type '" + e.getClass.getName + "'.")
     }
@@ -92,21 +92,28 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
     private def fromServer(m: M) = {
       val mJs = toJValue(m)
-      sendDiff(mJs)
+      sendDiff(mJs, Empty)
       stateJson = mJs
       stateModel = m
     }
 
-    private def sendDiff(mJs: JValue) = {
+    private def sendDiff(mJs: JValue, exclude:Box[String]) = {
       val diff = stateJson dfn mJs
-      val cmd = buildCmd(root = false,
+      val cmd =
         diff(JsVar("s()." + bindTo)) & // Send the diff
         SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
-      )
-      partialUpdate(cmd)
+
+      for {
+        t <- theType
+        session <- S.session
+        comet <- session.findComet(t) if comet.name != exclude
+      } { comet ! ToClient(cmd) }
+
+      // If we don't poke, then next time we are rendered, it won't contain the latest state
+      poke()
     }
 
-    private def fromClient(json: String) = {
+    private def fromClient(json: String, clientId:String) = {
       //    implicit val formats = DefaultFormats
       //    implicit val mf = manifest[String]
       import js.ToWithExtractMerged
@@ -117,13 +124,14 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
       val updated = jUpdate.extractMerged(stateModel)
       logger.debug("From Client: " + updated)
 
-      // TODO: If we have some kind of session sync mode, then send it to other comets
-
       // TODO: Do something with the return value, or change it to return unit?
       onClientUpdate(updated)
 
+      val mJs = toJValue(updated)
+      sendDiff(mJs, Full(clientId))
+
       // TODO: When jUpdate becomes a diff, make sure we have the whole thing
-      stateJson = jUpdate
+      stateJson = mJs
       stateModel = updated
     }
   }
@@ -154,16 +162,15 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
     ))
 
     override def receive: PartialFunction[Any, Unit] = {
-      case _ =>
+      case ToClient(cmd) => partialUpdate(buildCmd(root = false, cmd))
     }
 
-    private def sendToSession(json:String) =
-      for {
-        session <- S.session
-        cometType <- theType
-        comet <- session.findComet(cometType, Empty)
-        clientId <- name
-      } { comet ! FromClient(json, clientId) }
+    private def sendToSession(json:String) = for {
+      session <- S.session
+      cometType <- theType
+      comet <- session.findComet(cometType, Empty)
+      clientId <- name
+    } { comet ! FromClient(json, clientId) }
 
   }
 }
