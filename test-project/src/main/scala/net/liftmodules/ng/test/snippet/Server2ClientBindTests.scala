@@ -22,7 +22,7 @@ object Server2ClientBindTests {
 
     def schedule:Unit = Schedule(() => {
       if(counting) {
-        session.findComet("CounterBindActor").foreach( _ ! Counter(count) )
+        session.findComet("CounterBindActor", Empty).foreach( _ ! Counter(count) )
         count += 1
       }
       schedule

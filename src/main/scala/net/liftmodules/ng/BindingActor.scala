@@ -27,8 +27,8 @@ abstract class SimpleBindingActor[M <: NgModel : Manifest]
   (val bindTo:String, val initialValue:M, override val onClientUpdate:M=>M = { m:M => m }, override val clientSendDelay:Int = 1000)
   extends BindingActor[M]{}
 
-private[ng] case class ClientJson(json: String, clientId: String)
-private[ng] case class ServerDiff(cmd: JsCmd)
+private[ng] case class FromClient(json: String, clientId: String)
+private[ng] case class ToClient(cmd: JsCmd)
 
 /** CometActor which implements binding to a model in the target $scope */
 abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
@@ -78,7 +78,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
     ))
 
     override def receive: PartialFunction[Any, Unit] = {
-      case ClientJson(json, id) => fromClient(json)
+      case FromClient(json, id) => fromClient(json)
       case m: M => fromServer(m)
       case e => logger.warn("Received un-handled model '" + e + "' of type '" + e.getClass.getName + "'.")
     }
@@ -99,8 +99,8 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
     private def sendDiff(mJs: JValue) = {
       val diff = stateJson dfn mJs
-      val cmd = buildCmd(root = false, diff(
-        JsVar("s()." + bindTo)) & // Send the diff
+      val cmd = buildCmd(root = false,
+        diff(JsVar("s()." + bindTo)) & // Send the diff
         SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
       )
       partialUpdate(cmd)
@@ -163,7 +163,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
         cometType <- theType
         comet <- session.findComet(cometType, Empty)
         clientId <- name
-      } { comet ! ClientJson(json, clientId) }
+      } { comet ! FromClient(json, clientId) }
 
   }
 }
