@@ -1,18 +1,18 @@
 package net.liftmodules.ng
 
 import Angular.NgModel
-import net.liftweb.json.{JsonParser, DefaultFormats, parse}
-import net.liftweb.json.Serialization._
-import net.liftweb.json.JsonAST._
-import net.liftweb.http.js.JE._
 import js.JsonDeltaFuncs._
-import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.SHtml._
-import net.liftweb.http.js.JsCmd
-import net.liftweb.http.{S, RenderOut}
-import net.liftweb.util._
+import net.liftweb._
+import json.{JsonParser, DefaultFormats, parse}
+import json.Serialization._
+import json.JsonAST._
+import common._
+import http.SHtml._
+import http.js._
+import http.S
+import JE._
+import JsCmds._
 import scala.xml.NodeSeq
-import net.liftweb.common.Empty
 
 /**
  * Simple binding actor for creating a binding actor in one line
@@ -28,7 +28,7 @@ abstract class SimpleBindingActor[M <: NgModel : Manifest]
   extends BindingActor[M]{}
 
 private[ng] case class FromClient(json: String, clientId: String)
-private[ng] case class ToClient(cmd: JsCmd)
+private[ng] case class ToClient(cmd: JsCmd, excluding:Box[String])
 
 /** CometActor which implements binding to a model in the target $scope */
 abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
