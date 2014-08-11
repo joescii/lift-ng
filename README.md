@@ -527,6 +527,8 @@ Part of contributing your changes will involve testing.  The [test-project](http
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
 * 2-way client-server model binding (See [binding branch](https://github.com/joescii/lift-ng/tree/binding) for the source. Grab version 0.5.0-SNAPSHOT for a preview)
+* Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
+* Support Lift's Record with `NgModel`.
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
