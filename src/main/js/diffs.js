@@ -52,7 +52,11 @@ var net_liftmodules_ng = net_liftmodules_ng || {};
 
     for(var i in keys) {
       var k = keys[i];
-      if(a[k] !== b[k]) add[k] = a[k];
+      if(typeof a[k] === "object" && typeof b[k] === "object") {
+        var rec = net_liftmodules_ng.diff(a[k], b[k]);
+        add[k] = rec.add ;
+      }
+      else if(a[k] !== b[k]) add[k] = a[k];
     }
 
     return {add:add, sub:sub};
