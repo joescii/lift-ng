@@ -94,3 +94,21 @@ seq(lsSettings :_*)
 (LsKeys.ghRepo in LsKeys.lsync) := Some("lift-ng")
 
 (LsKeys.ghBranch in LsKeys.lsync) := Some("master")
+
+
+// Jasmine stuff
+seq(jasmineSettings : _*)
+
+appJsDir <+= sourceDirectory { src => src / "main" / "js" }
+
+appJsLibDir <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" }
+
+jasmineTestDir <+= sourceDirectory { src => src /  "test" / "js" }
+
+jasmineConfFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" / "test.dependencies.js" }
+
+jasmineRequireJsFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require" / "require-2.0.6.js" }
+
+jasmineRequireConfFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require.conf.js" }
+
+(Keys.test in Test) <<= (Keys.test in Test) dependsOn (jasmine)
