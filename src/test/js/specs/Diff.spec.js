@@ -19,6 +19,33 @@ describe('lift-ng', function(){
       expect(diff).toEqual(expected);
     });
 
+    it('should produce add for a string going from null to a single character', function() {
+      var val1 = {str: "a"};
+      var val2 = {str: null};
+      var diff = net_liftmodules_ng.diff(val1, val2);
+      var expected = {add:{str: "a"}, sub:{}};
+
+      expect(diff).toEqual(expected);
+    });
+
+    it('should produce add for an object going from null to not null', function() {
+      var val1 = {str: "a"};
+      var val2 = null;
+      var diff = net_liftmodules_ng.diff(val1, val2);
+      var expected = {add:{str: "a"}, sub:{}};
+
+      expect(diff).toEqual(expected);
+    });
+
+    it('should produce subtract for an object going from not null to null', function() {
+      var val1 = null;
+      var val2 = {str: "a"};
+      var diff = net_liftmodules_ng.diff(val1, val2);
+      var expected = {add:{}, sub:null};
+
+      expect(diff).toEqual(expected);
+    });
+
     it('should produce add for adding a string field', function() {
       var val1 = {str: "a string"};
       var val2 = {};

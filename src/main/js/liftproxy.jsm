@@ -1,2 +1,1 @@
 liftproxy.js
-diffs.js

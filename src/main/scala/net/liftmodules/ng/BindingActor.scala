@@ -106,7 +106,9 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
       for {
         t <- theType
         session <- S.session
-        comet <- session.findComet(t) if comet.name != exclude
+        comet <- session.findComet(t)
+        if comet.name.isDefined  // Never send to unnamed comet. It doesn't handle these messages.
+        if comet.name != exclude // Send to all clients but the originating client (if not Empty)
       } { comet ! ToClient(cmd) }
 
       // If we don't poke, then next time we are rendered, it won't contain the latest state
