@@ -43,7 +43,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.21"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.4.7"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.0-SNAPSHOT"   % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
@@ -526,7 +526,9 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* 2-way client-server model binding (See [binding branch](https://github.com/joescii/lift-ng/tree/binding) for the source. Grab version 0.5.0-SNAPSHOT for a preview)
+* Support removing fields in models bound with `BindingActor`.
+* Support 1-way model binding.
+* Support non-session-scoped binding, i.e. per-page binding.
 * Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
 * Support Lift's Record with `NgModel`.
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
