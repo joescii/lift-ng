@@ -148,7 +148,8 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
           JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
             Call("setTimeout", AnonFunc(
               JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)),
-                JsCrVar("u", Call("JSON.stringify", JsRaw("{add:n}"))) &
+                JsCrVar("d", Call("net_liftmodules_ng.diff", JsVar("n"), JsVar("o"))) &
+                JsCrVar("u", Call("JSON.stringify", JsVar("d"))) &
                   ajaxCall(JsVar("u"), jsonStr => {
                     logger.debug("Received string: "+jsonStr)
                     sendToSession(jsonStr)
