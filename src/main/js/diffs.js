@@ -48,15 +48,22 @@ var net_liftmodules_ng = net_liftmodules_ng || {};
   net_liftmodules_ng.diff = function(a, b){
     var add = {};
     var sub = {};
-    var keys = Object.keys(a);
+    var keysA = Object.keys(a);
+    var keysB = Object.keys(b);
 
-    for(var i in keys) {
-      var k = keys[i];
+    for(var i in keysA) {
+      var k = keysA[i];
       if(typeof a[k] === "object" && typeof b[k] === "object") {
         var rec = net_liftmodules_ng.diff(a[k], b[k]);
-        add[k] = rec.add ;
+        if(Object.keys(rec.add).length > 0) add[k] = rec.add;
+        if(Object.keys(rec.sub).length > 0) sub[k] = rec.sub;
       }
       else if(a[k] !== b[k]) add[k] = a[k];
+    }
+
+    for(var i in keysB) {
+      var k = keysB[i];
+      if(typeof a[k] === "undefined") sub[k] = "";
     }
 
     return {add:add, sub:sub};
