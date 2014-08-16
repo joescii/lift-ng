@@ -7,39 +7,8 @@
 
 # What Is Client-Server Binding?
 Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features (a rather experimental) 2-way binding of a model between the client and server.
-To take advantage of this feature, first create a model case class which extends `NgModel`.
-
-```scala
-case class Message(msg:String) extends NgModel
-```
-
-Then create an actor in your `comet` package which extends either `BindingActor` or `SimpleBindingActor`.
-(The latter is a conveniently-constructed form of the former)
-
-```scala
-package org.myorg.comet
-
-class MessageBinder extends SimpleBindingActor[Message] (
-  "theMessage",       /* Name of the $scope variable to bind to */
-  Message("initial"), /* Initial value for theMessage when the session is initialized */
-  { m:Message =>      /* Called each time a client change is received */
-    m
-  },
-  1000                /* Milliseconds for client-sync delay (see Optimizations below) */
-)
-```
-
-Then drop it off in the scope you want this bound model to exist in, much like an `AngularActor`.
-
-```html
-<div ng-app="MyLiftNgApp">
-  <div ng-controller="MyController">
-    <div data-lift="Angular.bind?type=MessageBinder"></div>
-    <input type="text" ng-bind="theMessage.msg"/>
-    <div>{{theMessage.msg}}</div>
-  </div>
-</div>
-```
+Any changes made on the server are reflected in the client, and vice versa.
+See the [README](https://github.com/joescii/lift-ng#client-server-binding) for more details.
 
 ## Optimizations
 The reduce the network overhead, changes to a bound model on the server will be communicated to the client by sending only a diff.
