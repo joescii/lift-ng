@@ -144,14 +144,13 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   private[ng] class PageBinder extends BindingGuts {
     // TODO: Move all this crap to our js file
     override def render = Script(buildCmd(root = false,
-      Call("s().$watchCollection", JString(bindTo), AnonFunc("n,o",
+      Call("s().$watch", JString(bindTo), AnonFunc("n,o",
         // If the new value, n, is not equal to the last server val, send it.
         JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
           JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
             Call("setTimeout", AnonFunc(
               JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)),
-                JsCrVar("d", Call("net_liftmodules_ng.diff", JsVar("n"), JsVar("o"))) &
-                JsCrVar("u", Call("JSON.stringify", JsVar("d"))) &
+                JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
                   ajaxCall(JsVar("u"), jsonStr => {
                     logger.debug("Received string: "+jsonStr)
                     sendToSession(jsonStr)
@@ -161,7 +160,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
             ), JInt(clientSendDelay)),
           // else remove our last saved value so we can forget about it
           SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
-        )))
+        )), JsTrue) // True => Deep comparison
     ))
 
     override def receive: PartialFunction[Any, Unit] = {

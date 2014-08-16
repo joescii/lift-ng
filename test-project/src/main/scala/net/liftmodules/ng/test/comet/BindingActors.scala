@@ -10,7 +10,7 @@ case class Message(msg:String) extends NgModel
 
 class CounterBindActor extends SimpleBindingActor[Counter] ("count", Counter(0))
 
-class ArrayBindActor extends SimpleBindingActor[ListWrap[String]] ("array", ListWrap(List.empty[String]))
+class ArrayBindActor extends SimpleBindingActor[ListWrap] ("array", ListWrap(List.empty[String]))
 
 class C2sBindActor extends SimpleBindingActor[Message] ("input", Message(""), { m:Message =>
   for {

@@ -7,12 +7,12 @@ import net.liftweb.http.{SessionVar, S}
 import net.liftweb.util.Schedule
 
 object Server2ClientBindTests {
-  case class ListWrap[A](l:List[A] = List.empty[A]) extends NgModel {
-    def :+ (a:A) = ListWrap(l :+ a)
+  case class ListWrap(l:List[String] = List.empty[String]) extends NgModel {
+    def :+ (a:String) = ListWrap(l :+ a)
   }
   case class Counter(current:Int) extends NgModel
 
-  object array extends SessionVar[ListWrap[String]](ListWrap[String]())
+  object array extends SessionVar[ListWrap](ListWrap())
 
   def render = {
     var counting = false
