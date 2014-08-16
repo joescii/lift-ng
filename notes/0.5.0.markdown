@@ -1,0 +1,67 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+* Implemented 2-way client/server model binding.
+* Added support for Scala 2.11 against Lift editions 2.6 and 3.0.
+
+# What Is Client-Server Binding?
+Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features (a rather experimental) 2-way binding of a model between the client and server.
+To take advantage of this feature, first create a model case class which extends `NgModel`.
+
+```scala
+case class Message(msg:String) extends NgModel
+```
+
+Then create an actor in your `comet` package which extends either `BindingActor` or `SimpleBindingActor`.
+(The latter is a conveniently-constructed form of the former)
+
+```scala
+package org.myorg.comet
+
+class MessageBinder extends SimpleBindingActor[Message] (
+  "theMessage",       /* Name of the $scope variable to bind to */
+  Message("initial"), /* Initial value for theMessage when the session is initialized */
+  { m:Message =>      /* Called each time a client change is received */
+    m
+  },
+  1000                /* Milliseconds for client-sync delay (see Optimizations below) */
+)
+```
+
+Then drop it off in the scope you want this bound model to exist in, much like an `AngularActor`.
+
+```html
+<div ng-app="MyLiftNgApp">
+  <div ng-controller="MyController">
+    <div data-lift="Angular.bind?type=MessageBinder"></div>
+    <input type="text" ng-bind="theMessage.msg"/>
+    <div>{{theMessage.msg}}</div>
+  </div>
+</div>
+```
+
+## Optimizations
+The reduce the network overhead, changes to a bound model on the server will be communicated to the client by sending only a diff.
+Since watching scope variables on the client can produce a flood of changes (e.g. each character entered in a text box will generate a change event), changes are queued up and sent after no more changes are detected for 1000 millis.
+The fourth argument to the `SimpleBindingActor` constructor or an override of `clientSendDelay` in `BindingActor` allows you to tweak this delay to your liking.
+
+## Caveats
+Note that this feature will utilize more memory than others, paricularly on the server.
+We maintain the last known state of your model.
+This allows us to compare to any model changes provided and transmit only the diff from the server.
+
+Currently the client sends the entire model back to the server on change.
+Soon we hope to support sending only the diff just like we do when sending from the server.
+
+Arrays are not correctly supported yet.
+A client-side change to an array will append to the array on the server rather than replacing the respective values based on the index.
+
+Removing stuff from a model on the server does not transmit to the client yet.
+Only changes or additions to the model will be synced up to the client.
+
+Only 2-way binding is currently supported.
+
+Only session-scoped binding is currently supported.
+That is, a model bound will be reflected on every page load for a given session.
+
