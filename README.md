@@ -11,6 +11,10 @@ Lift as a backend should appeal to AngularJS developers for the following reason
 There is no massaging of your Angular templates to make the framework happy.
 * The approach of manipulating the templates on the server by Lift is similar to how you manipulate them on the client with AngularJS.
 Hence you can manipulate the DOM at the time you know the information, while on the client or earlier while on the server.
+* Lift is not MVC.
+No need to navigate another MVC framework while building with Angular's MVC approach.
+* Lift is excellent at slinging HTML and JS.
+This is precisely what an Angular application needs for a backend.
 * Security is handled for you, making it virtually impossible to have your http endpoints successfully attacked.
 (More on [Lift's security](http://seventhings.liftweb.net/security))
 * Your application will be built on the rock-solid JVM as a time-tested Java servlet on the most mature Scala web framework.
@@ -40,7 +44,7 @@ Optionally add `lift-ng-js` as a dependency if you would like us to manage the d
 libraryDependencies ++= {
   val liftVersion = "2.5.1" // Also supported: "2.6" and "3.0"
   val liftEdition = liftVersion.substring(0,3)
-  val ngVersion = "1.2.21"  // If using lift-ng-js
+  val ngVersion = "1.2.22"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
     "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.0"            % "compile",
@@ -87,7 +91,7 @@ You can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.pat
 Below are usage examples of each of the major features of **lift-ng**.
 Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples
 
-### AJAX Services
+### Client-Initiated Calls
 
 Most AngularJS backends provide RESTful http endpoints for the application to receive data from the server.
 **lift-ng** is certainly no exception by providing a server-side DSL for creating services.
@@ -358,7 +362,7 @@ In regards to testing the server-side code, we recommend implementing your servi
 Then utilize **lift-ng** to merely expose those services to your angular app.
 This way your business logic is decoupled from **lift-ng** and easily testable.
 
-### Non-AJAX
+#### Non-AJAX
 Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.
 Typical examples of this are configuration settings, session values, etc.
 To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
@@ -383,7 +387,7 @@ angular.module("StaticServices",["zen.lift.proxy"])
   }});
 ```
 
-### Comet 
+### Server-Initiated Events
 
 Now we can take a look at how to utilize Lift's comet support to asynchronously send angular updates from the server
 
@@ -440,6 +444,66 @@ angular.module('ExampleApp', [])
 ```
 
 Note that messages sent prior to a page bootstrapping the Angular application will be queued up and released in order once the application is ready.  The retry interval defaults to 100 milliseconds and can be configured in your Lift application's props files with the `net.liftmodules.ng.AngularActor.retryInterval` Int property.
+
+### Client-Server Binding
+Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features (a rather experimental) 2-way binding of a model between the client and server.
+To take advantage of this feature, first create a model case class which extends `NgModel`.
+
+```scala
+case class Message(msg:String) extends NgModel
+```
+
+Then create an actor in your `comet` package which extends either `BindingActor` or `SimpleBindingActor`.
+(The latter is a conveniently-constructed form of the former)
+
+```scala
+package org.myorg.comet
+
+class MessageBinder extends SimpleBindingActor[Message] (
+  "theMessage",       /* Name of the $scope variable to bind to */
+  Message("initial"), /* Initial value for theMessage when the session is initialized */
+  { m:Message =>      /* Called each time a client change is received */
+    m
+  },
+  1000                /* Milliseconds for client-sync delay (see Optimizations below) */
+)
+```
+
+Then drop it off in the scope you want this bound model to exist in, much like an `AngularActor`.
+
+```html
+<div ng-app="MyLiftNgApp">
+  <div ng-controller="MyController">
+    <div data-lift="Angular.bind?type=MessageBinder"></div>
+    <input type="text" ng-bind="theMessage.msg"/>
+    <div>{{theMessage.msg}}</div>
+  </div>
+</div>
+```
+
+#### Optimizations
+The reduce the network overhead, changes to a bound model on the server will be communicated to the client by sending only a diff.
+Since watching scope variables on the client can produce a flood of changes (e.g. each character entered in a text box will generate a change event), changes are queued up and sent after no more changes are detected for 1000 millis.
+The fourth argument to the `SimpleBindingActor` constructor or an override of `clientSendDelay` in `BindingActor` allows you to tweak this delay to your liking.
+
+#### Caveats
+Note that this feature will utilize more memory than others, paricularly on the server.
+We maintain the last known state of your model.
+This allows us to compare to any model changes provided and transmit only the diff from the server.
+
+Currently the client sends the entire model back to the server on change.
+Soon we hope to support sending only the diff just like we do when sending from the server.
+
+Arrays are not correctly supported yet.
+A client-side change to an array will append to the array on the server rather than replacing the respective values based on the index.
+
+Removing stuff from a model on the server does not transmit to the client yet.
+Only changes or additions to the model will be synced up to the client.
+
+Only 2-way binding is currently supported.
+
+Only session-scoped binding is currently supported.
+That is, a model bound will be reflected on every page load for a given session.
 
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
@@ -526,20 +590,22 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
+* Correctly support client-side changes to models containing arrays when bound with `BindingActor`.
 * Support removing fields in models bound with `BindingActor`.
 * Support 1-way model binding.
 * Support non-session-scoped binding, i.e. per-page binding.
+* Retain diffs in `BindingActor`. Allow server to reject client-side changes.
 * Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
 * Support Lift's Record with `NgModel`.
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
-* Make the DSL prettier
 * `AngularActor.scope.parent` support
 
 ## Change log
 
+* *0.5.0*: Introduction of 2-way client/server model binding.  Added support for Scala 2.11 against Lift editions 2.6 and 3.0.
 * *0.4.7*: Updated to work on pages that are in subdirectories.  See [Pull Request #4](https://github.com/joescii/lift-ng/pull/4).  Thank you [voetha](https://github.com/voetha) for the contribution!
 * *0.4.6*: Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 
 Added `includeJsScript` parameter to `Angular.init()` to give developers the ability to download the `liftproxy.js` their own way, such as via [head.js](http://headjs.com/).
