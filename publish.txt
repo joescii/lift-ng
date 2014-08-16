@@ -6,6 +6,6 @@ set liftVersion  in ThisBuild:="3.0-SNAPSHOT"
 + update
 + pub
 
-set liftVersion  in ThisBuild:="2.6-SNAPSHOT"
+set liftVersion  in ThisBuild:="2.6-RC1"
 + update
 + pub
