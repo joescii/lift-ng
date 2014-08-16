@@ -6,7 +6,7 @@ homepage := Some(url("https://github.com/joescii/lift-ng"))
 
 version := "0.5.0"
 
-liftVersion <<= liftVersion ?? "2.5.1"
+liftVersion <<= liftVersion ?? "2.6-RC1"
 
 liftEdition <<= liftVersion { _.substring(0,3) }
 
@@ -16,9 +16,9 @@ name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
 // E.g. "2.5" gets converted to "2-5"
 moduleName := name.value
 
-scalaVersion <<= scalaVersion ?? "2.9.1"  // This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
+scalaVersion <<= scalaVersion ?? "2.10.4"  // This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
-crossScalaVersions := Seq("2.10.4", "2.9.2", "2.9.1")
+crossScalaVersions := Seq("2.11.2", "2.10.4")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 
@@ -31,9 +31,9 @@ libraryDependencies <++= (scalaVersion, liftVersion) { (scala, lift) =>
   Seq(
     "net.liftweb"   %% "lift-webkit"  % lift    % "provided",
     "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile",
+    "org.scalaz"    %% "scalaz-core"  % "7.0.6" % "compile",  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
     "org.scalatest" %% "scalatest"    % "2.2.1" % "test"
-  ) :+
-  (if (scala.startsWith("2.11.")) scalaz7 else scalaz6)
+  )
 }
 
 scalacOptions <<= scalaVersion map { v: String =>

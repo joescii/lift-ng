@@ -14,7 +14,7 @@ import net.liftweb.http.js.JE.Call
 import net.liftweb.http.js.JE.JsVar
 import net.liftweb.http.js.JE.JsRaw
 
-object AngularI18n extends DispatchSnippet with scalaz.Memos {
+object AngularI18n extends DispatchSnippet with scalaz.MemoFunctions {
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
   override def dispatch = {
     case _ => { _ => render }
