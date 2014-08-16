@@ -10,7 +10,6 @@ import JsCmds.JsFor
 import json.JsonAST._
 
 import org.scalatest._
-import matchers.ShouldMatchers
 
 class JsonDeltaFuncExamples extends WordSpec with ShouldMatchers {
   "JsonDeltaFunctions (dfs)" should {

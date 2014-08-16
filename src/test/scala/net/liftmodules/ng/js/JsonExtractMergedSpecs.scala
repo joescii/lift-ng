@@ -1,7 +1,6 @@
 package net.liftmodules.ng.js
 
 import org.scalatest._
-import matchers.ShouldMatchers
 import net.liftweb.json._
 
 case class Test(a:String, b:Int)

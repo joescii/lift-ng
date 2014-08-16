@@ -24,13 +24,16 @@ resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/pu
 
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
-libraryDependencies <++= liftVersion { v =>
+libraryDependencies <++= (scalaVersion, liftVersion) { (scala, lift) =>
+  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
+  val scalaz6 = "org.scalaz" %% "scalaz-core" % "6.0.4" % "compile"
+  val scalaz7 = "org.scalaz" %% "scalaz-core" % "7.0.6" % "compile"
   Seq(
-    "net.liftweb"   %% "lift-webkit"  % v       % "provided",
+    "net.liftweb"   %% "lift-webkit"  % lift    % "provided",
     "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile",
-    "org.scalaz"    %% "scalaz-core"  % "6.0.4" % "compile",  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
-    "org.scalatest" %% "scalatest"    % "1.9.2" % "test"
-  )
+    "org.scalatest" %% "scalatest"    % "2.2.1" % "test"
+  ) :+
+  (if (scala.startsWith("2.11.")) scalaz7 else scalaz6)
 }
 
 scalacOptions <<= scalaVersion map { v: String =>
@@ -111,4 +114,4 @@ jasmineRequireJsFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib"
 
 jasmineRequireConfFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require.conf.js" }
 
-(Keys.test in Test) <<= (Keys.test in Test) dependsOn (jasmine)
+//(Keys.test in Test) <<= (Keys.test in Test) dependsOn (jasmine)
