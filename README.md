@@ -602,6 +602,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
+* Support server comet pushes to client via services.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * `AngularActor.scope.parent` support
 
