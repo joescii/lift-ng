@@ -84,7 +84,9 @@ You can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.pat
 
 ## Supported Versions
 
-**lift-ng** is built and released to support Lift edition 2.5 with Scala versions 2.9.1, 2.9.2, and 2.10; Lift edition 2.6 with Scala versions 2.9.1, 2.9.2, and 2.10; and Lift edition 3.0 with Scala version 2.10.  This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
+**lift-ng** is built and released to support Lift edition 2.5 with Scala versions 2.9.1, 2.9.2, and 2.10; Lift edition 2.6 with Scala versions 2.9.1, 2.9.2, 2.10, and 2.11; and Lift edition 3.0 with Scala versions 2.10 and 2.11.
+This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
+Currently all automated testing is performed against 2.5/2.10 and 2.6/2.11.
 
 ## Usage
 
