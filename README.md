@@ -43,7 +43,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.21"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.0-SNAPSHOT"   % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.0"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
