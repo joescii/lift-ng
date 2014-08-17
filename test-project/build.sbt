@@ -2,7 +2,7 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.5.0"
+version := "0.5.1-SNAPSHOT"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
@@ -41,6 +41,8 @@ libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
 (Keys.test in Test) <<= (Keys.test in Test) dependsOn (start in container.Configuration)
 
 (Keys.testOnly in Test) <<= (Keys.testOnly in Test) dependsOn (start in container.Configuration)
+
+(Keys.testQuick in Test) <<= (Keys.testOnly in Test) dependsOn (start in container.Configuration)
 
 parallelExecution in Test := false
 
