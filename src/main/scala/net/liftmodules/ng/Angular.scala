@@ -4,7 +4,7 @@ import scala.collection.mutable
 import scala.xml.{Elem, NodeSeq}
 
 import net.liftweb.http.RequestVar
-import net.liftweb.common.{Failure, Full, Empty, Box}
+import net.liftweb.common._
 import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer, S }
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
@@ -17,6 +17,12 @@ import com.joescii.j2jsi18n.JsResourceBundle
 import net.liftweb.util.Props.RunModes
 import net.liftweb.util.Props
 import net.liftweb.util.StringHelpers._
+import scala.Some
+import net.liftweb.http.js.JE.Str
+import net.liftweb.json.JsonAST.JString
+import net.liftweb.http.js.JE.JsVar
+import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.http.js.JE.Call
 import scala.Some
 import net.liftweb.http.js.JE.Str
 import net.liftweb.json.JsonAST.JString
@@ -41,7 +47,7 @@ import net.liftweb.http.js.JE.Call
  * )
  * }}}
  */
-object Angular extends DispatchSnippet {
+object Angular extends DispatchSnippet with Loggable {
 
   private [ng] var futuresDefault:Boolean = true
   private [ng] var appSelectorDefault:String = "[ng-app]"
@@ -112,7 +118,7 @@ object Angular extends DispatchSnippet {
    */
   def bind(xhtml:NodeSeq):NodeSeq = {
     val t = S.attr("type").map(_.trim)
-    val ts = S.attr("types").map(_.split(',').map(_.trim).toSeq).openOr(Seq())
+    val ts = S.attr("types").map(_.split(',').map(_.trim).toList).openOr(Seq())
     val types = t.map(_ +: ts).openOr(ts)
 
     val divs = types.map { f =>
@@ -123,12 +129,16 @@ object Angular extends DispatchSnippet {
       <div data-lift={cometNamed}></div>
     }.reduceOption(_ ++ _)
 
-    // This mess adds the divs (if found) as the last children (if found)
-    xhtml.toList match {
-      case (n:Elem) :: tail => divs.map { ds =>
-        n.copy(child = n.child ++ ds)
-      }.getOrElse(n) :: tail
-      case _ => xhtml
+    divs match {
+      case Some(ds) => xhtml.toList match {
+        case (n:Elem) :: tail => n.copy(child = n.child ++ ds) :: tail
+        case _ => xhtml // I don't think this case can actually happen...
+      }
+
+      case None => {
+        logger.warn("Angular.bind utilized without 'type' or 'types' specified")
+        xhtml
+      }
     }
   }
 
