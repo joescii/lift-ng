@@ -16,6 +16,6 @@ set crossScalaVersions in ThisBuild := Seq("2.11.2", "2.10.4", "2.9.2", "2.9.1")
 
 set liftVersion  in ThisBuild:="2.5.1"
 set crossScalaVersions in ThisBuild := Seq("2.10.4", "2.9.2", "2.9.1")
-update
-test
-pub
++ update
++ test
++ pub
