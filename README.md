@@ -47,7 +47,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.22"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.0"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.1"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
@@ -471,17 +471,27 @@ class MessageBinder extends SimpleBindingActor[Message] (
 )
 ```
 
-Then drop it off in the scope you want this bound model to exist in, much like an `AngularActor`.
+Then add it to the scope you want this bound model to exist in.
 
 ```html
 <div ng-app="MyLiftNgApp">
-  <div ng-controller="MyController">
-    <div data-lift="Angular.bind?type=MessageBinder"></div>
+  <div ng-controller="MyController" data-lift="Angular.bind?type=MessageBinder">
     <input type="text" ng-bind="theMessage.msg"/>
     <div>{{theMessage.msg}}</div>
   </div>
 </div>
 ```
+
+If you have multiple binds, you can specify them in `types` via a comma-delimited list:
+
+```html
+<div ng-app="MyLiftNgApp">
+  <div ng-controller="MyMultipleBinds" data-lift="Angular.bind?types=Binder1,Binder2">
+    <!-- Other stuff... -->
+  </div>
+</div>
+```
+
 
 #### Optimizations
 The reduce the network overhead, changes to a bound model on the server will be communicated to the client by sending only a diff.
@@ -608,6 +618,8 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.5.1*: Corrected a bug exposed by 2-way binding that our [early-arrival mechanism](https://github.com/joescii/lift-ng/issues/1) to not work if `angular.js` files are specified at the end of the HTML.
+Made it possible to add binding actors in the HTML templates without introducing an extra element.  Thanks to [Antonio](https://twitter.com/lightfiend) for [the suggestion](https://groups.google.com/forum/#!topic/liftweb/1SJ6YNzpBEw)!
 * *0.5.0*: Introduction of 2-way client/server model binding.  Added support for Scala 2.11 against Lift editions 2.6 and 3.0.
 * *0.4.7*: Updated to work on pages that are in subdirectories.  See [Pull Request #4](https://github.com/joescii/lift-ng/pull/4).  Thank you [voetha](https://github.com/voetha) for the contribution!
 * *0.4.6*: Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 

@@ -1,0 +1,6 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+* Corrected a bug exposed by 2-way binding that our [early-arrival mechanism](https://github.com/joescii/lift-ng/issues/1) to not work if `angular.js` files are specified at the end of the HTML.
+* Made it possible to add binding actors in the HTML templates without introducing an extra element.  Thanks to [Antonio](https://twitter.com/lightfiend) for [the suggestion](https://groups.google.com/forum/#!topic/liftweb/1SJ6YNzpBEw)!
