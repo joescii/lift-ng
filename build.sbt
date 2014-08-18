@@ -28,17 +28,21 @@ libraryDependencies <++= (scalaVersion, liftVersion) { (scala, lift) =>
   // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
   val scalaz6 = "org.scalaz" %% "scalaz-core" % "6.0.4" % "compile"
   val scalaz7 = "org.scalaz" %% "scalaz-core" % "7.0.6" % "compile"
+  val scalaTest1 = "org.scalatest" %% "scalatest" % "1.9.2" % "test"
+  val scalaTest2 = "org.scalatest" %% "scalatest" % "2.2.1" % "test"
   Seq(
     "net.liftweb"   %% "lift-webkit"  % lift    % "provided",
-    "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile",
-    "org.scalaz"    %% "scalaz-core"  % "7.0.6" % "compile",  // Ideally, keep this in sync with https://github.com/lift/framework/blob/master/project/Dependencies.scala#L32
-    "org.scalatest" %% "scalatest"    % "2.2.1" % "test"
-  )
+    "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile"
+  ) ++ (if(scala.startsWith("2.9")) Seq(scalaz6, scalaTest1) else Seq(scalaz7, scalaTest2))
 }
 
 scalacOptions <<= scalaVersion map { v: String =>
   val opts = "-deprecation" :: "-unchecked" :: Nil
   if (v.startsWith("2.9.")) opts else opts ++ ("-feature" :: "-language:postfixOps" :: "-language:implicitConversions" :: Nil)
+}
+
+excludeFilter in unmanagedSources <<= scalaVersion { scala => 
+  HiddenFileFilter || (if(scala.startsWith("2.9")) "*2.10*" else "*2.9*")
 }
 
 buildInfoSettings
