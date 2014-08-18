@@ -1,7 +1,7 @@
 package net.liftmodules.ng
 
 import scala.collection.mutable
-import scala.xml.NodeSeq
+import scala.xml.{Elem, NodeSeq}
 
 import net.liftweb.http.RequestVar
 import net.liftweb.common.{Failure, Full, Empty, Box}
@@ -94,7 +94,7 @@ object Angular extends DispatchSnippet {
   
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
   override def dispatch = {
-    case "bind" => { _ => bind }
+    case "bind" => bind
     case _ => { _ => render }
   }
 
@@ -104,12 +104,33 @@ object Angular extends DispatchSnippet {
       case _ => ".min.js"
     })
 
-  def bind: NodeSeq = S.attr("type").map { t =>
-    val cometUnnamed = "comet?type="+t
-    val cometNamed   = cometUnnamed+"&randomname=true"
-    <div data-lift={cometUnnamed}></div>
-    <div data-lift={cometNamed}></div>
-  }.openOr(NodeSeq.Empty)
+  /**
+   * Sets up a two-way scope variable binding by dropping in two binding actors as the last Elem/Node children
+   * in the passed NodeSeq
+   * @param xhtml
+   * @return
+   */
+  def bind(xhtml:NodeSeq):NodeSeq = {
+    val t = S.attr("type").map(_.trim)
+    val ts = S.attr("types").map(_.split(',').map(_.trim).toSeq).openOr(Seq())
+    val types = t.map(_ +: ts).openOr(ts)
+
+    val divs = types.map { f =>
+      val cometUnnamed = "comet?type=" + f
+      val cometNamed = cometUnnamed + "&randomname=true"
+
+      <div data-lift={cometUnnamed}></div> ++
+      <div data-lift={cometNamed}></div>
+    }.reduceOption(_ ++ _)
+
+    // This mess adds the divs (if found) as the last children (if found)
+    xhtml.toList match {
+      case (n:Elem) :: tail => divs.map { ds =>
+        n.copy(child = n.child ++ ds)
+      }.getOrElse(n) :: tail
+      case _ => xhtml
+    }
+  }
 
   /**
    * Renders all the modules that have been added to the RequestVar.

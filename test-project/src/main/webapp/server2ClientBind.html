@@ -5,8 +5,7 @@
     <div id="main" class="lift:surround?with=default;at=content">
       <h2>Server to Client Binding tests</h2>
       <div ng-app="Server2ClientBindingApp">
-        <div ng-controller="Controller">
-          <div data-lift="Angular.bind?type=CounterBindActor"></div>
+        <div ng-controller="Controller" data-lift="Angular.bind?type=CounterBindActor">
           <input id="button" type="button" value="Start Counter" ng-click="counter.toggle()"/>
           <span id="output" ng-bind="count.current">Output1</span>
 
