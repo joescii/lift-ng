@@ -105,7 +105,7 @@ object Angular extends DispatchSnippet with Loggable {
   }
 
   private val liftproxySrc =
-    LiftRules.context.path + "/classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version + (Props.mode match {
+    "/classpath/net/liftmodules/ng/js/liftproxy-"+BuildInfo.version + (Props.mode match {
       case RunModes.Development => ".js"
       case _ => ".min.js"
     })
