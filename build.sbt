@@ -4,7 +4,7 @@ organization := "net.liftmodules"
 
 homepage := Some(url("https://github.com/joescii/lift-ng"))
 
-version := "0.5.2-SNAPSHOT"
+version := "0.5.2"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
@@ -18,7 +18,7 @@ moduleName := name.value
 
 scalaVersion <<= scalaVersion ?? "2.10.4"  // This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
 
-crossScalaVersions := Seq("2.11.2", "2.10.4")
+crossScalaVersions := Seq("2.11.2", "2.10.4", "2.9.2", "2.9.1")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 

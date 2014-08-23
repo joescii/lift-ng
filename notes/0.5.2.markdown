@@ -1,0 +1,6 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+* Resolved [Issue #5](https://github.com/joescii/lift-ng/issues/5), where the deployment context path appeared twice in the path to the `liftproxy.js` resource.
+* Dropped support for Lift 3.0 compiled against Scala 2.10.

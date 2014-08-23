@@ -47,7 +47,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.22"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.1"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.2"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
@@ -618,6 +618,8 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.5.2*: Resolved [Issue #5](https://github.com/joescii/lift-ng/issues/5), where the deployment context path appeared twice in the path to the `liftproxy.js` resource.
+Dropped support for Lift 3.0 compiled against Scala 2.10.
 * *0.5.1*: Corrected a bug exposed by 2-way binding that our [early-arrival mechanism](https://github.com/joescii/lift-ng/issues/1) to not work if `angular.js` files are specified at the end of the HTML.
 Made it possible to add binding actors in the HTML templates without introducing an extra element.  Thanks to [Antonio](https://twitter.com/lightfiend) for [the suggestion](https://groups.google.com/forum/#!topic/liftweb/1SJ6YNzpBEw)!
 * *0.5.0*: Introduction of 2-way client/server model binding.  Added support for Scala 2.11 against Lift editions 2.6 and 3.0.
