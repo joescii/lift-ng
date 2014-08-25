@@ -1,6 +1,6 @@
 @echo off
 
-set SBT=C:\sbt\bin\sbt
+set SBT=sbt
 set tasks=update
 set el=0
 
