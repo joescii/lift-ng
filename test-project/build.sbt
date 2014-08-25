@@ -4,9 +4,13 @@ organization := "net.liftmodules"
 
 version := "0.5.2"
 
-liftVersion <<= liftVersion ?? "2.5.1"
+liftVersion := System.getProperty("lift.version", "2.5.1")
 
 liftEdition <<= liftVersion { _.substring(0,3) }
+
+scalaVersion := System.getProperty("scala.version", "2.10.4")
+
+scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 resolvers ++= Seq(
   "staging"   at "https://oss.sonatype.org/service/local/staging/deploy/maven2",
@@ -17,11 +21,6 @@ resolvers ++= Seq(
 seq(webSettings :_*)
 
 unmanagedResourceDirectories in Test <+= (baseDirectory) { _ / "src/main/webapp" }
-
-scalaVersion := "2.10.4"
-
-scalacOptions ++= Seq("-deprecation", "-unchecked")
-
 
 libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
   val liftEdition = lift.substring(0,3)
