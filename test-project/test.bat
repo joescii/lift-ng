@@ -1,7 +1,8 @@
 @echo off
 
+set JAVA_HOME=%JAVA7_HOME%
 set SBT=sbt
-set tasks=update
+set tasks=clean update test
 set el=0
 
 call %SBT% -Dlift.version=2.5.1 -Dscala.version=2.10.4 %tasks%
