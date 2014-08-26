@@ -4,7 +4,7 @@ organization := "net.liftmodules"
 
 homepage := Some(url("https://github.com/joescii/lift-ng"))
 
-version := "0.5.2"
+version := "0.5.3-SNAPSHOT"
 
 liftVersion <<= liftVersion ?? "2.5.1"
 
@@ -41,8 +41,10 @@ scalacOptions <<= scalaVersion map { v: String =>
   if (v.startsWith("2.9.")) opts else opts ++ ("-feature" :: "-language:postfixOps" :: "-language:implicitConversions" :: Nil)
 }
 
-excludeFilter in unmanagedSources <<= scalaVersion { scala => 
-  HiddenFileFilter || (if(scala.startsWith("2.9")) "*2.10*" else "*2.9*")
+excludeFilter in unmanagedSources <<= (scalaVersion, liftEdition) { (scala, lift) => 
+  HiddenFileFilter || 
+    (if(scala.startsWith("2.9")) "*2.10*" else "*2.9*") || 
+    (if(lift.startsWith("3")) "*2.x*" else "*3.x*")
 }
 
 buildInfoSettings

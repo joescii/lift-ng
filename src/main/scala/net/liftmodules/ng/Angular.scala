@@ -47,7 +47,7 @@ import net.liftweb.http.js.JE.Call
  * )
  * }}}
  */
-object Angular extends DispatchSnippet with Loggable {
+object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
   private [ng] var futuresDefault:Boolean = true
   private [ng] var appSelectorDefault:String = "[ng-app]"
@@ -155,10 +155,11 @@ object Angular extends DispatchSnippet with Loggable {
 
     val liftproxy = if(includeJsScript) <script src={liftproxySrc}></script> else NodeSeq.Empty
     val jsModule = Script(JsRaw(
+    //net_liftmodules_ng.contextPath + '/ajax_request/' + lift_page + '/'
       "var net_liftmodules_ng=net_liftmodules_ng||{};" +
-      "net_liftmodules_ng.contextPath=net_liftmodules_ng.contextPath||\"" + LiftRules.context.path + "\";" +
-      "net_liftmodules_ng.version=net_liftmodules_ng.version||\"" + BuildInfo.version + "\";" +
-      "net_liftmodules_ng.jsPath=net_liftmodules_ng.jsPath||\"" + liftproxySrc +"\";"
+      "net_liftmodules_ng.endpoint=function(){return "+ajaxEndpoint+";};" +
+      "net_liftmodules_ng.version=\"" + BuildInfo.version + "\";" +
+      "net_liftmodules_ng.jsPath=\"" + liftproxySrc +"\";"
     ))
     val modules = Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
     val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor"></div> else NodeSeq.Empty
