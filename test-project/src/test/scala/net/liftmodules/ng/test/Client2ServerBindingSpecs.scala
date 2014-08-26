@@ -7,6 +7,7 @@ class Client2ServerBindingSpecs extends BaseSpec {
   }
 
   "The input text" should "be reflected in the output text" in {
+    eventually { id("output").element.text should be ("") }
     textField("input").value = "a"
     eventually { id("output").element.text should be ("a") }
     textField("input").value = "ab"
