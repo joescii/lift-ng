@@ -20,4 +20,4 @@ class C2sBindActor extends SimpleBindingActor[Message] ("input", Message(""), { 
   m
 })
 
-class C2sReturnActor extends SimpleBindingActor[Message] ("returned", Message("server"))
+class C2sReturnActor extends SimpleBindingActor[Message] ("returned", Message(""))
