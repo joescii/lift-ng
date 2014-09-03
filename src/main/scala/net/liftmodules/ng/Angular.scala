@@ -125,8 +125,11 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
       val cometUnnamed = "comet?type=" + f
       val cometNamed = cometUnnamed + "&randomname=true"
 
-      <div data-lift={cometUnnamed}></div> ++
-      <div data-lift={cometNamed}></div>
+      // We need to render the named comet first.  Otherwise using CometListener does not work.
+      // This is because the unnamed comet sends the messages up via the named comet.
+      // Hence it will get a create message but have no named comet actor to use.
+      <div data-lift={cometNamed}></div> ++
+      <div data-lift={cometUnnamed}></div>
     }.reduceOption(_ ++ _)
 
     divs match {
