@@ -1,7 +1,7 @@
 @echo off
 
 set JAVA_HOME=%JAVA7_HOME%
-set SBT=sbt
+set SBT=C:\sbt\bin\sbt
 set tasks=clean update test
 set el=0
 

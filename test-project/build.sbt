@@ -14,8 +14,8 @@ scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 resolvers ++= Seq(
   "staging"   at "https://oss.sonatype.org/service/local/staging/deploy/maven2",
-  "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-  "releases"  at "http://oss.sonatype.org/content/repositories/releases"
+  "snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+  "releases"  at "https://oss.sonatype.org/content/repositories/releases"
 )
 
 seq(webSettings :_*)
