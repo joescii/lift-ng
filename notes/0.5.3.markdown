@@ -1,0 +1,7 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+* Fixed handing of `BindingActor` initial values.
+* Fixed support for Lift 3.0-SNAPSHOT.
+* Enhanced automated testing to cover 2.10/2.5, 2.10/2.6, 2.11/2.6, and 2.11/3.0 Scala/Lift versions.

@@ -47,7 +47,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.22"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.2"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.3"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
@@ -84,14 +84,14 @@ You can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.pat
 
 ## Supported Versions
 
-**lift-ng** is built and released to support Lift edition 2.5 with Scala versions 2.9.1, 2.9.2, and 2.10; Lift edition 2.6 with Scala versions 2.9.1, 2.9.2, 2.10, and 2.11; and Lift edition 3.0 with Scala versions 2.10 and 2.11.
+**lift-ng** is built and released to support Lift edition 2.5 with Scala versions 2.9.1, 2.9.2, and 2.10; Lift edition 2.6 with Scala versions 2.9.1, 2.9.2, 2.10, and 2.11; and Lift edition 3.0 with Scala version 2.11.
 This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
-Currently all automated testing is performed against 2.5.1/2.10.4, which is the latest released versions available.
+Automated testing is performed against the latest 2.10/2.5, 2.10/2.6, 2.11/2.6, and 2.11/3.0 Scala/Lift versions for each release of **lift-ng**.
 
 ## Usage
 
 Below are usage examples of each of the major features of **lift-ng**.
-Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples
+Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples.
 
 ### Client-Initiated Calls
 
@@ -618,6 +618,9 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.5.3*: Fixed handing of `BindingActor` initial values.
+Fixed support for Lift 3.0-SNAPSHOT.
+Enhanced automated testing to cover 2.10/2.5, 2.10/2.6, 2.11/2.6, and 2.11/3.0 Scala/Lift versions.
 * *0.5.2*: Resolved [Issue #5](https://github.com/joescii/lift-ng/issues/5), where the deployment context path appeared twice in the path to the `liftproxy.js` resource.
 Dropped support for Lift 3.0 compiled against Scala 2.10.
 * *0.5.1*: Corrected a bug exposed by 2-way binding that our [early-arrival mechanism](https://github.com/joescii/lift-ng/issues/1) to not work if `angular.js` files are specified at the end of the HTML.
