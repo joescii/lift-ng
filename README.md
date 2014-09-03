@@ -619,6 +619,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 ## Change log
 
 * *0.5.3*: Fixed handing of `BindingActor` initial values.
+Fixed usage of `CometListener` with `BindingActor` by reversing the order in which the named/unnamed `BindingActors` are rendered.
 Fixed support for Lift 3.0-SNAPSHOT.
 Enhanced automated testing to cover 2.10/2.5, 2.10/2.6, 2.11/2.6, and 2.11/3.0 Scala/Lift versions.
 * *0.5.2*: Resolved [Issue #5](https://github.com/joescii/lift-ng/issues/5), where the deployment context path appeared twice in the path to the `liftproxy.js` resource.
