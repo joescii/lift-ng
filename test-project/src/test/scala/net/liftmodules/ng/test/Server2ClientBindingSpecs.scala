@@ -6,6 +6,10 @@ class Server2ClientBindingSpecs extends BaseSpec {
     eventually { pageTitle should be ("App: Server 2 Client Binding") }
   }
 
+  "The counter output" should "initially be zero" in {
+    eventually { id("output").element.text should be ("0") }
+  }
+
   "The next button" should "load the next box without impacting the others" in {
     click on "button-next"
     eventually { textField("input0").value should not be empty }
@@ -53,7 +57,6 @@ class Server2ClientBindingSpecs extends BaseSpec {
 
   "The button on the page" should "trigger a counter" in {
     click on "button"
-    eventually { id("output").element.text should be ("0") }
     eventually { id("output").element.text should be ("1") }
     eventually { id("output").element.text should be ("2") }
   }
