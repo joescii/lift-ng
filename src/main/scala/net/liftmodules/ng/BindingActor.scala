@@ -69,7 +69,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
   /** Guts for the unnamed binding actor which exits per session and allows the models to be bound together */
   private[ng] class SessionBinder extends BindingGuts {
     var stateModel: M = initialValue
-    var stateJson: JValue = JNull
+    var stateJson: JValue = toJValue(stateModel)
 
     override def render = Script(buildCmd(root = false,
       SetExp(JsVar("s()." + bindTo), stateJson) & // Send the current state with the page
@@ -83,11 +83,12 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
       case e => logger.warn("Received un-handled model '" + e + "' of type '" + e.getClass.getName + "'.")
     }
 
-    private implicit val formats = DefaultFormats
-
-    private def toJValue(m: Any): JValue = m match {
-      case m: NgModel => parse(write(m))
-      case e => JNull
+    private def toJValue(m: M): JValue = {
+      implicit val formats = DefaultFormats
+      m match {
+        case m: NgModel if m != null => parse(write(m))
+        case e => JNull
+      }
     }
 
     private def fromServer(m: M) = {
