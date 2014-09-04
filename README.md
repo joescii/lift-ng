@@ -609,6 +609,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Retain diffs in `BindingActor`. Allow server to reject client-side changes.
 * Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
 * Support Lift's Record with `NgModel`.
+* Support dynamically-loaded templates for routing frameworks. (See [Issue 7](https://github.com/joescii/lift-ng/issues/7))
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
@@ -618,7 +619,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
-* *0.5.3*: Fixed handing of `BindingActor` initial values.
+* *0.5.3*: Fixed handling of `BindingActor` initial values.
 Fixed usage of `CometListener` with `BindingActor` by reversing the order in which the named/unnamed `BindingActors` are rendered.
 Fixed support for Lift 3.0-SNAPSHOT.
 Enhanced automated testing to cover 2.10/2.5, 2.10/2.6, 2.11/2.6, and 2.11/3.0 Scala/Lift versions.
