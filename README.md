@@ -24,10 +24,10 @@ AngularJS as a front end should appeal to Scala and Lift developers for the foll
 * AngularJS does a fantastic job of managing complex client-side interactions for you.
 * With **lift-ng** in particular, you get to utilize Lift's reactive features such as asynchronous comet updates to the client and returning `LAFuture[T]` results for services.
 
-## Tutorial
+## Tutorials
 
-If you are not comfortable with either Lift or AngularJS, we recommend that you view original contributor [Doug Roper](https://github.com/htmldoug)'s [youtube demo](http://www.youtube.com/watch?v=VH-S2UDN-NQ) of the original functionality of this plugin.
-See also the [sample project](https://github.com/htmldoug/ng-lift-proxy) as seen in the youtube video.
+* [15-minute Chat with lift-ng](https://www.youtube.com/watch?v=PQA6829cRy8): Screencast by Lift committer/lift-ng contributor [Joe Barnes](https://github.com/joescii) briefly introducing Lift, AngularJS, and lift-ng.
+* [ScalaDC (Scala + Lift + Angular) is Magic](http://www.youtube.com/watch?v=VH-S2UDN-NQ): Screen cast by original lift-ng contributor [Doug Roper](https://github.com/htmldoug) featuring Scala, Lift, AngularJS, ponies, magic, spastic keyboard pounding, and the first incarnation of lift-ng.
 
 ## Jump Start
 
