@@ -41,6 +41,7 @@ class Boot {
       Menu.i("Delay") / "delay",
       Menu.i("Server 2 Client Binding") / "server2ClientBind",
       Menu.i("Client 2 Server Binding") / "client2ServerBind",
+      Menu.i("2-way Binding") / "twoWayBinding",
       Menu.i("head.js") / "head-js",
       Menu.i("Subdir") / "subdir" / "index"
     )
