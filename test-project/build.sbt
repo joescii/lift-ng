@@ -33,7 +33,7 @@ libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
     "org.eclipse.jetty.orbit" %   "javax.servlet"                     % "3.0.0.v201112011016" % "container,test" artifacts Artifact("javax.servlet", "jar", "jar"),
     "ch.qos.logback"          %   "logback-classic"                   % "1.0.6"               % "compile",
     "org.scalatest"           %%  "scalatest"                         % "2.2.1"               % "test->*",
-    "org.seleniumhq.selenium" %   "selenium-java"                     % "2.39.0"              % "test"
+    "org.seleniumhq.selenium" %   "selenium-java"                     % "2.43.1"              % "test"
   )
 }
 
