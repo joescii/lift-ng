@@ -23,15 +23,25 @@ import scala.xml.NodeSeq
  * @param clientSendDelay Milliseconds for the client to delay sending updates, allowing them to batch into one request. Defaults to 1 second (1000)
  * @tparam M The type of the model to be used in this actor
  */
-abstract class SimpleBindingActor[M <: NgModel : Manifest]
+abstract class SimpleNgModelBinder[M <: NgModel : Manifest]
   (val bindTo:String, val initialValue:M, override val onClientUpdate:M=>M = { m:M => m }, override val clientSendDelay:Int = 1000)
-  extends BindingActor[M]{}
+  extends NgModelBinder[M]{
+  direction:BindDirection =>
+}
 
-private[ng] case class FromClient(json: String, clientId: String)
-private[ng] case class ToClient(cmd: JsCmd)
+sealed trait BindDirection
+trait BindToClient extends BindDirection
+trait BindToServer extends BindDirection
 
-/** CometActor which implements binding to a model in the target $scope */
-abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
+trait BindToSession 
+
+/**
+  * CometActor which implements binding to a model in the target $scope.
+  * While a trait would be preferable, we need the type constraint in order
+  * for lift-json to deserialize messages from the client.
+  */
+abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor {
+  direction:BindDirection  =>
   import Angular._
 
   /** The client `\$scope` element to bind to */
@@ -63,8 +73,6 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
     val queueCount = "net_liftmodules_ng_queue_count_"
 
   }
-
-
 
   /** Guts for the unnamed binding actor which exits per session and allows the models to be bound together */
   private[ng] class SessionBinder extends BindingGuts {
@@ -177,3 +185,7 @@ abstract class BindingActor[M <: NgModel : Manifest] extends AngularActor {
 
   }
 }
+
+private[ng] case class FromClient(json: String, clientId: String)
+private[ng] case class ToClient(cmd: JsCmd)
+
