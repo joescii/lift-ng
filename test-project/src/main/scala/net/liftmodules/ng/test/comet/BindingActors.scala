@@ -20,7 +20,7 @@ class C2sBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), {
   m
 }) with BindToServer with BindToSession
 
-class C2sReturnActor extends SimpleNgModelBinder[Message] ("returned", Message("")) with BindToServer with BindToSession
+class C2sReturnActor extends SimpleNgModelBinder[Message] ("returned", Message("")) with BindToClient with BindToSession
 
 class Plus1BindActor extends SimpleNgModelBinder[Message] ("counter", Message("0"))
   with BindToClient with BindToServer with BindToSession {

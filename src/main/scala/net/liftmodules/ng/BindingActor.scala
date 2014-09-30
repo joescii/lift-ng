@@ -29,18 +29,25 @@ abstract class SimpleNgModelBinder[M <: NgModel : Manifest]
   direction:BindDirection =>
 }
 
-sealed trait BindDirection
-trait BindToClient extends BindDirection
-trait BindToServer extends BindDirection
+sealed trait BindDirection {
+  def toClient = false
+  def toServer = false
+}
+trait BindToClient extends BindDirection {
+  override val toClient = true
+}
+trait BindToServer extends BindDirection {
+  override val toServer = true
+}
 
-trait BindToSession 
+trait BindToSession
 
 /**
   * CometActor which implements binding to a model in the target $scope.
   * While a trait would be preferable, we need the type constraint in order
   * for lift-json to deserialize messages from the client.
   */
-abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor {
+abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
   direction:BindDirection  =>
   import Angular._
 
@@ -81,14 +88,26 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor {
 
     override def render = Script(buildCmd(root = false,
       SetExp(JsVar("s()." + bindTo), stateJson) & // Send the current state with the page
-      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) & // Set the last server val to avoid echoing it back
-      SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) // This prevents us from sending a server-sent value back to the server
+      // This prevents us from sending a server-sent value back to the server
+//      (if(direction.toClient && direction.toServer) (
+        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) & // Set the last server val to avoid echoing it back
+        SetExp(JsVar("s()." + queueCount + bindTo), JInt(0))
+//      ) else Noop)
     ))
 
-    override def receive: PartialFunction[Any, Unit] = {
+    override def receive: PartialFunction[Any, Unit] =
+      PartialFunction.empty orElse (
+        if(direction.toClient) receiveFromServer else PartialFunction.empty
+      ) orElse (
+        if(direction.toServer) receiveFromClient else PartialFunction.empty
+      )
+
+    def receiveFromClient: PartialFunction[Any, Unit] = {
       case FromClient(json, id) => fromClient(json, id)
+    }
+
+    def receiveFromServer: PartialFunction[Any, Unit] = {
       case m: M => fromServer(m)
-      case e => logger.warn("Received un-handled model '" + e + "' of type '" + e.getClass.getName + "'.")
     }
 
     private def toJValue(m: M): JValue = {
@@ -152,7 +171,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor {
   /** Guts for the named binding actor which exists per page and facilitates models to a given rendering of the page */
   private[ng] class PageBinder extends BindingGuts {
     // TODO: Move all this crap to our js file
-    override def render = Script(buildCmd(root = false,
+    override def render = Script(if(direction.toServer)buildCmd(root = false,
       Call("s().$watch", JString(bindTo), AnonFunc("n,o",
         // If the new value, n, is not equal to the last server val, send it.
         JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
@@ -170,7 +189,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor {
           // else remove our last saved value so we can forget about it
           SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
         )), JsTrue) // True => Deep comparison
-    ))
+    ) else Noop)
 
     override def receive: PartialFunction[Any, Unit] = {
       case ToClient(cmd) => partialUpdate(buildCmd(root = false, cmd))
