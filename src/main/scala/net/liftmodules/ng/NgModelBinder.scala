@@ -88,11 +88,12 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
     override def render = Script(buildCmd(root = false,
       SetExp(JsVar("s()." + bindTo), stateJson) & // Send the current state with the page
-      // This prevents us from sending a server-sent value back to the server
-//      (if(direction.toClient && direction.toServer) (
-        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) & // Set the last server val to avoid echoing it back
-        SetExp(JsVar("s()." + queueCount + bindTo), JInt(0))
-//      ) else Noop)
+      SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) & // Count for throttling trips to the server
+
+      // This prevents us from sending a server-sent value back to the server when doing 2-way binding
+      (if(direction.toClient && direction.toServer) (
+        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // Set the last server val to avoid echoing it back
+      ) else Noop)
     ))
 
     override def receive: PartialFunction[Any, Unit] =
@@ -170,26 +171,41 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
   /** Guts for the named binding actor which exists per page and facilitates models to a given rendering of the page */
   private[ng] class PageBinder extends BindingGuts {
-    // TODO: Move all this crap to our js file
-    override def render = Script(if(direction.toServer)buildCmd(root = false,
-      Call("s().$watch", JString(bindTo), AnonFunc("n,o",
-        // If the new value, n, is not equal to the last server val, send it.
-        JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
-          JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
-            Call("setTimeout", AnonFunc(
-              JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)),
-                JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
-                  ajaxCall(JsVar("u"), jsonStr => {
-                    logger.debug("Received string: "+jsonStr)
-                    sendToSession(jsonStr)
-                    Noop
-                  })
-              )
-            ), JInt(clientSendDelay)),
-          // else remove our last saved value so we can forget about it
-          SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
-        )), JsTrue) // True => Deep comparison
-    ) else Noop)
+    override def render = Script(
+      if(direction.toServer)
+        buildCmd(root = false, watch(
+          if(direction.toClient) ifNotServerEcho(timeThrottledCall(sendToServer))
+          else timeThrottledCall(sendToServer)
+        ))
+      else
+        Noop
+    )
+
+    private def watch(f:JsCmd):JsCmd = Call("s().$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison
+
+    private def ifNotServerEcho(f:JsCmd) =
+      // If the new value, n, is not equal to the last server val, send it.
+      JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
+        f,
+        // else remove our last saved value so we can forget about it
+        SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
+      )
+
+
+    private def timeThrottledCall(f:JsCmd):JsCmd =
+      JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
+      Call("setTimeout", AnonFunc(
+        JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)), f)
+      ), JInt(clientSendDelay))
+
+
+    private def sendToServer:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
+      ajaxCall(JsVar("u"), jsonStr => {
+        logger.debug("Received string: "+jsonStr)
+        sendToSession(jsonStr)
+        Noop
+      })
+
 
     override def receive: PartialFunction[Any, Unit] = {
       case ToClient(cmd) => partialUpdate(buildCmd(root = false, cmd))
