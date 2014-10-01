@@ -33,14 +33,14 @@ sealed trait BindDirection {
   def toClient = false
   def toServer = false
 }
-trait BindToClient extends BindDirection {
+trait BindingToClient extends BindDirection {
   override val toClient = true
 }
-trait BindToServer extends BindDirection {
+trait BindingToServer extends BindDirection {
   override val toServer = true
 }
 
-trait BindToSession
+trait SessionScope
 
 /**
   * CometActor which implements binding to a model in the target $scope.
