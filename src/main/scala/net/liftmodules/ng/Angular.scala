@@ -31,7 +31,6 @@ import net.liftweb.http.js.JE.JsVar
 import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.http.js.JE.Call
 
-
 /**
  * Dynamically generates angular modules at page render time.
  *
@@ -121,15 +120,29 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     val ts = S.attr("types").map(_.split(',').map(_.trim).toList).openOr(Seq())
     val types = t.map(_ +: ts).openOr(ts)
 
-    val divs = types.map { f =>
-      val cometUnnamed = "comet?type=" + f
-      val cometNamed = cometUnnamed + "&randomname=true"
+    def cometClass(name:String) = LiftRules.buildPackage("comet."+name)
+      .map(clazz => scala.util.Try(Class.forName(clazz)))
+      .find(_.isSuccess)
+      .map(_.get)
 
-      // We need to render the named comet first.  Otherwise using CometListener does not work.
-      // This is because the unnamed comet sends the messages up via the named comet.
-      // Hence it will get a create message but have no named comet actor to use.
-      <div data-lift={cometNamed}></div> ++
-      <div data-lift={cometUnnamed}></div>
+    def isToClient(clazz:Class[_]) = classOf[BindToClient] isAssignableFrom clazz
+    def isToServer(clazz:Class[_]) = classOf[BindToServer] isAssignableFrom clazz
+
+    val divs = types.map { f =>
+      val clazz = cometClass(f)
+
+      def comets = {
+        val cometUnnamed = "comet?type=" + f
+        val cometNamed = cometUnnamed + "&randomname=true"
+
+        // We need to render the named comet first.  Otherwise using CometListener does not work.
+        // This is because the unnamed comet sends the messages up via the named comet.
+        // Hence it will get a create message but have no named comet actor to use.
+        <div data-lift={cometNamed}></div> ++
+        <div data-lift={cometUnnamed}></div>
+      }
+
+      comets
     }.reduceOption(_ ++ _)
 
     divs match {
