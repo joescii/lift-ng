@@ -128,11 +128,11 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     def isToClient(clazz:Class[_]) = classOf[BindingToClient] isAssignableFrom clazz
     def isToServer(clazz:Class[_]) = classOf[BindingToServer] isAssignableFrom clazz
 
-    val divs = types.map { f =>
-      val clazz = cometClass(f)
+    val divs = types.map { bType =>
+      val clazz = cometClass(bType)
 
       def comets = {
-        val cometUnnamed = "comet?type=" + f
+        val cometUnnamed = "comet?type=" + bType
         val cometNamed = cometUnnamed + "&randomname=true"
 
         // We need to render the named comet first.  Otherwise using CometListener does not work.
