@@ -48,9 +48,10 @@ trait SessionScope extends BindingScope {
 }
 
 /**
-  * CometActor which implements binding to a model in the target $scope.
+  * CometActor which implements binding to a model in the target \$scope.
   * While a trait would be preferable, we need the type constraint in order
   * for lift-json to deserialize messages from the client.
+  * @tparam M The type of the model to be used in this actor
   */
 abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with BindingScope {
   self:BindDirection  =>
