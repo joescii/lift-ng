@@ -6,15 +6,7 @@
       <h2>Server to Client Request Binding tests</h2>
       <div ng-app="Server2ClientBindingApp">
         <div ng-controller="Controller" data-lift="Angular.bind?type=CounterRequestBindActor">
-          <input id="button" type="button" value="Start Counter" ng-click="counter.toggle()"/>
           <span id="output" ng-bind="count.current">Output1</span>
-
-          <div data-lift="Angular.bind?type=ArrayRequestBindActor"></div>
-          <div><input id="input0" type="text" ng-model="array.l[0]"/></div>
-          <div><input id="input1" type="text" ng-model="array.l[1]"/></div>
-          <div><input id="input2" type="text" ng-model="array.l[2]"/></div>
-          <div><input id="input3" type="text" ng-model="array.l[3]"/></div>
-          <input id="button-next" type="button" value="Next" ng-click="arrSvc.next()"/>
         </div>
       </div>
 

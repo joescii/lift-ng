@@ -5,6 +5,7 @@ import net.liftmodules.ng.test.snippet.Server2ClientBindTests._
 import net.liftmodules.ng.Angular.NgModel
 import net.liftweb.http.S
 import scala.util.Try
+import net.liftweb.util.Schedule
 
 case class Message(msg:String) extends NgModel
 
@@ -32,7 +33,18 @@ class Plus1SessionBindActor extends SimpleNgModelBinder[Message] ("counter", Mes
 }
 
 
-class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient
+class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient {
+  var count = 0
+
+  def schedule:Unit = Schedule(() => {
+    this ! Counter(count)
+    count += 1
+    schedule
+  }, 1000)
+
+  schedule
+
+}
 
 class ArrayRequestBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient
 

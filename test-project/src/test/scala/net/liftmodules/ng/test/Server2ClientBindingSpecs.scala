@@ -74,18 +74,20 @@ class Server2ClientSessionBindingSpecs extends Server2ClientBindingSpecs {
   }
 }
 
-// TODO: Decide if such a thing even makes sense
-//class Server2ClientRequestBindingSpecs extends Server2ClientBindingSpecs {
-//  "The Server To Client Request Binding Tests page" should "load" in {
-//    go to s"$index/server2ClientRequestBind"
-//    eventually { pageTitle should be ("App: Server 2 Client Request Binding") }
-//  }
-//
-//  tests
-//
-//  "Reloading the page" should "restart the counter" in {
-//    reloadPage()
-//
-//    eventually { id("output").element.text should be ("0") }
-//  }
-//}
+class Server2ClientRequestBindingSpecs extends Server2ClientBindingSpecs {
+  "The Server To Client Request Binding Tests page" should "load" in {
+    go to s"$index/server2ClientRequestBind"
+    eventually { pageTitle should be ("App: Server 2 Client Request Binding") }
+  }
+
+  "The counter" should "increment" in {
+    eventually { id("output").element.text should be ("1") }
+    eventually { id("output").element.text should be ("2") }
+  }
+
+  "Reloading the page" should "restart the counter" in {
+    reloadPage()
+
+    eventually { id("output").element.text should be ("0") }
+  }
+}
