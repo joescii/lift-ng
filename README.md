@@ -640,8 +640,6 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 * Correctly support client-side changes to models containing arrays when bound with `BindingActor`.
 * Support removing fields in models bound with `BindingActor`.
-* Support 1-way model binding.
-* Support non-session-scoped binding, i.e. per-page binding.
 * Retain diffs in `BindingActor`. Allow server to reject client-side changes.
 * Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
 * Support Lift's Record with `NgModel`.
