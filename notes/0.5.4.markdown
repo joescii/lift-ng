@@ -1,0 +1,8 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+* **BREAKING CHANGE:** Renamed `BindingActor` to `NgModelBinder`.
+* Decomposed `NgModelBinder` so it is possible to specify:
+* `BindingDirection` by mixing in `ToClientBinding`, `ToServerBinding`, or both for 2-way binding
+* `BindingScope` which defaults to per-request (i.e. per page load) and can be scoped to the session like the original `BindingActor` behavior by mixing in `SessionScope`
