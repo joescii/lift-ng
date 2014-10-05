@@ -42,6 +42,9 @@ class Boot {
       Menu.i("Server 2 Client Session Binding") / "server2ClientSessionBind",
       Menu.i("Client 2 Server Session Binding") / "client2ServerSessionBind",
       Menu.i("2-way Session Binding") / "twoWaySessionBinding",
+      Menu.i("Server 2 Client Request Binding") / "server2ClientRequestBind",
+      Menu.i("Client 2 Server Request Binding") / "client2ServerRequestBind",
+      Menu.i("2-way Request Binding") / "twoWayRequestBinding",
       Menu.i("head.js") / "head-js",
       Menu.i("Subdir") / "subdir" / "index"
     )

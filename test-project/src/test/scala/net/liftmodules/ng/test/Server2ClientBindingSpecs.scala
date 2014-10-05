@@ -60,7 +60,7 @@ trait Server2ClientBindingSpecs extends BaseSpec {
 }
 
 class Server2ClientSessionBindingSpecs extends Server2ClientBindingSpecs {
-  "The Actors - Server To Client Binding Tests page" should "load" in {
+  "The Server To Client Session Binding Tests page" should "load" in {
     go to s"$index/server2ClientSessionBind"
     eventually { pageTitle should be ("App: Server 2 Client Session Binding") }
   }
@@ -71,5 +71,20 @@ class Server2ClientSessionBindingSpecs extends Server2ClientBindingSpecs {
     reloadPage()
 
     eventually { id("output").element.text.toInt should not be (0) }
+  }
+}
+
+class Server2ClientRequestBindingSpecs extends Server2ClientBindingSpecs {
+  "The Server To Client Request Binding Tests page" should "load" in {
+    go to s"$index/server2ClientRequestBind"
+    eventually { pageTitle should be ("App: Server 2 Client Request Binding") }
+  }
+
+  tests
+
+  "Reloading the page" should "restart the counter" in {
+    reloadPage()
+
+    eventually { id("output").element.text should be ("0") }
   }
 }

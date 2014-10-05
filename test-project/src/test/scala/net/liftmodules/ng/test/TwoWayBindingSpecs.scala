@@ -13,7 +13,7 @@ trait TwoWayBindingSpecs extends BaseSpec {
 }
 
 class TwoWaySessionBindingSpecs extends TwoWayBindingSpecs {
-  "The 2-way binding page" should "load" in {
+  "The 2-way session binding page" should "load" in {
     go to s"$index/twoWaySessionBinding"
     eventually { pageTitle should be ("App: 2-way Session Binding") }
   }
@@ -22,7 +22,20 @@ class TwoWaySessionBindingSpecs extends TwoWayBindingSpecs {
 
   "A reload" should "not reset the counter" in {
     reloadPage()
-
     eventually(textField("counter").value should be ("100"))
+  }
+}
+
+class TwoWayRequestBindingSpecs extends TwoWayBindingSpecs {
+  "The 2-way request binding page" should "load" in {
+    go to s"$index/twoWayRequestBinding"
+    eventually { pageTitle should be ("App: 2-way Request Binding") }
+  }
+
+  tests
+
+  "A reload" should "reset the counter" in {
+    reloadPage()
+    eventually(textField("counter").value should be ("0"))
   }
 }

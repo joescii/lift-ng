@@ -30,3 +30,25 @@ class Plus1SessionBindActor extends SimpleNgModelBinder[Message] ("counter", Mes
     next
   }
 }
+
+
+class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient
+
+class ArrayRequestBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient
+
+class C2sRequestBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
+  for {
+    session <- S.session
+    comet <- session.findComet("C2sSessionReturnActor")
+  } { comet ! m }
+  m
+}) with BindingToServer
+
+class Plus1RequestBindActor extends SimpleNgModelBinder[Message] ("counter", Message("0"))
+with BindingToClient with BindingToServer {
+  override val onClientUpdate = { count:Message =>
+    val next = Message(Try(count.msg.toInt + 1).getOrElse(-1).toString)
+    this ! next
+    next
+  }
+}

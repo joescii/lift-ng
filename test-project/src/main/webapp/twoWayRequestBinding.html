@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+      <h2>Two-Way Request Binding tests</h2>
+      <div ng-app="TwoWayBindingApp">
+        <div ng-controller="Controller" data-lift="Angular.bind?type=Plus1RequestBindActor">
+          <input id="counter" type="text" ng-model="counter.msg"/>
+        </div>
+      </div>
+
+      <script data-lift="AngularJS"></script>
+      <script data-lift="Angular"></script>
+      <script type="application/javascript" src="js/TwoWayBindingApp.js"></script>
+    </div>
+  </body>
+</html>
+
