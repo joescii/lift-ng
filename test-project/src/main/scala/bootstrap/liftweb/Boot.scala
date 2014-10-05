@@ -39,9 +39,9 @@ class Boot {
       Menu.i("Actors - Scope") / "actorsScope",
       Menu.i("Actors - Assignment") / "actorsAssignment",
       Menu.i("Delay") / "delay",
-      Menu.i("Server 2 Client Binding") / "server2ClientBind",
-      Menu.i("Client 2 Server Binding") / "client2ServerBind",
-      Menu.i("2-way Binding") / "twoWayBinding",
+      Menu.i("Server 2 Client Session Binding") / "server2ClientSessionBind",
+      Menu.i("Client 2 Server Session Binding") / "client2ServerSessionBind",
+      Menu.i("2-way Session Binding") / "twoWaySessionBinding",
       Menu.i("head.js") / "head-js",
       Menu.i("Subdir") / "subdir" / "index"
     )

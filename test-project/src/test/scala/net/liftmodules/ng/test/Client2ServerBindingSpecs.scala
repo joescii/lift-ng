@@ -2,8 +2,8 @@ package net.liftmodules.ng.test
 
 class Client2ServerSessionBindingSpecs extends BaseSpec {
   "The Server To Client Binding Tests page" should "load" in {
-    go to s"$index/client2ServerBind"
-    eventually { pageTitle should be ("App: Client 2 Server Binding") }
+    go to s"$index/client2ServerSessionBind"
+    eventually { pageTitle should be ("App: Client 2 Server Session Binding") }
   }
 
   "The input text" should "be reflected in the output text" in {
