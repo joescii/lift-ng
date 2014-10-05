@@ -100,8 +100,9 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
       .find(_.isSuccess)
       .map(_.get)
 
-    def isToClient(clazz:Class[_]) = classOf[BindingToClient] isAssignableFrom clazz
-    def isToServer(clazz:Class[_]) = classOf[BindingToServer] isAssignableFrom clazz
+    def isToClient(clazz:Class[_])      = classOf[BindingToClient] isAssignableFrom clazz
+    def isToServer(clazz:Class[_])      = classOf[BindingToServer] isAssignableFrom clazz
+    def isSessionScoped(clazz:Class[_]) = classOf[SessionScope] isAssignableFrom clazz
 
     val divs = types.map { bType =>
       val clazz = cometClass(bType)

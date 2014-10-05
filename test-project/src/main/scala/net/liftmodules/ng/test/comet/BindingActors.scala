@@ -8,21 +8,21 @@ import scala.util.Try
 
 case class Message(msg:String) extends NgModel
 
-class CounterBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient with SessionScope
+class CounterSessionBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient with SessionScope
 
-class ArrayBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope
+class ArraySessionBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope
 
-class C2sBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
+class C2sSessionBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
   for {
     session <- S.session
-    comet <- session.findComet("C2sReturnActor")
+    comet <- session.findComet("C2sSessionReturnActor")
   } { comet ! m }
   m
 }) with BindingToServer with SessionScope
 
-class C2sReturnActor extends SimpleNgModelBinder[Message] ("returned", Message("")) with BindingToClient with SessionScope
+class C2sSessionReturnActor extends SimpleNgModelBinder[Message] ("returned", Message("")) with BindingToClient with SessionScope
 
-class Plus1BindActor extends SimpleNgModelBinder[Message] ("counter", Message("0"))
+class Plus1SessionBindActor extends SimpleNgModelBinder[Message] ("counter", Message("0"))
   with BindingToClient with BindingToServer with SessionScope {
   override val onClientUpdate = { count:Message =>
     val next = Message(Try(count.msg.toInt + 1).getOrElse(-1).toString)

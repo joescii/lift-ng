@@ -22,7 +22,7 @@ object Server2ClientBindTests {
 
     def schedule:Unit = Schedule(() => {
       if(counting) {
-        session.findComet("CounterBindActor", Empty).foreach( _ ! Counter(count) )
+        session.findComet("CounterSessionBindActor", Empty).foreach( _ ! Counter(count) )
         count += 1
       }
       schedule
@@ -38,7 +38,7 @@ object Server2ClientBindTests {
     ).factory("arrSvc", jsObjFactory()
       .jsonCall("next", {
         array.update(_ :+ (new java.util.Date().toString))
-        session.findComet("ArrayBindActor", Empty).foreach( _ ! array.is )
+        session.findComet("ArraySessionBindActor", Empty).foreach( _ ! array.is )
         Empty
       })
     ))

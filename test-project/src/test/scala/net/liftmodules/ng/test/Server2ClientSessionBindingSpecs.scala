@@ -1,6 +1,6 @@
 package net.liftmodules.ng.test
 
-class Server2ClientBindingSpecs extends BaseSpec {
+class Server2ClientSessionBindingSpecs extends BaseSpec {
   "The Actors - Server To Client Binding Tests page" should "load" in {
     go to s"$index/server2ClientBind"
     eventually { pageTitle should be ("App: Server 2 Client Binding") }
@@ -61,4 +61,9 @@ class Server2ClientBindingSpecs extends BaseSpec {
     eventually { id("output").element.text should be ("2") }
   }
 
+  "Reloading the page" should "NOT restart the counter" in {
+    reloadPage()
+
+    eventually { id("output").element.text.toInt should not be (0) }
+  }
 }
