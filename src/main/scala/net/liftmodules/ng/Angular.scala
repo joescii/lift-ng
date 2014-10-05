@@ -84,6 +84,11 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
       case _ => ".min.js"
     })
 
+  private def classFromName(name:String):Option[Class[_]] = {
+    try Some(Class.forName(name)) catch {
+      case e:Exception => None
+    }
+  }
   /**
    * Sets up a two-way scope variable binding by dropping in two binding actors as the last Elem/Node children
    * in the passed NodeSeq
@@ -96,8 +101,8 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     val types = t.map(_ +: ts).openOr(ts)
 
     def cometClass(name:String) = LiftRules.buildPackage("comet."+name)
-      .map(clazz => scala.util.Try(Class.forName(clazz)))
-      .find(_.isSuccess)
+      .map(clazz => classFromName(clazz))
+      .find(_.isDefined)
       .map(_.get)
 
     def isToClient(clazz:Class[_])      = classOf[BindingToClient] isAssignableFrom clazz
