@@ -165,7 +165,10 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
   }
 
   private object ToServerBinders extends SessionVar[ConcurrentMap[String, NgModelBinder[NgModel]]](new ConcurrentHashMap())
-  private def addToServerBinder(theType:String, b:NgModelBinder[NgModel]):NgModelBinder[NgModel] = ToServerBinders.get.put(theType, b)
+  private def addToServerBinder(theType:String, b:NgModelBinder[NgModel]):NgModelBinder[NgModel] = {
+    ToServerBinders.get.put(theType, b)
+    b
+  }
   def getToServerBinder(theType:String):Box[NgModelBinder[NgModel]] = Option(ToServerBinders.get.get(theType))
 
   /**
