@@ -149,7 +149,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         // This is because the unnamed comet sends the messages up via the named comet.
         // Hence it will get a create message but have no named comet actor to use.
         if(toClient && toServer) cometNamed ++ cometUnnamed
-        else if(toClient) cometNamed ++ cometUnnamed
+        else if(toClient) cometUnnamed
         else cometUnnamed // TODO: Just render the ajax stuff
       }.getOrElse(NodeSeq.Empty)
 

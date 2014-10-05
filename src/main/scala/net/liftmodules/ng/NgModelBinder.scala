@@ -70,7 +70,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     else if(toServer)
       new ToServerSessionScoped
     else
-      if(name.isDefined) new TwoWaySessionNamed else new TwoWaySessionUnnamed // TODO
+      new ToClientSessionScoped
 
   override def fixedRender = nodesToRender ++ guts.render
 
@@ -91,11 +91,19 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
       watch(timeThrottledCall(sendToServer(handleJson)))
     ))
 
-    def handleJson(json:String):Unit = {
+    private def handleJson(json:String):Unit = {
       self ! FromClient(json, Empty)
     }
 
-    override def receive = receiveFromClient
+    override def receive = receiveFromClient(id => {})
+  }
+
+  private class ToClientSessionScoped extends BindingGuts {
+    override def render = Script(buildCmd(root = false, renderCurrentState))
+
+    override def receive = receiveFromServer(sendDiff) orElse receiveToClient
+
+    private def sendDiff(cmd:JsCmd):Unit = self ! ToClient(cmd)
   }
 
   /** Guts for the unnamed binding actor which exits per session and allows the models to be bound together */
@@ -107,7 +115,25 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
       SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // This prevents us from sending a server-sent value back to the server when doing 2-way binding
     ))
 
-    override def receive = receiveFromServer orElse receiveFromClient
+    override def receive = receiveFromServer(sendDiff(Empty)) orElse receiveFromClient(afterUpdate)
+
+    private def sendDiff(exclude:Box[String])(cmd: JsCmd) = {
+      for {
+        t <- theType
+        session <- S.session
+        comet <- session.findComet(t)
+        if comet.name.isDefined  // Never send to unnamed comet. It doesn't handle these messages.
+        if comet.name != exclude // Send to all clients but the originating client (if not Empty)
+      } { comet ! ToClient(cmd) }
+
+      // If we don't poke, then next time we are rendered, it won't contain the latest state
+      poke()
+    }
+
+    private def afterUpdate(exclude:Box[String]): Unit = {
+      val cmd = buildDiff(stateJson)
+      sendDiff(exclude)(cmd)
+    }
   }
 
   /** Guts for the named binding actor which exists per page and facilitates models to a given rendering of the page */
@@ -134,44 +160,34 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     }
   }
 
-  private def receiveFromClient: PartialFunction[Any, Unit] = {
-    case FromClient(json, id) => fromClient(json, id)
+  private def receiveFromClient(afterUpdate: Box[String] => Unit): PartialFunction[Any, Unit] = {
+    case FromClient(json, id) => fromClient(json, id, afterUpdate)
   }
 
-  private def receiveFromServer: PartialFunction[Any, Unit] = {
-    case m: M => fromServer(m)
+  private def receiveFromServer(sendFn: JsCmd => Unit): PartialFunction[Any, Unit] = {
+    case m: M => fromServer(m, sendFn)
   }
 
   def receiveToClient: PartialFunction[Any, Unit] = {
     case ToClient(cmd) => partialUpdate(buildCmd(root = false, cmd))
   }
 
-  private def fromServer(m: M) = {
+  private def fromServer(m: M, sendFn: JsCmd => Unit) = {
     val mJs = toJValue(m)
-    sendDiff(mJs, Empty)
+    val cmd = buildDiff(mJs)
+    sendFn(cmd)
     stateJson = mJs
     stateModel = m
   }
 
-  private def sendDiff(mJs: JValue, exclude:Box[String]) = {
+  private def buildDiff(mJs: JValue) = {
     val diff = stateJson dfn mJs
-    val cmd =
-      diff(JsVar("s()." + bindTo)) & // Send the diff
-        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
 
-    for {
-      t <- theType
-      session <- S.session
-      comet <- session.findComet(t)
-      if comet.name.isDefined  // Never send to unnamed comet. It doesn't handle these messages.
-      if comet.name != exclude // Send to all clients but the originating client (if not Empty)
-    } { comet ! ToClient(cmd) }
-
-    // If we don't poke, then next time we are rendered, it won't contain the latest state
-    poke()
+    diff(JsVar("s()." + bindTo)) & // Send the diff
+      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
   }
 
-  private def fromClient(json: String, clientId:Box[String]) = {
+  private def fromClient(json: String, clientId:Box[String], afterUpdate: Box[String] => Unit) = {
     //    implicit val formats = DefaultFormats
     //    implicit val mf = manifest[String]
     import js.ToWithExtractMerged
@@ -184,12 +200,11 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     // TODO: Do something with the return value, or change it to return unit?
     onClientUpdate(updated)
 
-    val mJs = toJValue(updated)
-    sendDiff(mJs, clientId)
-
     // TODO: When jUpdate becomes a diff, make sure we have the whole thing
-    stateJson = mJs
     stateModel = updated
+    stateJson = toJValue(updated)
+
+    afterUpdate(clientId)
   }
 
 
