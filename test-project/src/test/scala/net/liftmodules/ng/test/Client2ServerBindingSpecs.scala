@@ -15,4 +15,9 @@ class Client2ServerBindingSpecs extends BaseSpec {
     textField("input").value = "abc"
     eventually { id("output").element.text should be ("abc") }
   }
+
+  "The input" should "persist over a reload of the page" in {
+    reloadPage()
+    eventually { textField("input").value should be ("abc") }
+  }
 }

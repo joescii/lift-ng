@@ -91,18 +91,22 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
   /** Called to handle JSON from the client */
   private type JsonHandlerFn = String => Unit
 
+  // This is needed for toServer binding because their handlers are otherwise
+  private val sessionBox = S.session
+
   private class ToServerSessionScoped extends BindingGuts {
     override def render = Script(buildCmd(root = false,
       renderCurrentState &
       renderThrottleCount &
       watch(timeThrottledCall(sendToServer(handleJson)))
+      // TODO: Figure out how to ignore initial $watch
     ))
 
     private def handleJson:JsonHandlerFn = { json =>
-      self ! FromClient(json, Empty)
+      fromClient(json, Empty, afterUpdate)
     }
 
-    override def receive = receiveFromClient(afterUpdate)
+    override def receive = PartialFunction.empty
     
     private def afterUpdate:AfterUpdateFn = id => {}
   }

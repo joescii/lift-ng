@@ -1,50 +1,25 @@
 package net.liftmodules.ng
 
+import java.util.concurrent.{ ConcurrentMap, ConcurrentHashMap }
+
 import scala.collection.mutable
 import scala.xml.{Elem, NodeSeq}
 
-import net.liftweb.http.RequestVar
+import net.liftweb.actor.LAFuture
 import net.liftweb.common._
-import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer, S }
+import net.liftweb.json.Serialization.write
+import net.liftweb.json.{DefaultFormats, JsonParser}
+import net.liftweb.json.JsonAST.JString
+import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer, S, RequestVar, SessionVar }
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
-import net.liftweb.json.Serialization.write
-import net.liftweb.json.{DefaultFormats, JsonParser}
-import net.liftweb.actor.LAFuture
-import net.liftweb.json.JsonAST.JString
-import com.joescii.j2jsi18n.JsResourceBundle
-import net.liftweb.util.Props.RunModes
 import net.liftweb.util.Props
+import net.liftweb.util.Props.RunModes
 import net.liftweb.util.StringHelpers._
-import scala.Some
-import net.liftweb.http.js.JE.Str
-import net.liftweb.json.JsonAST.JString
-import net.liftweb.http.js.JE.JsVar
-import net.liftweb.http.js.JE.JsRaw
-import net.liftweb.http.js.JE.Call
-import scala.Some
-import net.liftweb.http.js.JE.Str
-import net.liftweb.json.JsonAST.JString
-import net.liftweb.common.Full
-import net.liftweb.http.js.JE.JsVar
-import net.liftweb.http.js.JE.JsRaw
-import net.liftweb.http.js.JE.Call
 
 /**
- * Dynamically generates angular modules at page render time.
- *
- * Usage:
- * {{{
- * def render = renderIfNotAlreadyDefined(
- *   angular.module("lift.goals")
- *     .factory("goals", jsObjFactory()
- *       .jsonCall("getJoined", GoalsClient.getGoals())
- *       .jsonCall("join", (goalId: String) => GoalsClient.joinIndividualGoal(getUsername, getDisplayName, goalId))
- *       .jsonCall("checkIn", (checkIn: CheckIn) => GoalsClient.checkIn(checkIn.goalId, checkIn.instanceId, ...))
- *     )
- * )
- * }}}
+ * Primary lift-ng module
  */
 object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
@@ -141,6 +116,16 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         <div data-lift={cometNamed}></div>
       }
 
+      def ajax(theClass:Class[_]) = {
+        val binder = getToServerBinder(bType).openOr{
+          val newBinder = theClass.newInstance.asInstanceOf[NgModelBinder[NgModel]]
+          addToServerBinder(bType, newBinder)
+          newBinder
+        }
+
+        binder.fixedRender.openOrThrowException("lift-ng has a bug in it. Please report it at https://github.com/joescii/lift-ng")
+      }
+
       clazz.map { c =>
         val toClient = isToClient(c)
         val toServer = isToServer(c)
@@ -150,7 +135,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         // Hence it will get a create message but have no named comet actor to use.
         if(toClient && toServer) cometNamed ++ cometUnnamed
         else if(toClient) cometUnnamed
-        else cometUnnamed // TODO: Just render the ajax stuff
+        else ajax(c)
       }.getOrElse(NodeSeq.Empty)
 
     }.reduceOption(_ ++ _)
@@ -167,6 +152,10 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
       }
     }
   }
+
+  private object ToServerBinders extends SessionVar[ConcurrentMap[String, NgModelBinder[NgModel]]](new ConcurrentHashMap())
+  private def addToServerBinder(theType:String, b:NgModelBinder[NgModel]):Unit = ToServerBinders.get.put(theType, b)
+  def getToServerBinder(theType:String):Box[NgModelBinder[NgModel]] = Option(ToServerBinders.get.get(theType))
 
   /**
    * Renders all the modules that have been added to the RequestVar.
