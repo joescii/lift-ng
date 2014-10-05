@@ -91,9 +91,6 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
   /** Called to handle JSON from the client */
   private type JsonHandlerFn = String => Unit
 
-  // This is needed for toServer binding because their handlers are otherwise
-  private val sessionBox = S.session
-
   private class ToServerSessionScoped extends BindingGuts {
     override def render = Script(buildCmd(root = false,
       renderCurrentState &
