@@ -76,7 +76,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     else if(toServer && toClient && !sessionScope)
       new TwoWayRequestScoped
     else if(toClient)
-      new ToClientSessionScoped
+      new ToClientGuts
     else
       new ToServerGuts
 
@@ -116,7 +116,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     private def afterUpdate:AfterUpdateFn = id => {}
   }
 
-  private class ToClientSessionScoped extends BindingGuts {
+  private class ToClientGuts extends BindingGuts {
     override def render = Script(buildCmd(root = false, renderCurrentState))
 
     override def receive = receiveFromServer(sendDiff) orElse receiveToClient
