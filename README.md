@@ -25,7 +25,7 @@ AngularJS as a front end should appeal to Scala and Lift developers for the foll
 * With **lift-ng** in particular, you get to utilize Lift's reactive features such as asynchronous comet updates to the client and returning `LAFuture[T]` results for services.
 
 **lift-ng** has three major feature areas (click the respective link for details and usage examples):
-* [Client-Initiated Service Calls](#client-initiated-service-calls): Write secure services in the Scala DSL which can be invoked by client actions.
+* [Client-Initiated Service Calls](#client-initiated-service-calls): Write secure services in the Scala DSL which can be invoked by the client.
 * [Server-Initiated Events](#server-initiated-events): Send events to `$rootScope` or a given `$scope` easily via familiar AngularJS-like calls to `broadcast` and `emit`.
 * [Client-Server Model Binding](#client-server-model-binding): Define your model, declare your scope, and assign a name.
 Then let **lift-ng** keep your data in sync between the client(s) and server.
@@ -454,7 +454,7 @@ angular.module('ExampleApp', [])
 Note that messages sent prior to a page bootstrapping the Angular application will be queued up and released in order once the application is ready.  The retry interval defaults to 100 milliseconds and can be configured in your Lift application's props files with the `net.liftmodules.ng.AngularActor.retryInterval` Int property.
 
 ### Client-Server Model Binding
-Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features (a rather experimental) binding of a model between the client and server.
+Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features binding of a model between the client and server.
 To take advantage of this feature, first create a model case class which extends `NgModel`.
 
 ```scala
