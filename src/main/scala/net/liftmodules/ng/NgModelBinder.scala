@@ -84,6 +84,13 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
   }
 
+  /** Called after an update from Client.  Input is the client ID where the update originated from */
+  private type AfterUpdateFn = Box[String] => Unit
+  /** Called to send a JsCmd to the client */
+  private type SendCmdFn = JsCmd => Unit
+  /** Called to handle JSON from the client */
+  private type JsonHandlerFn = String => Unit
+
   private class ToServerSessionScoped extends BindingGuts {
     override def render = Script(buildCmd(root = false,
       renderCurrentState &
@@ -152,13 +159,6 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     } { comet ! FromClient(json, Full(clientId)) }
   }
   
-  /** Called after an update from Client.  Input is the client ID where the update originated from */
-  private type AfterUpdateFn = Box[String] => Unit
-  /** Called to send a JsCmd to the client */
-  private type SendCmdFn = JsCmd => Unit
-  /** Called to handle JSON from the client */
-  private type JsonHandlerFn = String => Unit
-
   private val lastServerVal = "net_liftmodules_ng_last_val_"
   private val queueCount = "net_liftmodules_ng_queue_count_"
 
@@ -205,6 +205,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     afterUpdate(clientId)
   }
 
+
   private def toJValue(m: M): JValue = {
     implicit val formats = DefaultFormats
     m match {
@@ -226,7 +227,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
   private def watch(f:JsCmd):JsCmd = Call("s().$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison
 
-  private def ifNotServerEcho(f:JsCmd) =
+  private def ifNotServerEcho(f:JsCmd):JsCmd =
   // If the new value, n, is not equal to the last server val, send it.
     JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
       f,
