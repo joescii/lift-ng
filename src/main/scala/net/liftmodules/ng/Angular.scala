@@ -131,18 +131,28 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     val divs = types.map { bType =>
       val clazz = cometClass(bType)
 
-      def comets = {
+      def cometUnnamed = {
         val cometUnnamed = "comet?type=" + bType
-        val cometNamed = cometUnnamed + "&randomname=true"
+        <div data-lift={cometUnnamed}></div>
+      }
+
+      def cometNamed = {
+        val cometNamed = "comet?type=" + bType + "&randomname=true"
+        <div data-lift={cometNamed}></div>
+      }
+
+      clazz.map { c =>
+        val toClient = isToClient(c)
+        val toServer = isToServer(c)
 
         // We need to render the named comet first.  Otherwise using CometListener does not work.
         // This is because the unnamed comet sends the messages up via the named comet.
         // Hence it will get a create message but have no named comet actor to use.
-        <div data-lift={cometNamed}></div> ++
-        <div data-lift={cometUnnamed}></div>
-      }
+        if(toClient && toServer) cometNamed ++ cometUnnamed
+        else if(toClient) cometNamed ++ cometUnnamed
+        else cometUnnamed // TODO: Just render the ajax stuff
+      }.getOrElse(NodeSeq.Empty)
 
-      comets
     }.reduceOption(_ ++ _)
 
     divs match {

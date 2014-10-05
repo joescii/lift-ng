@@ -48,7 +48,7 @@ trait SessionScope
   * for lift-json to deserialize messages from the client.
   */
 abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
-  direction:BindDirection  =>
+  self:BindDirection  =>
   import Angular._
 
   /** The client `\$scope` element to bind to */
@@ -64,7 +64,13 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
   def onClientUpdate: M => M = {m:M => m}
 
   // This must be lazy so that it is invoked only after name is set.
-  lazy val guts = if(name.isDefined) new PageBinder else new SessionBinder
+  lazy val guts =
+    if(toServer && toClient)
+      if(name.isDefined) new TwoWaySessionNamed else new TwoWaySessionUnnamed
+    else if(toServer)
+      new ToServerSessionScoped
+    else
+      if(name.isDefined) new TwoWaySessionNamed else new TwoWaySessionUnnamed // TODO
 
   override def fixedRender = nodesToRender ++ guts.render
 
@@ -76,151 +82,152 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
     def render: NodeSeq
 
-    val lastServerVal = "net_liftmodules_ng_last_val_"
-    val queueCount = "net_liftmodules_ng_queue_count_"
+  }
 
+  private class ToServerSessionScoped extends BindingGuts {
+    override def render = Script(buildCmd(root = false,
+      renderCurrentState &
+      renderThrottleCount &
+      watch(timeThrottledCall(sendToServer(handleJson)))
+    ))
+
+    def handleJson(json:String):Unit = {
+      self ! FromClient(json, Empty)
+    }
+
+    override def receive = receiveFromClient
   }
 
   /** Guts for the unnamed binding actor which exits per session and allows the models to be bound together */
-  private[ng] class SessionBinder extends BindingGuts {
-    var stateModel: M = initialValue
-    var stateJson: JValue = toJValue(stateModel)
+  private class TwoWaySessionUnnamed extends BindingGuts {
 
     override def render = Script(buildCmd(root = false,
-      SetExp(JsVar("s()." + bindTo), stateJson) & // Send the current state with the page
-      SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) & // Count for throttling trips to the server
-
-      // This prevents us from sending a server-sent value back to the server when doing 2-way binding
-      (if(direction.toClient && direction.toServer) (
-        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // Set the last server val to avoid echoing it back
-      ) else Noop)
+      renderCurrentState &
+      renderThrottleCount &
+      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // This prevents us from sending a server-sent value back to the server when doing 2-way binding
     ))
 
-    override def receive: PartialFunction[Any, Unit] =
-      PartialFunction.empty orElse (
-        if(direction.toClient) receiveFromServer else PartialFunction.empty
-      ) orElse (
-        if(direction.toServer) receiveFromClient else PartialFunction.empty
-      )
+    override def receive = receiveFromServer orElse receiveFromClient
+  }
 
-    def receiveFromClient: PartialFunction[Any, Unit] = {
-      case FromClient(json, id) => fromClient(json, id)
-    }
+  /** Guts for the named binding actor which exists per page and facilitates models to a given rendering of the page */
+  private class TwoWaySessionNamed extends BindingGuts {
+    override def render = Script(buildCmd(root = false, watch(ifNotServerEcho(timeThrottledCall(sendToServer(sendToSession))))))
 
-    def receiveFromServer: PartialFunction[Any, Unit] = {
-      case m: M => fromServer(m)
-    }
+    override def receive = receiveToClient
+  }
 
-    private def toJValue(m: M): JValue = {
-      implicit val formats = DefaultFormats
-      m match {
-        case m: NgModel if m != null => parse(write(m))
-        case e => JNull
-      }
-    }
+  private val lastServerVal = "net_liftmodules_ng_last_val_"
+  private val queueCount = "net_liftmodules_ng_queue_count_"
 
-    private def fromServer(m: M) = {
-      val mJs = toJValue(m)
-      sendDiff(mJs, Empty)
-      stateJson = mJs
-      stateModel = m
-    }
+  private var stateModel: M = initialValue
+  private var stateJson: JValue = toJValue(stateModel)
 
-    private def sendDiff(mJs: JValue, exclude:Box[String]) = {
-      val diff = stateJson dfn mJs
-      val cmd =
-        diff(JsVar("s()." + bindTo)) & // Send the diff
-        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
+  private def renderCurrentState = SetExp(JsVar("s()." + bindTo), stateJson) // Send the current state with the page
+  private val renderThrottleCount = SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) // Set the last server val to avoid echoing it back
 
-      for {
-        t <- theType
-        session <- S.session
-        comet <- session.findComet(t)
-        if comet.name.isDefined  // Never send to unnamed comet. It doesn't handle these messages.
-        if comet.name != exclude // Send to all clients but the originating client (if not Empty)
-      } { comet ! ToClient(cmd) }
-
-      // If we don't poke, then next time we are rendered, it won't contain the latest state
-      poke()
-    }
-
-    private def fromClient(json: String, clientId:String) = {
-      //    implicit val formats = DefaultFormats
-      //    implicit val mf = manifest[String]
-      import js.ToWithExtractMerged
-
-      val parsed = JsonParser.parse(json)
-      val jUpdate = parsed \\ "add"
-      logger.debug("From Client: " + jUpdate)
-      val updated = jUpdate.extractMerged(stateModel)
-      logger.debug("From Client: " + updated)
-
-      // TODO: Do something with the return value, or change it to return unit?
-      onClientUpdate(updated)
-
-      val mJs = toJValue(updated)
-      sendDiff(mJs, Full(clientId))
-
-      // TODO: When jUpdate becomes a diff, make sure we have the whole thing
-      stateJson = mJs
-      stateModel = updated
+  private def toJValue(m: M): JValue = {
+    implicit val formats = DefaultFormats
+    m match {
+      case m: NgModel if m != null => parse(write(m))
+      case e => JNull
     }
   }
 
+  private def receiveFromClient: PartialFunction[Any, Unit] = {
+    case FromClient(json, id) => fromClient(json, id)
+  }
+
+  private def receiveFromServer: PartialFunction[Any, Unit] = {
+    case m: M => fromServer(m)
+  }
+
+  def receiveToClient: PartialFunction[Any, Unit] = {
+    case ToClient(cmd) => partialUpdate(buildCmd(root = false, cmd))
+  }
+
+  private def fromServer(m: M) = {
+    val mJs = toJValue(m)
+    sendDiff(mJs, Empty)
+    stateJson = mJs
+    stateModel = m
+  }
+
+  private def sendDiff(mJs: JValue, exclude:Box[String]) = {
+    val diff = stateJson dfn mJs
+    val cmd =
+      diff(JsVar("s()." + bindTo)) & // Send the diff
+        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
+
+    for {
+      t <- theType
+      session <- S.session
+      comet <- session.findComet(t)
+      if comet.name.isDefined  // Never send to unnamed comet. It doesn't handle these messages.
+      if comet.name != exclude // Send to all clients but the originating client (if not Empty)
+    } { comet ! ToClient(cmd) }
+
+    // If we don't poke, then next time we are rendered, it won't contain the latest state
+    poke()
+  }
+
+  private def fromClient(json: String, clientId:Box[String]) = {
+    //    implicit val formats = DefaultFormats
+    //    implicit val mf = manifest[String]
+    import js.ToWithExtractMerged
+    val parsed = JsonParser.parse(json)
+    val jUpdate = parsed \\ "add"
+    logger.debug("From Client: " + jUpdate)
+    val updated = jUpdate.extractMerged(stateModel)
+    logger.debug("From Client: " + updated)
+
+    // TODO: Do something with the return value, or change it to return unit?
+    onClientUpdate(updated)
+
+    val mJs = toJValue(updated)
+    sendDiff(mJs, clientId)
+
+    // TODO: When jUpdate becomes a diff, make sure we have the whole thing
+    stateJson = mJs
+    stateModel = updated
+  }
 
 
-  /** Guts for the named binding actor which exists per page and facilitates models to a given rendering of the page */
-  private[ng] class PageBinder extends BindingGuts {
-    override def render = Script(
-      if(direction.toServer)
-        buildCmd(root = false, watch(
-          if(direction.toClient) ifNotServerEcho(timeThrottledCall(sendToServer))
-          else timeThrottledCall(sendToServer)
-        ))
-      else
-        Noop
+  private def watch(f:JsCmd):JsCmd = Call("s().$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison
+
+  private def ifNotServerEcho(f:JsCmd) =
+  // If the new value, n, is not equal to the last server val, send it.
+    JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
+      f,
+      // else remove our last saved value so we can forget about it
+      SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
     )
 
-    private def watch(f:JsCmd):JsCmd = Call("s().$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison
 
-    private def ifNotServerEcho(f:JsCmd) =
-      // If the new value, n, is not equal to the last server val, send it.
-      JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
-        f,
-        // else remove our last saved value so we can forget about it
-        SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
-      )
-
-
-    private def timeThrottledCall(f:JsCmd):JsCmd =
-      JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
+  private def timeThrottledCall(f:JsCmd):JsCmd =
+    JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
       Call("setTimeout", AnonFunc(
         JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)), f)
       ), JInt(clientSendDelay))
 
 
-    private def sendToServer:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
-      ajaxCall(JsVar("u"), jsonStr => {
-        logger.debug("Received string: "+jsonStr)
-        sendToSession(jsonStr)
-        Noop
-      })
+  private def sendToServer(handler: String => Unit):JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
+    ajaxCall(JsVar("u"), jsonStr => {
+      logger.debug("Received string: "+jsonStr)
+      handler(jsonStr)
+      Noop
+    })
 
 
-    override def receive: PartialFunction[Any, Unit] = {
-      case ToClient(cmd) => partialUpdate(buildCmd(root = false, cmd))
-    }
+  private def sendToSession(json:String) = for {
+    session <- S.session
+    cometType <- theType
+    comet <- session.findComet(cometType, Empty)
+    clientId <- name
+  } { comet ! FromClient(json, Full(clientId)) }
 
-    private def sendToSession(json:String) = for {
-      session <- S.session
-      cometType <- theType
-      comet <- session.findComet(cometType, Empty)
-      clientId <- name
-    } { comet ! FromClient(json, clientId) }
-
-  }
 }
 
-private[ng] case class FromClient(json: String, clientId: String)
+private[ng] case class FromClient(json: String, clientId: Box[String])
 private[ng] case class ToClient(cmd: JsCmd)
 
