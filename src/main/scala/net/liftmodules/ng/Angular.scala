@@ -117,12 +117,14 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         <div data-lift={cometNamed}></div>
       }
 
-      def ajax(theClass:Class[_]) = {
-        val binder = getToServerBinder(bType).openOr{
-          val newBinder = theClass.newInstance.asInstanceOf[NgModelBinder[NgModel]]
-          addToServerBinder(bType, newBinder)
-          newBinder
-        }
+      def ajax(theClass:Class[_], inSession:Boolean) = {
+        def newBinder = theClass.newInstance.asInstanceOf[NgModelBinder[NgModel]]
+
+        val binder =
+          if(inSession)
+            getToServerBinder(bType).openOr(addToServerBinder(bType, newBinder))
+          else
+            newBinder
 
         binder.fixedRender.openOrThrowException("lift-ng has a bug in it. Please report it at https://github.com/joescii/lift-ng")
       }
@@ -130,13 +132,21 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
       clazz.map { c =>
         val toClient = isToClient(c)
         val toServer = isToServer(c)
+        val session  = isSessionScoped(c)
 
-        // We need to render the named comet first.  Otherwise using CometListener does not work.
-        // This is because the unnamed comet sends the messages up via the named comet.
-        // Hence it will get a create message but have no named comet actor to use.
-        if(toClient && toServer) cometNamed ++ cometUnnamed
-        else if(toClient) cometUnnamed
-        else ajax(c)
+        if(session) {
+          // We need to render the named comet first.  Otherwise using CometListener does not work.
+          // This is because the unnamed comet sends the messages up via the named comet.
+          // Hence it will get a create message but have no named comet actor to use.
+          if (toClient && toServer) cometNamed ++ cometUnnamed
+          else if (toClient) cometUnnamed
+          else ajax(c, session)
+        }
+        else {
+          if(toClient) cometNamed
+          else ajax(c, session)
+        }
+
       }.getOrElse(NodeSeq.Empty)
 
     }.reduceOption(_ ++ _)
@@ -155,7 +165,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
   }
 
   private object ToServerBinders extends SessionVar[ConcurrentMap[String, NgModelBinder[NgModel]]](new ConcurrentHashMap())
-  private def addToServerBinder(theType:String, b:NgModelBinder[NgModel]):Unit = ToServerBinders.get.put(theType, b)
+  private def addToServerBinder(theType:String, b:NgModelBinder[NgModel]):NgModelBinder[NgModel] = ToServerBinders.get.put(theType, b)
   def getToServerBinder(theType:String):Box[NgModelBinder[NgModel]] = Option(ToServerBinders.get.get(theType))
 
   /**

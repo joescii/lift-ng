@@ -40,14 +40,19 @@ trait BindingToServer extends BindDirection {
   override val toServer = true
 }
 
-trait SessionScope
+sealed trait BindingScope {
+  def sessionScope = false
+}
+trait SessionScope extends BindingScope {
+  override def sessionScope = true
+}
 
 /**
   * CometActor which implements binding to a model in the target $scope.
   * While a trait would be preferable, we need the type constraint in order
   * for lift-json to deserialize messages from the client.
   */
-abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
+abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with BindingScope {
   self:BindDirection  =>
   import Angular._
 
@@ -65,12 +70,14 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
   // This must be lazy so that it is invoked only after name is set.
   private lazy val guts =
-    if(toServer && toClient)
+    if(toServer && toClient && sessionScope)
       if(name.isDefined) new TwoWaySessionNamed else new TwoWaySessionUnnamed
-    else if(toServer)
-      new ToServerSessionScoped
-    else
+    else if(toServer && toClient && !sessionScope)
+      new TwoWayRequestScoped
+    else if(toClient)
       new ToClientSessionScoped
+    else
+      new ToServerSessionScoped
 
   override def fixedRender = nodesToRender ++ guts.render
 
@@ -110,6 +117,25 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
   private class ToClientSessionScoped extends BindingGuts {
     override def render = Script(buildCmd(root = false, renderCurrentState))
+
+    override def receive = receiveFromServer(sendDiff) orElse receiveToClient
+
+    private def sendDiff:SendCmdFn = cmd => self ! ToClient(cmd)
+  }
+
+  private class TwoWayRequestScoped extends BindingGuts {
+    override def render = Script(buildCmd(root = false,
+      renderCurrentState &
+      renderThrottleCount &
+      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) & // This prevents us from sending a server-sent value back to the server when doing 2-way binding
+      watch(ifNotServerEcho(timeThrottledCall(sendToServer(handleJson))))
+    ))
+
+    private def handleJson:JsonHandlerFn = { json =>
+      fromClient(json, Empty, afterUpdate)
+    }
+
+    private def afterUpdate:AfterUpdateFn = id => {}
 
     override def receive = receiveFromServer(sendDiff) orElse receiveToClient
 

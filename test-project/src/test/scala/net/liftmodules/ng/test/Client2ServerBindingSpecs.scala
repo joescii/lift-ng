@@ -15,7 +15,7 @@ trait Client2ServerBindingSpecs extends BaseSpec {
 }
 
 class Client2ServerSessionBindingSpecs extends Client2ServerBindingSpecs {
-  "The Server To Client Session Binding Tests page" should "load" in {
+  "The Client To Server Session Binding Tests page" should "load" in {
     go to s"$index/client2ServerSessionBind"
     eventually { pageTitle should be ("App: Client 2 Server Session Binding") }
   }
@@ -28,20 +28,19 @@ class Client2ServerSessionBindingSpecs extends Client2ServerBindingSpecs {
   }
 }
 
-// TODO: Decide if such a thing even makes sense.
-//class Client2ServerRequestBindingSpecs extends Client2ServerBindingSpecs {
-//  "The Server To Client Request Binding Tests page" should "load" in {
-//    go to s"$index/client2ServerRequestBind"
-//    eventually { pageTitle should be ("App: Client 2 Server Request Binding") }
-//  }
-//
-//  tests
-//
-//  "The input" should "reset after a reload of the page" in {
-//    reloadPage()
-//    eventually {
-//      id("output").element.text should be ("abc")
-//      textField("input").value should be ("")
-//    }
-//  }
-//}
+class Client2ServerRequestBindingSpecs extends Client2ServerBindingSpecs {
+  "The Client To Server Request Binding Tests page" should "load" in {
+    go to s"$index/client2ServerRequestBind"
+    eventually { pageTitle should be ("App: Client 2 Server Request Binding") }
+  }
+
+  tests
+
+  "The input" should "reset after a reload of the page" in {
+    reloadPage()
+    eventually {
+      id("output").element.text should be ("abc")
+      textField("input").value should be ("")
+    }
+  }
+}
