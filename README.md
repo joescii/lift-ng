@@ -24,6 +24,12 @@ AngularJS as a front end should appeal to Scala and Lift developers for the foll
 * AngularJS does a fantastic job of managing complex client-side interactions for you.
 * With **lift-ng** in particular, you get to utilize Lift's reactive features such as asynchronous comet updates to the client and returning `LAFuture[T]` results for services.
 
+**lift-ng** has three major feature areas (click the respective link for details and usage examples):
+* [Client-Initiated Service Calls](#client-initiated-service-calls): Write secure services in the Scala DSL which can be invoked by client actions.
+* [Server-Initiated Events](#server-initiated-events): Send events to `$rootScope` or a given `$scope` easily via familiar AngularJS-like calls to `broadcast` and `emit`.
+* [Client-Server Model Binding](#client-server-model-binding): Define your model, declare your scope, and assign a name.
+Then let **lift-ng** keep your data in sync between the client(s) and server.
+
 ## Tutorials
 
 * [15-minute Chat with lift-ng](https://www.youtube.com/watch?v=PQA6829cRy8): Screencast by Lift committer/lift-ng contributor [Joe Barnes](https://github.com/joescii) briefly introducing Lift, AngularJS, and lift-ng.
@@ -47,7 +53,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.22"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.3"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.4"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
@@ -93,7 +99,7 @@ Automated testing is performed against the latest 2.10/2.5, 2.10/2.6, 2.11/2.6, 
 Below are usage examples of each of the major features of **lift-ng**.
 Be sure to check out the aforementioned [sample project](https://github.com/htmldoug/ng-lift-proxy) or the [test project](https://github.com/joescii/lift-ng/tree/master/test-project) for fully functional examples.
 
-### Client-Initiated Calls
+### Client-Initiated Service Calls
 
 Most AngularJS backends provide RESTful http endpoints for the application to receive data from the server.
 **lift-ng** is certainly no exception by providing a server-side DSL for creating services.
@@ -447,21 +453,25 @@ angular.module('ExampleApp', [])
 
 Note that messages sent prior to a page bootstrapping the Angular application will be queued up and released in order once the application is ready.  The retry interval defaults to 100 milliseconds and can be configured in your Lift application's props files with the `net.liftmodules.ng.AngularActor.retryInterval` Int property.
 
-### Client-Server Binding
-Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features (a rather experimental) 2-way binding of a model between the client and server.
+### Client-Server Model Binding
+Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features (a rather experimental) binding of a model between the client and server.
 To take advantage of this feature, first create a model case class which extends `NgModel`.
 
 ```scala
 case class Message(msg:String) extends NgModel
 ```
 
-Then create an actor in your `comet` package which extends either `BindingActor` or `SimpleBindingActor`.
+Then create binder in your `comet` package which extends `NgModelBinder` or `SimpleNgModelBinder`.
 (The latter is a conveniently-constructed form of the former)
+By default, your binder will be scoped per-request/per-page-load.
+Mix in `SessionScope` to cause your binder's state to persist among each page load of a user's session.
+You must specify the direction you want to bind data by mixing in `ToClientBinding`, `ToServerBinding`, or both to achieve two-way synchronization.
+The following example establishes a two-way binding existing in the session scope (identical to the original 0.5.0 release which featured `BindingActor`)
 
 ```scala
 package org.myorg.comet
 
-class MessageBinder extends SimpleBindingActor[Message] (
+class MessageBinder extends SimpleNgModelBinder[Message] with ToClientBinding with ToServerBinding with SessionScope (
   "theMessage",       /* Name of the $scope variable to bind to */
   Message("initial"), /* Initial value for theMessage when the session is initialized */
   { m:Message =>      /* Called each time a client change is received */
@@ -471,7 +481,7 @@ class MessageBinder extends SimpleBindingActor[Message] (
 )
 ```
 
-Then add it to the scope you want this bound model to exist in.
+Once defined, add the binder to the scope you want this model to exist in.
 
 ```html
 <div ng-app="MyLiftNgApp">
@@ -491,6 +501,31 @@ If you have multiple binds, you can specify them in `types` via a comma-delimite
   </div>
 </div>
 ```
+
+If you mixed in `ToServerBinding`, you will get state updates for the client (or _clients_ if using `SessionScope`) via `onClientUpdate`:
+
+```scala
+class MyBinder extends NgModelBinder[MyModel] with ToServerBinding {
+  override val onClientUpdate = { fromClient =>
+    println(s"We go a model update from the user! $fromClient")
+  }
+
+  // ...
+}
+```
+
+If you mixed in `ToClientBinding`, you can update your clients (if using `SessionScope`) by sending the binder a message with the model:
+
+```scala
+val newMessage = Message("Updated!")
+
+// Find the binder
+for {
+  session <- S.session
+  binder <- session.findComet("MessageBinder")
+} { binder ! newMessage } // Send the new model
+```
+
 
 
 #### Optimizations
@@ -619,15 +654,19 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
-* *0.5.3*: Fixed handling of `BindingActor` initial values.
-Fixed usage of `CometListener` with `BindingActor` by reversing the order in which the named/unnamed `BindingActors` are rendered.
+* *0.5.4*: **BREAKING CHANGE:** Renamed `BindingActor` to `NgModelBinder`.
+Decomposed `NgModelBinder` so it is possible to specify:
+  * `BindingDirection` by mixing in `ToClientBinding`, `ToServerBinding`, or both for 2-way binding
+  * `BindingScope` which defaults to per-request (i.e. per page load) and can be scoped to the session like the original `BindingActor` behavior by mixing in `SessionScope`
+* *0.5.3*: Fixed handling of `NgModelBinder` initial values.
+Fixed usage of `CometListener` with a 2-way session-scoped `NgModelBinder` by reversing the order in which the named/unnamed comet actors are rendered.
 Fixed support for Lift 3.0-SNAPSHOT.
 Enhanced automated testing to cover 2.10/2.5, 2.10/2.6, 2.11/2.6, and 2.11/3.0 Scala/Lift versions.
 * *0.5.2*: Resolved [Issue #5](https://github.com/joescii/lift-ng/issues/5), where the deployment context path appeared twice in the path to the `liftproxy.js` resource.
 Dropped support for Lift 3.0 compiled against Scala 2.10.
 * *0.5.1*: Corrected a bug exposed by 2-way binding that our [early-arrival mechanism](https://github.com/joescii/lift-ng/issues/1) to not work if `angular.js` files are specified at the end of the HTML.
-Made it possible to add binding actors in the HTML templates without introducing an extra element.  Thanks to [Antonio](https://twitter.com/lightfiend) for [the suggestion](https://groups.google.com/forum/#!topic/liftweb/1SJ6YNzpBEw)!
-* *0.5.0*: Introduction of 2-way client/server model binding.  Added support for Scala 2.11 against Lift editions 2.6 and 3.0.
+Made it possible to add `NgModelBinders` in the HTML templates without introducing an extra element.  Thanks to [Antonio](https://twitter.com/lightfiend) for [the suggestion](https://groups.google.com/forum/#!topic/liftweb/1SJ6YNzpBEw)!
+* *0.5.0*: Introduction of 2-way client/server `NgModel` binding.  Added support for Scala 2.11 against Lift editions 2.6 and 3.0.
 * *0.4.7*: Updated to work on pages that are in subdirectories.  See [Pull Request #4](https://github.com/joescii/lift-ng/pull/4).  Thank you [voetha](https://github.com/voetha) for the contribution!
 * *0.4.6*: Minor correction to resolution for [Issue #1](https://github.com/joescii/lift-ng/issues/1) to correctly allow messages to begin dequeuing without waiting for a new message. 
 Added `includeJsScript` parameter to `Angular.init()` to give developers the ability to download the `liftproxy.js` their own way, such as via [head.js](http://headjs.com/).
