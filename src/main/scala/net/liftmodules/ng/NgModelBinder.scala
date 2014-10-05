@@ -64,7 +64,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
   def onClientUpdate: M => M = {m:M => m}
 
   // This must be lazy so that it is invoked only after name is set.
-  lazy val guts =
+  private lazy val guts =
     if(toServer && toClient)
       if(name.isDefined) new TwoWaySessionNamed else new TwoWaySessionUnnamed
     else if(toServer)
@@ -91,11 +91,13 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
       watch(timeThrottledCall(sendToServer(handleJson)))
     ))
 
-    private def handleJson(json:String):Unit = {
+    private def handleJson:JsonHandlerFn = { json =>
       self ! FromClient(json, Empty)
     }
 
-    override def receive = receiveFromClient(id => {})
+    override def receive = receiveFromClient(afterUpdate)
+    
+    private def afterUpdate:AfterUpdateFn = id => {}
   }
 
   private class ToClientSessionScoped extends BindingGuts {
@@ -103,7 +105,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
     override def receive = receiveFromServer(sendDiff) orElse receiveToClient
 
-    private def sendDiff(cmd:JsCmd):Unit = self ! ToClient(cmd)
+    private def sendDiff:SendCmdFn = cmd => self ! ToClient(cmd)
   }
 
   /** Guts for the unnamed binding actor which exits per session and allows the models to be bound together */
@@ -117,7 +119,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
 
     override def receive = receiveFromServer(sendDiff(Empty)) orElse receiveFromClient(afterUpdate)
 
-    private def sendDiff(exclude:Box[String])(cmd: JsCmd) = {
+    private def sendDiff(exclude:Box[String]):SendCmdFn = { cmd =>
       for {
         t <- theType
         session <- S.session
@@ -141,7 +143,21 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     override def render = Script(buildCmd(root = false, watch(ifNotServerEcho(timeThrottledCall(sendToServer(sendToSession))))))
 
     override def receive = receiveToClient
+
+    private def sendToSession:JsonHandlerFn = json => for {
+      session <- S.session
+      cometType <- theType
+      comet <- session.findComet(cometType, Empty)
+      clientId <- name
+    } { comet ! FromClient(json, Full(clientId)) }
   }
+  
+  /** Called after an update from Client.  Input is the client ID where the update originated from */
+  private type AfterUpdateFn = Box[String] => Unit
+  /** Called to send a JsCmd to the client */
+  private type SendCmdFn = JsCmd => Unit
+  /** Called to handle JSON from the client */
+  private type JsonHandlerFn = String => Unit
 
   private val lastServerVal = "net_liftmodules_ng_last_val_"
   private val queueCount = "net_liftmodules_ng_queue_count_"
@@ -149,30 +165,19 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
   private var stateModel: M = initialValue
   private var stateJson: JValue = toJValue(stateModel)
 
-  private def renderCurrentState = SetExp(JsVar("s()." + bindTo), stateJson) // Send the current state with the page
-  private val renderThrottleCount = SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) // Set the last server val to avoid echoing it back
-
-  private def toJValue(m: M): JValue = {
-    implicit val formats = DefaultFormats
-    m match {
-      case m: NgModel if m != null => parse(write(m))
-      case e => JNull
-    }
-  }
-
-  private def receiveFromClient(afterUpdate: Box[String] => Unit): PartialFunction[Any, Unit] = {
+  private def receiveFromClient(afterUpdate: AfterUpdateFn): PartialFunction[Any, Unit] = {
     case FromClient(json, id) => fromClient(json, id, afterUpdate)
   }
 
-  private def receiveFromServer(sendFn: JsCmd => Unit): PartialFunction[Any, Unit] = {
+  private def receiveFromServer(sendFn: SendCmdFn): PartialFunction[Any, Unit] = {
     case m: M => fromServer(m, sendFn)
   }
 
-  def receiveToClient: PartialFunction[Any, Unit] = {
+  private def receiveToClient: PartialFunction[Any, Unit] = {
     case ToClient(cmd) => partialUpdate(buildCmd(root = false, cmd))
   }
 
-  private def fromServer(m: M, sendFn: JsCmd => Unit) = {
+  private def fromServer(m: M, sendFn: SendCmdFn) = {
     val mJs = toJValue(m)
     val cmd = buildDiff(mJs)
     sendFn(cmd)
@@ -180,14 +185,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     stateModel = m
   }
 
-  private def buildDiff(mJs: JValue) = {
-    val diff = stateJson dfn mJs
-
-    diff(JsVar("s()." + bindTo)) & // Send the diff
-      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
-  }
-
-  private def fromClient(json: String, clientId:Box[String], afterUpdate: Box[String] => Unit) = {
+  private def fromClient(json: String, clientId:Box[String], afterUpdate: AfterUpdateFn) = {
     //    implicit val formats = DefaultFormats
     //    implicit val mf = manifest[String]
     import js.ToWithExtractMerged
@@ -207,6 +205,24 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
     afterUpdate(clientId)
   }
 
+  private def toJValue(m: M): JValue = {
+    implicit val formats = DefaultFormats
+    m match {
+      case m: NgModel if m != null => parse(write(m))
+      case e => JNull
+    }
+  }
+
+  private def buildDiff(mJs: JValue) = {
+    val diff = stateJson dfn mJs
+
+    diff(JsVar("s()." + bindTo)) & // Send the diff
+      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
+  }
+
+
+  private def renderCurrentState = SetExp(JsVar("s()." + bindTo), stateJson) // Send the current state with the page
+  private val renderThrottleCount = SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) // Set the last server val to avoid echoing it back
 
   private def watch(f:JsCmd):JsCmd = Call("s().$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison
 
@@ -218,29 +234,18 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor  {
       SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
     )
 
-
   private def timeThrottledCall(f:JsCmd):JsCmd =
     JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
       Call("setTimeout", AnonFunc(
         JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)), f)
       ), JInt(clientSendDelay))
 
-
-  private def sendToServer(handler: String => Unit):JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
+  private def sendToServer(handler: JsonHandlerFn):JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
     ajaxCall(JsVar("u"), jsonStr => {
       logger.debug("Received string: "+jsonStr)
       handler(jsonStr)
       Noop
     })
-
-
-  private def sendToSession(json:String) = for {
-    session <- S.session
-    cometType <- theType
-    comet <- session.findComet(cometType, Empty)
-    clientId <- name
-  } { comet ! FromClient(json, Full(clientId)) }
-
 }
 
 private[ng] case class FromClient(json: String, clientId: Box[String])
