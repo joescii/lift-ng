@@ -77,7 +77,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     else if(toClient)
       new ToClientSessionScoped
     else
-      new ToServerSessionScoped
+      new ToServerGuts
 
   override def fixedRender = nodesToRender ++ guts.render
 
@@ -98,7 +98,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
   /** Called to handle JSON from the client */
   private type JsonHandlerFn = String => Unit
 
-  private class ToServerSessionScoped extends BindingGuts {
+  private class ToServerGuts extends BindingGuts {
     override def render = Script(buildCmd(root = false,
       renderCurrentState &
       renderThrottleCount &
