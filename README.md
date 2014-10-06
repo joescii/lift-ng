@@ -465,14 +465,14 @@ Then create binder in your `comet` package which extends `NgModelBinder` or `Sim
 (The latter is a conveniently-constructed form of the former)
 By default, your binder will be scoped per-request/per-page-load.
 Mix in `SessionScope` to cause your binder's state to persist among each page load of a user's session.
-You must specify the direction you want to bind data by mixing in `ToClientBinding`, `ToServerBinding`, or both to achieve two-way synchronization.
+You must specify the direction you want to bind data by mixing in `BindingToClient`, `BindingToServer`, or both to achieve two-way synchronization.
 The following example establishes a two-way binding existing in the session scope (identical to the original 0.5.0 release which featured `BindingActor`)
 
 ```scala
 package org.myorg.comet
 
 class MessageBinder extends SimpleNgModelBinder[Message]
-  with ToClientBinding with ToServerBinding with SessionScope (
+  with BindingToClient with BindingToServer with SessionScope (
   "theMessage",       /* Name of the $scope variable to bind to */
   Message("initial"), /* Initial value for theMessage when the session is initialized */
   { m:Message =>      /* Called each time a client change is received */
@@ -503,10 +503,10 @@ If you have multiple binds, you can specify them in `types` via a comma-delimite
 </div>
 ```
 
-If you mixed in `ToServerBinding`, you will get state updates for the client (or _clients_ if using `SessionScope`) via `onClientUpdate`:
+If you mixed in `BindingToServer`, you will get state updates for the client (or _clients_ if using `SessionScope`) via `onClientUpdate`:
 
 ```scala
-class MyBinder extends NgModelBinder[MyModel] with ToServerBinding {
+class MyBinder extends NgModelBinder[MyModel] with BindingToServer {
   override val onClientUpdate = { fromClient =>
     println(s"We go a model update from the user! $fromClient")
   }
@@ -515,7 +515,7 @@ class MyBinder extends NgModelBinder[MyModel] with ToServerBinding {
 }
 ```
 
-If you mixed in `ToClientBinding`, you can update your clients (if using `SessionScope`) by sending the binder a message with the model:
+If you mixed in `BindingToClient`, you can update your clients (if using `SessionScope`) by sending the binder a message with the model:
 
 ```scala
 val newMessage = Message("Updated!")
@@ -532,10 +532,10 @@ for {
 #### Optimizations
 The reduce the network overhead, changes to a bound model on the server will be communicated to the client by sending only a diff.
 Since watching scope variables on the client can produce a flood of changes (e.g. each character entered in a text box will generate a change event), changes are queued up and sent after no more changes are detected for 1000 millis.
-The fourth argument to the `SimpleBindingActor` constructor or an override of `clientSendDelay` in `BindingActor` allows you to tweak this delay to your liking.
+The fourth argument to the `SimpleNgModelBinder` constructor or an override of `clientSendDelay` in `NgModelBinder` allows you to tweak this delay to your liking.
 
 #### Caveats
-Note that this feature will utilize more memory than others, paricularly on the server.
+Note that this feature will utilize more memory than others, particularly on the server.
 We maintain the last known state of your model.
 This allows us to compare to any model changes provided and transmit only the diff from the server.
 
@@ -547,8 +547,6 @@ A client-side change to an array will append to the array on the server rather t
 
 Removing stuff from a model on the server does not transmit to the client yet.
 Only changes or additions to the model will be synced up to the client.
-
-Only 2-way binding is currently supported.
 
 Only session-scoped binding is currently supported.
 That is, a model bound will be reflected on every page load for a given session.
@@ -638,9 +636,9 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* Correctly support client-side changes to models containing arrays when bound with `BindingActor`.
-* Support removing fields in models bound with `BindingActor`.
-* Retain diffs in `BindingActor`. Allow server to reject client-side changes.
+* Correctly support client-side changes to models containing arrays when bound with `NgModelBinder`.
+* Support removing fields in models bound with `NgModelBinder`.
+* Retain diffs in `NgModelBinder`. Allow server to reject client-side changes.
 * Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
 * Support Lift's Record with `NgModel`.
 * Support dynamically-loaded templates for routing frameworks. (See [Issue 7](https://github.com/joescii/lift-ng/issues/7))
@@ -655,7 +653,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 * *0.5.4*: **BREAKING CHANGE:** Renamed `BindingActor` to `NgModelBinder`.
 Decomposed `NgModelBinder` so it is possible to specify:
-  * `BindingDirection` by mixing in `ToClientBinding`, `ToServerBinding`, or both for 2-way binding
+  * `BindingDirection` by mixing in `BindingToClient`, `BindingToServer`, or both for 2-way binding
   * `BindingScope` which defaults to per-request (i.e. per page load) and can be scoped to the session like the original `BindingActor` behavior by mixing in `SessionScope`
 * *0.5.3*: Fixed handling of `NgModelBinder` initial values.
 Fixed usage of `CometListener` with a 2-way session-scoped `NgModelBinder` by reversing the order in which the named/unnamed comet actors are rendered.
