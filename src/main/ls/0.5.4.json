@@ -1,6 +1,6 @@
 {
   "organization" : "net.liftmodules",
-  "name" : "ng",
+  "name" : "lift-ng",
   "version" : "0.5.4",
   "description" : "lift-ng is the most powerful, most secure AngularJS backend available today",
   "site" : "https://github.com/joescii/lift-ng",
