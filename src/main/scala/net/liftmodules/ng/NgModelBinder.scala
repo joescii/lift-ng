@@ -11,8 +11,18 @@ import http.SHtml._
 import http.js._
 import http.S
 import JE._
-import JsCmds._
+import net.liftweb.http.js.JsCmds._
 import scala.xml.NodeSeq
+import net.liftweb.http.js.JE.JsEq
+import net.liftweb.http.js.JE.JsNotEq
+import net.liftweb.json.JsonAST.JString
+import net.liftweb.http.js.JsCmds.JsCrVar
+import net.liftweb.common.Full
+import net.liftweb.http.js.JE.JsVar
+import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.http.js.JE.Call
+import net.liftweb.http.js.JsCmds.SetExp
+import net.liftweb.json.JsonAST.JInt
 
 /**
  * Simple binding actor for creating a binding actor in one line
@@ -27,6 +37,14 @@ abstract class SimpleNgModelBinder[M <: NgModel : Manifest]
   (val bindTo:String, val initialValue:M, override val onClientUpdate:M=>M = { m:M => m }, override val clientSendDelay:Int = 1000)
   extends NgModelBinder[M]{
   direction:BindDirection =>
+}
+
+sealed trait BindingBase {
+  /** The client `\$scope` element to bind to */
+  def bindTo: String
+
+  private [ng] var stateJson: JValue
+  private [ng] def buildMutator(newState:JValue):JsCmd = SetExp(JsVar("s()." + bindTo), newState)
 }
 
 sealed trait BindDirection {
@@ -47,18 +65,23 @@ trait SessionScope extends BindingScope {
   override def sessionScope = true
 }
 
+trait BindingOptimizations extends BindingBase {
+  override def buildMutator(newState: JValue) = {
+    val diff = stateJson dfn newState
+
+    diff(JsVar("s()." + bindTo)) // Send the diff
+  }
+}
+
 /**
   * CometActor which implements binding to a model in the target \$scope.
   * While a trait would be preferable, we need the type constraint in order
   * for lift-json to deserialize messages from the client.
   * @tparam M The type of the model to be used in this actor
   */
-abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with BindingScope {
+abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with BindingBase with BindingScope {
   self:BindDirection  =>
   import Angular._
-
-  /** The client `\$scope` element to bind to */
-  def bindTo: String
 
   /** Initial value on session initialization */
   def initialValue: M
@@ -119,9 +142,9 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
   private class ToClientGuts extends BindingGuts {
     override def render = Script(buildCmd(root = false, renderCurrentState))
 
-    override def receive = receiveFromServer(sendDiff) orElse receiveToClient
+    override def receive = receiveFromServer(sendToClient) orElse receiveToClient
 
-    private def sendDiff:SendCmdFn = cmd => self ! ToClient(cmd)
+    private def sendToClient:SendCmdFn = cmd => self ! ToClient(cmd)
   }
 
   private class TwoWayRequestScoped extends BindingGuts {
@@ -138,9 +161,9 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
 
     private def afterUpdate:AfterUpdateFn = id => {}
 
-    override def receive = receiveFromServer(sendDiff) orElse receiveToClient
+    override def receive = receiveFromServer(sendToClient) orElse receiveToClient
 
-    private def sendDiff:SendCmdFn = cmd => self ! ToClient(cmd)
+    private def sendToClient:SendCmdFn = cmd => self ! ToClient(cmd)
   }
 
   /** Guts for the unnamed binding actor which exits per session and allows the models to be bound together */
@@ -152,9 +175,9 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
       SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // This prevents us from sending a server-sent value back to the server when doing 2-way binding
     ))
 
-    override def receive = receiveFromServer(sendDiff(Empty)) orElse receiveFromClient(afterUpdate)
+    override def receive = receiveFromServer(sendToClient(Empty)) orElse receiveFromClient(afterUpdate)
 
-    private def sendDiff(exclude:Box[String]):SendCmdFn = { cmd =>
+    private def sendToClient(exclude:Box[String]):SendCmdFn = { cmd =>
       for {
         t <- theType
         session <- S.session
@@ -168,8 +191,10 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     }
 
     private def afterUpdate(exclude:Box[String]): Unit = {
-      val cmd = buildDiff(stateJson)
-      sendDiff(exclude)(cmd)
+      val cmd = buildMutator(stateJson) &
+        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
+
+      sendToClient(exclude)(cmd)
     }
   }
 
@@ -191,7 +216,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
   private val queueCount = "net_liftmodules_ng_queue_count_"
 
   private var stateModel: M = initialValue
-  private var stateJson: JValue = toJValue(stateModel)
+  private [ng] var stateJson = toJValue(stateModel)
 
   private def receiveFromClient(afterUpdate: AfterUpdateFn): PartialFunction[Any, Unit] = {
     case FromClient(json, id) => fromClient(json, id, afterUpdate)
@@ -207,7 +232,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
 
   private def fromServer(m: M, sendFn: SendCmdFn) = {
     val mJs = toJValue(m)
-    val cmd = buildDiff(mJs)
+    val cmd = buildMutator(mJs)
     sendFn(cmd)
     stateJson = mJs
     stateModel = m
@@ -241,14 +266,6 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
       case e => JNull
     }
   }
-
-  private def buildDiff(mJs: JValue) = {
-    val diff = stateJson dfn mJs
-
-    diff(JsVar("s()." + bindTo)) & // Send the diff
-      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
-  }
-
 
   private def renderCurrentState = SetExp(JsVar("s()." + bindTo), stateJson) // Send the current state with the page
   private val renderThrottleCount = SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) // Set the last server val to avoid echoing it back
