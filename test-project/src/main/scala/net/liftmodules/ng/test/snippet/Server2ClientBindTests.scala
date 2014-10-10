@@ -14,7 +14,10 @@ object Server2ClientBindTests {
 
   object array extends SessionVar[ListWrap](ListWrap())
 
-  def render = {
+  def optimized = render("ArrayOptimizedBindActor")
+  def standard = render("ArraySessionBindActor")
+
+  def render(cometName:String) = {
     var counting = false
     var count = 0
 
@@ -38,7 +41,7 @@ object Server2ClientBindTests {
     ).factory("arrSvc", jsObjFactory()
       .jsonCall("next", {
         array.update(_ :+ (new java.util.Date().toString))
-        session.findComet("ArraySessionBindActor", Empty).foreach( _ ! array.is )
+        session.findComet(cometName, Empty).foreach( _ ! array.is )
         Empty
       })
     ))

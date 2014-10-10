@@ -45,6 +45,7 @@ class Boot {
       Menu.i("Server 2 Client Request Binding") / "server2ClientRequestBind",
       Menu.i("Client 2 Server Request Binding") / "client2ServerRequestBind",
       Menu.i("2-way Request Binding") / "twoWayRequestBinding",
+      Menu.i("Server 2 Client Optimized Binding") / "server2ClientOptimizedBind",
       Menu.i("head.js") / "head-js",
       Menu.i("Subdir") / "subdir" / "index"
     )

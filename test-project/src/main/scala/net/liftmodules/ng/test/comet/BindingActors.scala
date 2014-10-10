@@ -46,7 +46,7 @@ class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Cou
 
 }
 
-class ArrayRequestBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient
+class ArrayOptimizedBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope
 
 class C2sRequestBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
   for {

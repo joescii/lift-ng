@@ -3,16 +3,19 @@
   <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
   <body class="lift:content_id=main">
     <div id="main" class="lift:surround?with=default;at=content">
-      <h2>Server to Client Session Binding tests</h2>
+      <h2>Server to Client Optimized Binding tests</h2>
       <div ng-app="Server2ClientBindingApp">
-        <div ng-controller="Controller" data-lift="Angular.bind?type=CounterSessionBindActor">
-          <input id="button" type="button" value="Start Counter" ng-click="counter.toggle()"/>
-          <span id="output" ng-bind="count.current">Output1</span>
+        <div ng-controller="Controller" data-lift="Angular.bind?type=ArrayOptimizedBindActor">
+          <div><input id="input0" type="text" ng-model="array.l[0]"/></div>
+          <div><input id="input1" type="text" ng-model="array.l[1]"/></div>
+          <div><input id="input2" type="text" ng-model="array.l[2]"/></div>
+          <div><input id="input3" type="text" ng-model="array.l[3]"/></div>
+          <input id="button-next" type="button" value="Next" ng-click="arrSvc.next()"/>
         </div>
       </div>
 
       <script data-lift="AngularJS"></script>
-      <script id="s2cBindServices_js"   src="/js/S2cBindServices.js"      type="text/javascript" data-lift="Server2ClientBindTests.standard"></script>
+      <script id="s2cBindServices_js"   src="/js/S2cBindServices.js"      type="text/javascript" data-lift="Server2ClientBindTests.optimized"></script>
       <script id="s2cBindApp_js"        src="/js/Server2ClientBindApp.js" type="text/javascript"></script>
       <script id="liftmodules-ng_js"  data-lift="Angular"></script>
     </div>
