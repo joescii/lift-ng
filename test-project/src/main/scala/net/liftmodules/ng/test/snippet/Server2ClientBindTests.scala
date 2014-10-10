@@ -15,7 +15,7 @@ object Server2ClientBindTests {
   object array extends SessionVar[ListWrap](ListWrap())
 
   def optimized = render("ArrayOptimizedBindActor")
-  def standard = render("ArraySessionBindActor")
+  def standard = render("ArrayStandardBindActor")
 
   def render(cometName:String) = {
     var counting = false

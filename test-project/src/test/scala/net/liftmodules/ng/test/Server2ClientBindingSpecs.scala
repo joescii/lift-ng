@@ -74,6 +74,53 @@ class Server2ClientOptimizedBindingSpecs extends BaseSpec {
 
 }
 
+class Server2ClientStandardBindingSpecs extends BaseSpec {
+  "The Server To Client Standard Binding Tests page" should "load" in {
+    go to s"$index/server2ClientStandardBind"
+    eventually { pageTitle should be ("App: Server 2 Client Standard Binding") }
+  }
+
+  "The next button" should "load the next box while clobbering the others" in {
+    click on "button-next"
+    eventually { textField("input0").value should not be empty }
+    textField("input0").value = "test0"
+
+    click on "button-next"
+    eventually { textField("input1").value should not be empty }
+    textField("input1").value = "test1"
+
+    click on "button-next"
+    eventually { textField("input2").value should not be empty }
+
+    textField("input0").value should not be ("test0")
+    textField("input1").value should not be ("test1")
+  }
+
+  "Refreshing the page" should "load all of the values from the server" in {
+    reloadPage()
+
+    eventually {
+      textField("input0").value should not be empty
+      textField("input1").value should not be empty
+      textField("input2").value should not be empty
+    }
+  }
+
+  "The next button" should "load every input box" in {
+    textField("input0").value = "test0"
+    textField("input1").value = "test1"
+    textField("input2").value = "test2"
+
+    click on "button-next"
+    eventually { textField("input3").value should not be empty }
+
+    textField("input0").value should not be ("test0")
+    textField("input1").value should not be ("test1")
+    textField("input2").value should not be ("test2")
+  }
+
+}
+
 class Server2ClientRequestBindingSpecs extends BaseSpec {
   "The Server To Client Request Binding Tests page" should "load" in {
     go to s"$index/server2ClientRequestBind"

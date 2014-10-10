@@ -11,8 +11,6 @@ case class Message(msg:String) extends NgModel
 
 class CounterSessionBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient with SessionScope
 
-class ArraySessionBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope
-
 class C2sSessionBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
   for {
     session <- S.session
@@ -47,6 +45,7 @@ class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Cou
 }
 
 class ArrayOptimizedBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope
+class ArrayStandardBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope
 
 class C2sRequestBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
   for {
