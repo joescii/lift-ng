@@ -54,29 +54,32 @@ private [ng] sealed trait BindingBase {
     implicit val formats = DefaultFormats
     update.extract
   }
+
+  private [ng] def retainState:Boolean = false
 }
 
 /** Base trait for the two binding direction mixins */
 sealed trait BindDirection {
-  def toClient = false
-  def toServer = false
+  private [ng] def toClient = false
+  private [ng] def toServer = false
 }
 /** Mix with your NgModelBinder to bind state from the server to the client */
 trait BindingToClient extends BindDirection {
-  override val toClient = true
+  private [ng] override val toClient = true
 }
 /** Mix with your NgModelBinder to bind state from the client to the server */
 trait BindingToServer extends BindDirection {
-  override val toServer = true
+  private [ng] override val toServer = true
 }
 
 /** Base trait for the scope of binding, either request (i.e. per page load) or session.  Default is request */
-sealed trait BindingScope {
-  def sessionScope = false
+sealed trait BindingScope extends BindingBase {
+  private [ng] def sessionScope = false
 }
 /** Mix with your NgModelBinder to extend the scope of the binder to the entire user session */
 trait SessionScope extends BindingScope {
-  override def sessionScope = true
+  private [ng] override def sessionScope = true
+  private [ng] override def retainState = true
 }
 
 /** Mix with your NgModelBinder to optimize the binding and attempt to send the least amount of data needed.  Regard this as incomplete and experimental. */
@@ -91,6 +94,8 @@ trait BindingOptimizations extends BindingBase {
     val added = update \\ "add"
     added.extractMerged(current)
   }
+
+  private [ng] override def retainState = true
 }
 
 /**
@@ -254,8 +259,10 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     val mJs = toJValue(m)
     val cmd = buildMutator(mJs)
     sendFn(cmd)
-    stateJson = mJs
-    stateModel = m
+    if(retainState) {
+      stateJson = mJs
+      stateModel = m
+    }
   }
 
   private def fromClient(json: String, clientId:Box[String], afterUpdate: AfterUpdateFn) = {
@@ -266,9 +273,11 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     // TODO: Do something with the return value, or change it to return unit?
     onClientUpdate(updated)
 
-    // TODO: When jUpdate becomes a diff, make sure we have the whole thing
-    stateModel = updated
-    stateJson = toJValue(updated)
+    if(retainState) {
+      // TODO: When jUpdate becomes a diff, make sure we have the whole thing
+      stateModel = updated
+      stateJson = toJValue(updated)
+    }
 
     afterUpdate(clientId)
   }
