@@ -53,7 +53,7 @@ libraryDependencies ++= {
   val ngVersion = "1.2.22"  // If using lift-ng-js
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.4"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.5"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
    )
 }
@@ -515,6 +515,9 @@ class MyBinder extends NgModelBinder[MyModel] with BindingToServer {
 }
 ```
 
+Since watching scope variables on the client can produce a flood of changes (e.g. each character entered in a text box will generate a change event), changes are queued up and sent after no more changes are detected for 1000 millis.
+The fourth argument to the `SimpleNgModelBinder` constructor or an override of `clientSendDelay` in `NgModelBinder` allows you to tweak this delay to your liking.
+
 If you mixed in `BindingToClient`, you can update your clients (if using `SessionScope`) by sending the binder a message with the model:
 
 ```scala
@@ -527,12 +530,9 @@ for {
 } { binder ! newMessage } // Send the new model
 ```
 
-
-
 #### Optimizations
-The reduce the network overhead, changes to a bound model on the server will be communicated to the client by sending only a diff.
-Since watching scope variables on the client can produce a flood of changes (e.g. each character entered in a text box will generate a change event), changes are queued up and sent after no more changes are detected for 1000 millis.
-The fourth argument to the `SimpleNgModelBinder` constructor or an override of `clientSendDelay` in `NgModelBinder` allows you to tweak this delay to your liking.
+Mix in the `BindingOptimizations` trait to reduce the network overhead.
+Changes to a bound model on the server will be communicated to the client by sending only a diff.
 
 #### Caveats
 Note that this feature will utilize more memory than others, particularly on the server.
@@ -636,10 +636,10 @@ Part of contributing your changes will involve testing.  The [test-project](http
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* Correctly support client-side changes to models containing arrays when bound with `NgModelBinder`.
-* Support removing fields in models bound with `NgModelBinder`.
-* Retain diffs in `NgModelBinder`. Allow server to reject client-side changes.
 * Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
+* Correctly support client-side changes to models containing arrays when mixing `BindingOptimizations` into an `NgModelBinder`.
+* Support removing fields in models bound with an `NgModelBinder` with `BindingOptimizations` mixed in.
+* Retain diffs in `NgModelBinder`. Allow server to reject client-side changes.
 * Support Lift's Record with `NgModel`.
 * Support dynamically-loaded templates for routing frameworks. (See [Issue 7](https://github.com/joescii/lift-ng/issues/7))
 * Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
@@ -651,6 +651,8 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.5.5*: Further decomposed `NgModelBinder`, separating the transmission optimizations into the `BindingOptimizations` mixin.
+With this update, an `NgModelBinder` should work for all cases by default.
 * *0.5.4*: **BREAKING CHANGE:** Renamed `BindingActor` to `NgModelBinder`.
 Decomposed `NgModelBinder` so it is possible to specify:
   * `BindingDirection` by mixing in `BindingToClient`, `BindingToServer`, or both for 2-way binding
