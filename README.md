@@ -534,13 +534,8 @@ for {
 Mix in the `BindingOptimizations` trait to reduce the network overhead.
 Changes to a bound model on the server will be communicated to the client by sending only a diff.
 
-#### Caveats
-Note that this feature will utilize more memory than others, particularly on the server.
-We maintain the last known state of your model.
-This allows us to compare to any model changes provided and transmit only the diff from the server.
-
-Currently the client sends the entire model back to the server on change.
-Soon we hope to support sending only the diff just like we do when sending from the server.
+Currently the client sends the entire model back to the server on change even when mixing `BindingOptimizations`.
+We hope to one day support sending only the diff just like we do when sending from the server.
 
 Arrays are not correctly supported yet.
 A client-side change to an array will append to the array on the server rather than replacing the respective values based on the index.
@@ -548,8 +543,10 @@ A client-side change to an array will append to the array on the server rather t
 Removing stuff from a model on the server does not transmit to the client yet.
 Only changes or additions to the model will be synced up to the client.
 
-Only session-scoped binding is currently supported.
-That is, a model bound will be reflected on every page load for a given session.
+#### Memory consumption
+Depending on the mixins utilized, you will store up more memory on the server when using an `NgModelBinder`.
+If utilizing `BindingOptimizations` or `SessionScope`, we must maintain the last known state of your model.
+This allows us to (1) compare to any model changes provided and transmit only the diff from the server and (2) render new pages with the current state.
 
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
