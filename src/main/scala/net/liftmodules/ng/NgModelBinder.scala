@@ -39,37 +39,47 @@ abstract class SimpleNgModelBinder[M <: NgModel : Manifest]
   direction:BindDirection =>
 }
 
-sealed trait BindingBase {
+private [ng] sealed trait BindingBase {
   /** The client `\$scope` element to bind to */
   def bindTo: String
 
+  /** The server-side state of the binder */
   private [ng] var stateJson: JValue
+  /** Builds the $JsCmd to mutate the client state on server update */
   private [ng] def buildMutator(newState:JValue):JsCmd = SetExp(JsVar("s()." + bindTo), newState)
+  /** Builds the client-side update variable to send to the server on client-side update */
   private [ng] def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("n")))
+  /** Converts the $JValue sent from the client to the server into the respective $NgModel */
   private [ng] def jValueToState[M <: NgModel : Manifest](update:JValue, current:M):M = {
     implicit val formats = DefaultFormats
     update.extract
   }
 }
 
+/** Base trait for the two binding direction mixins */
 sealed trait BindDirection {
   def toClient = false
   def toServer = false
 }
+/** Mix with your NgModelBinder to bind state from the server to the client */
 trait BindingToClient extends BindDirection {
   override val toClient = true
 }
+/** Mix with your NgModelBinder to bind state from the client to the server */
 trait BindingToServer extends BindDirection {
   override val toServer = true
 }
 
+/** Base trait for the scope of binding, either request (i.e. per page load) or session.  Default is request */
 sealed trait BindingScope {
   def sessionScope = false
 }
+/** Mix with your NgModelBinder to extend the scope of the binder to the entire user session */
 trait SessionScope extends BindingScope {
   override def sessionScope = true
 }
 
+/** Mix with your NgModelBinder to optimize the binding and attempt to send the least amount of data needed.  Regard this as incomplete and experimental. */
 trait BindingOptimizations extends BindingBase {
   private [ng] override def buildMutator(newState: JValue) = {
     val diff = stateJson dfn newState
