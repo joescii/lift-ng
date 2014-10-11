@@ -45,6 +45,11 @@ sealed trait BindingBase {
 
   private [ng] var stateJson: JValue
   private [ng] def buildMutator(newState:JValue):JsCmd = SetExp(JsVar("s()." + bindTo), newState)
+  private [ng] def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("n")))
+  private [ng] def jValueToState[M <: NgModel : Manifest](update:JValue, current:M):M = {
+    implicit val formats = DefaultFormats
+    update.extract
+  }
 }
 
 sealed trait BindDirection {
@@ -66,10 +71,15 @@ trait SessionScope extends BindingScope {
 }
 
 trait BindingOptimizations extends BindingBase {
-  override def buildMutator(newState: JValue) = {
+  private [ng] override def buildMutator(newState: JValue) = {
     val diff = stateJson dfn newState
-
     diff(JsVar("s()." + bindTo)) // Send the diff
+  }
+  private [ng] override def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}")))
+  private [ng] override def jValueToState[M <: NgModel : Manifest](update:JValue, current:M):M = {
+    import js.ToWithExtractMerged
+    val added = update \\ "add"
+    added.extractMerged(current)
   }
 }
 
@@ -239,13 +249,8 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
   }
 
   private def fromClient(json: String, clientId:Box[String], afterUpdate: AfterUpdateFn) = {
-    //    implicit val formats = DefaultFormats
-    //    implicit val mf = manifest[String]
-    import js.ToWithExtractMerged
     val parsed = JsonParser.parse(json)
-    val jUpdate = parsed \\ "add"
-    logger.debug("From Client: " + jUpdate)
-    val updated = jUpdate.extractMerged(stateModel)
+    val updated = jValueToState(parsed, stateModel)
     logger.debug("From Client: " + updated)
 
     // TODO: Do something with the return value, or change it to return unit?
@@ -286,7 +291,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
         JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)), f)
       ), JInt(clientSendDelay))
 
-  private def sendToServer(handler: JsonHandlerFn):JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}"))) &
+  private def sendToServer(handler: JsonHandlerFn):JsCmd = buildClientUpdateVar &
     ajaxCall(JsVar("u"), jsonStr => {
       logger.debug("Received string: "+jsonStr)
       handler(jsonStr)
