@@ -44,3 +44,12 @@ class Client2ServerRequestBindingSpecs extends Client2ServerBindingSpecs {
     }
   }
 }
+
+class Client2ServerOptimizedBindingSpecs extends Client2ServerBindingSpecs {
+  "The Client To Server Optimized Binding Tests page" should "load" in {
+    go to s"$index/client2ServerOptimizedBind"
+    eventually { pageTitle should be ("App: Client 2 Server Optimized Binding") }
+  }
+
+  tests
+}

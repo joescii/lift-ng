@@ -11,13 +11,19 @@ case class Message(msg:String) extends NgModel
 
 class CounterSessionBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient with SessionScope
 
-class C2sSessionBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
-  for {
-    session <- S.session
-    comet <- session.findComet("C2sSessionReturnActor")
-  } { comet ! m }
-  m
-}) with BindingToServer with SessionScope
+object C2sMessageHandler extends (Message => Message) {
+  def apply(m:Message) = {
+    for {
+      session <- S.session
+      comet <- session.findComet("C2sSessionReturnActor")
+    } {
+      comet ! m
+    }
+    m
+  }
+}
+
+class C2sSessionBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), C2sMessageHandler) with BindingToServer with SessionScope
 
 class C2sSessionReturnActor extends SimpleNgModelBinder[Message] ("returned", Message("")) with BindingToClient with SessionScope
 
@@ -47,13 +53,8 @@ class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Cou
 class ArrayOptimizedBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope with BindingOptimizations
 class ArrayStandardBindActor extends SimpleNgModelBinder[ListWrap] ("array", ListWrap(List.empty[String])) with BindingToClient with SessionScope
 
-class C2sRequestBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), { m:Message =>
-  for {
-    session <- S.session
-    comet <- session.findComet("C2sSessionReturnActor")
-  } { comet ! m }
-  m
-}) with BindingToServer
+class C2sRequestBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), C2sMessageHandler) with BindingToServer
+class C2sOptimizedBindActor extends SimpleNgModelBinder[Message] ("input", Message(""), C2sMessageHandler) with BindingToServer with BindingOptimizations
 
 class Plus1RequestBindActor extends SimpleNgModelBinder[Message] ("counter", Message("0"))
 with BindingToClient with BindingToServer {
