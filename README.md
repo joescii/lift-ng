@@ -623,11 +623,14 @@ Below is the recommended procedure for git:
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-Try to include as much as you are able, such as tests, documentation, updates to this README, etc.
+Please include as much as you are able, such as tests, documentation, updates to this README, etc.
 
 ### Testing
 
-Part of contributing your changes will involve testing.  The [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** module via selenium.  At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.  If possible, include tests which validate your fix/enhancement in any Pull Requests.
+Part of contributing your changes will involve testing.
+The [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) sub-directory contains and independent sbt project for thoroughly testing the **lift-ng** module via selenium.
+At a minimum, we ask that you run the tests with your changes to ensure nothing gets inadvertently broken.
+If possible, include tests which validate your fix/enhancement in any Pull Requests.
 
 ## Wish list
 
