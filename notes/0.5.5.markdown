@@ -1,0 +1,6 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+* Further decomposed `NgModelBinder`, separating the transmission optimizations into the `BindingOptimizations` mixin.
+* With this update, an `NgModelBinder` should work for all cases by default.
