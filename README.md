@@ -50,11 +50,11 @@ Optionally add `lift-ng-js` as a dependency if you would like us to manage the d
 libraryDependencies ++= {
   val liftVersion = "2.5.1" // Also supported: "2.6" and "3.0"
   val liftEdition = liftVersion.substring(0,3)
-  val ngVersion = "1.2.22"  // If using lift-ng-js
+  val ngVersion = "1.3.0"  // If using lift-ng-js as recommended
   Seq(
     // Other dependencies ...
     "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.5"            % "compile",
-    "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.1_"+ngVersion) % "compile" // If using lift-ng-js
+    "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.2_"+ngVersion) % "compile"
    )
 }
 ```
@@ -75,8 +75,9 @@ class Boot {
       // Set to the CSS selector for finding your apps in the page.
       appSelector = "[ng-app]",
 
-      // Set to true to include a script tag with the src set to the path for liftproxy.js. Set to
-      // false if you want to handle that yourself by referring to the path in net_liftmodules_ng.
+      // Set to true to include a script tag with the src set to the path for liftproxy.js.
+      // Set to false if you want to handle that yourself by referring to the path in
+      // net_liftmodules_ng.
       includeJsScript = true
     )
   }
@@ -563,7 +564,8 @@ Add it as a service available to your Angular app with this HTML:
 <script id="my-i18n_js"  data-lift="i18n?name=bundleName"></script>
 ```
 
-Your bundle is made available via the `i18n` module with service/factory name coinciding with the bundle name.  In this example, the object will have a string field named `hello` and a function named `goodbye`:
+Your bundle is made available via the `i18n` module with service/factory name coinciding with the bundle name.
+In this example, the object will have a string field named `hello` and a function named `goodbye`:
 
 ```javascript
 angular.module('ExampleApp', ['i18n'])
@@ -579,14 +581,16 @@ You may also specify multiple bundle names.  Here we include the default Lift bu
 <script id="my-i18n_js"  data-lift="i18n?names=bundleName,lift"></script>
 ```
 
-Each bundle is another service available in the `i18n` bundle.  Also notice in this example we show keys which aren't valid JavaScript identifiers are also available.
+Each bundle is another service available in the `i18n` bundle.
+Also notice in this example we show keys which aren't valid JavaScript identifiers are also available.
 
 ```javascript
 angular.module('ExampleApp', ['i18n'])
-.controller('ExampleController', ['$scope', 'bundleName', 'lift', function($scope, bundle, lift) {
-  $scope.hello = bundle.hello;
-  $scope.goodbye = bundle.goodbye($scope.username);
-  $scope.lostPasswd = lift["lost.password"];
+.controller('ExampleController',
+  ['$scope', 'bundleName', 'lift', function($scope, bundle, lift) {
+    $scope.hello = bundle.hello;
+    $scope.goodbye = bundle.goodbye($scope.username);
+    $scope.lostPasswd = lift["lost.password"];
 }]);
 ```
 
