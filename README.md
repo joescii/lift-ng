@@ -471,15 +471,14 @@ The following example establishes a two-way binding existing in the session scop
 ```scala
 package org.myorg.comet
 
-class MessageBinder extends SimpleNgModelBinder[Message]
-  with BindingToClient with BindingToServer with SessionScope (
+class MessageBinder extends SimpleNgModelBinder[Message] (
   "theMessage",       /* Name of the $scope variable to bind to */
   Message("initial"), /* Initial value for theMessage when the session is initialized */
   { m:Message =>      /* Called each time a client change is received */
     m
   },
   1000                /* Milliseconds for client-sync delay (see Optimizations below) */
-)
+) with BindingToClient with BindingToServer with SessionScope
 ```
 
 Once defined, add the binder to the scope you want this model to exist in.
