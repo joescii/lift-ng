@@ -2,8 +2,7 @@ package net.liftmodules.ng.test
 
 class ActorScopeSpecs extends BaseSpec {
   "The Actors - Scope page" should "load" in {
-    go to s"$index/actorsScope"
-    eventually { pageTitle should be ("App: Actors - Scope") }
+    initialize("actorsScope")
   }
 
   "The emit button" should "cause the parent and actor scopes to load, but not the child scope" in {

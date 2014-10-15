@@ -5,6 +5,7 @@
     <div id="main" class="lift:surround?with=default;at=content">
       <h2>Server to Client Standard Binding tests</h2>
       <div ng-app="Server2ClientBindingApp">
+        <div data-lift="embed?what=ready"></div>
         <div ng-controller="Controller" data-lift="Angular.bind?type=ArrayStandardBindActor">
           <div><input id="input0" type="text" ng-model="array.l[0]"/></div>
           <div><input id="input1" type="text" ng-model="array.l[1]"/></div>

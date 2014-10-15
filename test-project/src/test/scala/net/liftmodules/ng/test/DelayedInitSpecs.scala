@@ -7,6 +7,7 @@ class DelayedInitSpecs extends BaseSpec {
     PatienceConfig(timeout = scaled(Span(3, Seconds)), interval = scaled(Span(5, Millis)))
 
   "The Delay page" should "load" in {
+    // This page is a special case where we shouldn't rely on the initialize function
     go to s"$index/delay"
     eventually { pageTitle should be ("App: Delay") }
   }

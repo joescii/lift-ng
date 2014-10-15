@@ -3,8 +3,7 @@ package net.liftmodules.ng.test
 /** Specs for the angular services added via snippets */
 class ActorRootScopeSpecs extends BaseSpec {
   "The Actor - Root Scope page" should "load" in {
-    go to s"$index/actorsRootScope"
-    eventually { pageTitle should be ("App: Actors - Root Scope") }
+    initialize("actorsRootScope")
   }
 
   "The angular RootScopeBroadcastString comet actor" should "update the async block continually with consecutive integers" in {

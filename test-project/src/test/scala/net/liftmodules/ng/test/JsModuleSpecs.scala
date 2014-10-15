@@ -2,8 +2,7 @@ package net.liftmodules.ng.test
 
 class JsModuleSpecs extends BaseSpec {
   "The JsModules/head.js page" should "load" in {
-    go to s"$index/head-js"
-    eventually { pageTitle should be ("App: head.js") }
+    initialize("head-js")
   }
 
   "The version" should "match" in {

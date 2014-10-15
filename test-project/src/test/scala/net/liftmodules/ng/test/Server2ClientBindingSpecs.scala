@@ -3,8 +3,7 @@ package net.liftmodules.ng.test
 
 class Server2ClientSessionBindingSpecs extends BaseSpec {
   "The Server To Client Session Binding Tests page" should "load" in {
-    go to s"$index/server2ClientSessionBind"
-    eventually { pageTitle should be ("App: Server 2 Client Session Binding") }
+    initialize("server2ClientSessionBind")
   }
 
   "The counter output" should "initially be zero" in {
@@ -26,8 +25,7 @@ class Server2ClientSessionBindingSpecs extends BaseSpec {
 
 class Server2ClientOptimizedBindingSpecs extends BaseSpec {
   "The Server To Client Optimized Binding Tests page" should "load" in {
-    go to s"$index/server2ClientOptimizedBind"
-    eventually { pageTitle should be ("App: Server 2 Client Optimized Binding") }
+    initialize("server2ClientOptimizedBind")
   }
 
   "The next button" should "load the next box without impacting the others" in {
@@ -76,8 +74,7 @@ class Server2ClientOptimizedBindingSpecs extends BaseSpec {
 
 class Server2ClientStandardBindingSpecs extends BaseSpec {
   "The Server To Client Standard Binding Tests page" should "load" in {
-    go to s"$index/server2ClientStandardBind"
-    eventually { pageTitle should be ("App: Server 2 Client Standard Binding") }
+    initialize("server2ClientStandardBind")
   }
 
   "The next button" should "load the next box while clobbering the others" in {
@@ -123,8 +120,7 @@ class Server2ClientStandardBindingSpecs extends BaseSpec {
 
 class Server2ClientRequestBindingSpecs extends BaseSpec {
   "The Server To Client Request Binding Tests page" should "load" in {
-    go to s"$index/server2ClientRequestBind"
-    eventually { pageTitle should be ("App: Server 2 Client Request Binding") }
+    initialize("server2ClientRequestBind")
   }
 
   "The counter" should "increment" in {

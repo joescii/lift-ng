@@ -3,8 +3,7 @@ package net.liftmodules.ng.test
 /** Specs for the angular services added via snippets */
 class SnippetServiceSpecs extends BaseSpec {
   "The snippets page" should "load" in {
-    go to s"$index/snippets"
-    eventually { pageTitle should be ("App: Snippets") }
+    initialize("snippets")
   }
 
   "The angular service with no argument" should "populate the test text with 'FromServer'" in {

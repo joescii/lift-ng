@@ -2,8 +2,7 @@ package net.liftmodules.ng.test
 
 class StaticServiceSpecs extends BaseSpec{
   "The static services page" should "load" in {
-    go to s"$index/static"
-    eventually { pageTitle should be ("App: Static") }
+    initialize("static")
   }
 
   "The static string" should "be 'FromServer1'" in {

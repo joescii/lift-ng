@@ -16,8 +16,7 @@ trait Client2ServerBindingSpecs extends BaseSpec {
 
 class Client2ServerSessionBindingSpecs extends Client2ServerBindingSpecs {
   "The Client To Server Session Binding Tests page" should "load" in {
-    go to s"$index/client2ServerSessionBind"
-    eventually { pageTitle should be ("App: Client 2 Server Session Binding") }
+    initialize("client2ServerSessionBind")
   }
 
   tests
@@ -30,8 +29,7 @@ class Client2ServerSessionBindingSpecs extends Client2ServerBindingSpecs {
 
 class Client2ServerRequestBindingSpecs extends Client2ServerBindingSpecs {
   "The Client To Server Request Binding Tests page" should "load" in {
-    go to s"$index/client2ServerRequestBind"
-    eventually { pageTitle should be ("App: Client 2 Server Request Binding") }
+    initialize("client2ServerRequestBind")
   }
 
   tests
@@ -47,8 +45,7 @@ class Client2ServerRequestBindingSpecs extends Client2ServerBindingSpecs {
 
 class Client2ServerOptimizedBindingSpecs extends Client2ServerBindingSpecs {
   "The Client To Server Optimized Binding Tests page" should "load" in {
-    go to s"$index/client2ServerOptimizedBind"
-    eventually { pageTitle should be ("App: Client 2 Server Optimized Binding") }
+    initialize("client2ServerOptimizedBind")
   }
 
   tests

@@ -2,8 +2,7 @@ package net.liftmodules.ng.test
 
 class ActorAssignmentSpecs extends BaseSpec {
   "The Actors - Assignment page" should "load" in {
-    go to s"$index/actorsAssignment"
-    eventually { pageTitle should be ("App: Actors - Assignment") }
+    initialize("actorsAssignment")
   }
 
   "The comet button" should "cause all of the data to load" in {

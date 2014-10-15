@@ -14,8 +14,7 @@ trait TwoWayBindingSpecs extends BaseSpec {
 
 class TwoWaySessionBindingSpecs extends TwoWayBindingSpecs {
   "The 2-way session binding page" should "load" in {
-    go to s"$index/twoWaySessionBinding"
-    eventually { pageTitle should be ("App: 2-way Session Binding") }
+    initialize("twoWaySessionBinding")
   }
 
   tests
@@ -28,8 +27,7 @@ class TwoWaySessionBindingSpecs extends TwoWayBindingSpecs {
 
 class TwoWayRequestBindingSpecs extends TwoWayBindingSpecs {
   "The 2-way request binding page" should "load" in {
-    go to s"$index/twoWayRequestBinding"
-    eventually { pageTitle should be ("App: 2-way Request Binding") }
+    initialize("twoWayRequestBinding")
   }
 
   tests

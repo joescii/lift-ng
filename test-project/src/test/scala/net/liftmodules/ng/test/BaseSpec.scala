@@ -27,4 +27,9 @@ trait BaseSpec extends FlatSpecLike with ShouldMatchers with Eventually with Web
     case _ => new FirefoxDriver()
   }
 
+  def initialize(page:String) = {
+    go to s"$index/$page"
+    eventually { id("ready").element.text should be ("Ready") }
+  }
+
 }

@@ -2,8 +2,7 @@ package net.liftmodules.ng.test
 
 class I18nSpecs extends BaseSpec{
   "The i18n-1name page" should "load" in {
-    go to s"$index/i18n-1name"
-    eventually { pageTitle should be ("App: i18n - 1 name") }
+    initialize("i18n-1name")
   }
 
   "The no-arg value on the i18n-1name page" should "be 'Howdy!'" in {
@@ -16,8 +15,7 @@ class I18nSpecs extends BaseSpec{
 
 
   "The i18n-non-english page" should "load" in {
-    go to s"$index/i18n-non-english"
-    eventually { pageTitle should be ("App: i18n - Non-English") }
+    initialize("i18n-non-english")
   }
 
   "The no-arg value on the i18n-non-english page" should "be the correct Chinese" in {
@@ -30,8 +28,7 @@ class I18nSpecs extends BaseSpec{
 
 
   "The i18n-2names page" should "load" in {
-    go to s"$index/i18n-2names"
-    eventually { pageTitle should be ("App: i18n - 2 names") }
+    initialize("i18n-2names")
   }
 
   "The no-arg value on the i18n-2names page" should "be 'Howdy!'" in {

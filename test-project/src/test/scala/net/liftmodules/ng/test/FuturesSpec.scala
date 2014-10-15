@@ -2,8 +2,7 @@ package net.liftmodules.ng.test
 
 class FuturesSpec extends BaseSpec {
   "The futures page" should "load" in {
-    go to s"$index/futures"
-    eventually { pageTitle should be ("App: Futures") }
+    initialize("futures")
   }
 
   "The angular service with no arguments" should "send 'FromFuture' up to the client after roughly 1 second" in {
@@ -45,8 +44,7 @@ class FuturesSpec extends BaseSpec {
 
 
   "The futures page" should "reload" in {
-    go to s"$index/futures"
-    eventually { pageTitle should be ("App: Futures") }
+    initialize("futures")
   }
 
   "The angular services" should "correctly load concurrently" in {

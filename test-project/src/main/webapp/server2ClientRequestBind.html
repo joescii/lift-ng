@@ -5,6 +5,7 @@
     <div id="main" class="lift:surround?with=default;at=content">
       <h2>Server to Client Request Binding tests</h2>
       <div ng-app="Server2ClientBindingApp">
+        <div data-lift="embed?what=ready"></div>
         <div ng-controller="Controller" data-lift="Angular.bind?type=CounterRequestBindActor">
           <span id="output" ng-bind="count.current">Output1</span>
         </div>

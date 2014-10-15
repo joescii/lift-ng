@@ -9,6 +9,7 @@
 
       <h2>Client to Server Session Binding tests</h2>
       <div ng-app="Client2ServerBindingApp">
+        <div data-lift="embed?what=ready"></div>
         <div ng-controller="Controller" data-lift="Angular.bind?types=C2sSessionBindActor,C2sSessionReturnActor">
           <input type="text" id="input" ng-model="input.msg"/>
           <div id="output" ng-bind="returned.msg">Value from server</div>
