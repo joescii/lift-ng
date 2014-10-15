@@ -65,7 +65,7 @@ trait AngularActor extends CometActor with LiftNgJsHelpers {
 
   private implicit val formats = DefaultFormats // Some crap needed for stringify
   protected def stringify(obj:AnyRef):String = obj match {
-      case s:String => "'"+s+"'"
+      case s:String => StringHelpers.encJs(s)
       case _ => write(obj)
     }
 
