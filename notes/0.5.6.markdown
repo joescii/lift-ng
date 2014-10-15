@@ -1,0 +1,6 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Bug Fix: Strings pushed to the client are now properly escaped.
+Prior to this fix, a string containing illegal characters such as a newline would be silently discarded.

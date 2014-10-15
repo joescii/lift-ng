@@ -53,7 +53,7 @@ libraryDependencies ++= {
   val ngVersion = "1.3.0"  // If using lift-ng-js as recommended
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.5"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.5.6"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.2_"+ngVersion) % "compile"
    )
 }
@@ -654,6 +654,8 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.5.6*: Bug Fix: Strings pushed to the client are now properly escaped.
+Prior to this fix, a string containing illegal characters such as a newline would be silently discarded.
 * *0.5.5*: Further decomposed `NgModelBinder`, separating the transmission optimizations into the `BindingOptimizations` mixin.
 With this update, an `NgModelBinder` should work for all cases by default.
 * *0.5.4*: **BREAKING CHANGE:** Renamed `BindingActor` to `NgModelBinder`.
