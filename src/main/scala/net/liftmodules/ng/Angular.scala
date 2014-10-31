@@ -447,7 +447,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
    */
   sealed trait Promise
 
-  case class Resolve(data: Option[JsExp] = None) extends Promise
+  case class Resolve(data: Option[JsExp] = None, futures: Option[JsExp] = None) extends Promise
 
   case class Reject(reason: String = "server error") extends Promise
 
@@ -506,7 +506,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         if(f.isSatisfied)
           promiseToJson(DefaultApiSuccessMapper.toPromise(f.get))
         else
-          JsObj("future" -> JsTrue)
+          promiseToJson(Resolve(None, Some(JsTrue)))
 
       jsonToFuture andThen futureToJsObj
     }
@@ -605,8 +605,9 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
     protected def promiseToJson(promise: Promise): JsObj = {
       promise match {
-        case Resolve(Some(jsExp)) => JsObj(SuccessField -> JsTrue, "data" -> jsExp)
-        case Resolve(None) => JsObj(SuccessField -> JsTrue)
+        case Resolve(Some(jsExp), None) => JsObj(SuccessField -> JsTrue, "data" -> jsExp)
+        case Resolve(None, Some(futureExp)) => JsObj(SuccessField -> JsTrue, "future" -> futureExp)
+        case Resolve(None, None) => JsObj(SuccessField -> JsTrue)
         case Reject(reason) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
       }
     }
