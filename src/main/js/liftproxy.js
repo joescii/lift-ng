@@ -1,11 +1,15 @@
 angular
   .module('lift-ng', [])
+  .service('callbacks', function(){
+    return {
+      callbacks: []
+    }
+  })
   .service('promiseInjector', ['$q', function($q){
     return {};
   }])
-  .service('liftProxy', ['$http', '$q', function ($http, $q) {
+  .service('liftProxy', ['$http', '$q', 'callbacks', function ($http, $q, callbacks) {
     var svc = {
-      callbacks: {},
       request: function (requestData) {
         var random = function() {
           var text = "";
@@ -20,7 +24,7 @@ angular
         var q = $q.defer();
         var id = random();
         var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
-        var cleanup = function() {delete svc.callbacks[id];};
+        var cleanup = function() {delete callbacks.callbacks[id];};
 
         var responseToQ = function(data) {
           if (data.success) {
@@ -36,7 +40,7 @@ angular
           cleanup();
         };
 
-        svc.callbacks[id] = responseToQ;
+        callbacks.callbacks[id] = responseToQ;
 
         var returnQ = function(response) {
           var data = response.data;
@@ -54,7 +58,7 @@ angular
       },
       response: function(response) {
         // The callback won't exist in the case of multiple apps on one page.
-        var cb = svc.callbacks[response.id];
+        var cb = callbacks.callbacks[response.id];
         if(typeof cb !== "undefined" && cb !== null)
           cb(response);
       }
