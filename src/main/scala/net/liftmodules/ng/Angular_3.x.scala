@@ -1,5 +1,5 @@
 package net.liftmodules.ng
 
 trait AngularProperties {
-  val ajaxEndpoint = "window.lift_settings.liftPath+'/ajax/'+window.lift.getPageId()+'/'"
+  val ajaxEndpoint = Some("window.lift_settings.liftPath+'/ajax/'+window.lift.getPageId()+'/'")
 }

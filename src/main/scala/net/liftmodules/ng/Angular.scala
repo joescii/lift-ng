@@ -191,7 +191,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     val jsModule = Script(JsRaw(
     //net_liftmodules_ng.contextPath + '/ajax_request/' + lift_page + '/'
       "var net_liftmodules_ng=net_liftmodules_ng||{};" +
-      "net_liftmodules_ng.endpoint=function(){return "+ajaxEndpoint+";};" +
+      "net_liftmodules_ng.endpoint=function(){return "+ajaxEndpoint.get+";};" +
       "net_liftmodules_ng.version=\"" + BuildInfo.version + "\";" +
       "net_liftmodules_ng.jsPath=\"" + liftproxySrc +"\";"
     ))

@@ -1,6 +1,6 @@
 package net.liftmodules.ng
 
-import Angular.NgModel
+import Angular._
 
 import net.liftweb._
 import json._
@@ -16,6 +16,6 @@ class LAFutureSerializer[T <: NgModel : Manifest] extends CustomSerializer[LAFut
   }
 },
 {
-  case future:LAFuture[Box[T]] => JNull
+  case future:LAFuture[Box[T]] => JObject(List(JField("net.liftmodules.ng.Angular.futureId", JString(rand))))
 }
 ))
