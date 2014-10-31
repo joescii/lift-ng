@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+      <script data-lift="AngularJS"></script>
+      <script id="liftmodules-ng_js"  data-lift="Angular?futures=on"></script>
+      <script id="futureServices_js"  type="text/javascript"  data-lift="EmbeddedFuturesSnips.services"></script>
+      <script id="futureApp_js"       src="/js/EmbeddedFuturesApp.js"  type="text/javascript"></script>
+
+      <h2>Embedded Futures tests</h2>
+      <div ng-app="EmbeddedFuturesApp" class="application">
+        <div data-lift="embed?what=ready"></div>
+        <div ng-controller="EmbeddedFuturesController">
+          <input id="go-button" type="button" value="Go!" ng-click="click()"/>
+          <span id="resolved-output" ng-bind="obj.resolved">Hard-coded</span>
+          <span id="failed-output" ng-bind="obj.failed">Hard-coded</span>
+          <span id="string-output" ng-bind="obj.string">Hard-coded</span>
+          <span id="object-str-output" ng-bind="obj.object.str">Hard-coded</span>
+          <span id="object-num-output" ng-bind="obj.object.num">Hard-coded</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
