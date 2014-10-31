@@ -602,11 +602,12 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     def serviceDependencies: Set[String] = Set("liftProxy")
 
     private val SuccessField = "success"
+    private val FutureField = "future"
 
     protected def promiseToJson(promise: Promise): JsObj = {
       promise match {
         case Resolve(Some(jsExp), None) => JsObj(SuccessField -> JsTrue, "data" -> jsExp)
-        case Resolve(None, Some(futureExp)) => JsObj(SuccessField -> JsTrue, "future" -> futureExp)
+        case Resolve(None, Some(futureExp)) => JsObj(SuccessField -> JsTrue, FutureField -> futureExp)
         case Resolve(None, None) => JsObj(SuccessField -> JsTrue)
         case Reject(reason) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
       }
