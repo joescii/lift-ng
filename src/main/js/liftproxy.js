@@ -2,11 +2,17 @@ angular
   .module('lift-ng', [])
   .service('callbacks', function(){
     return {
-      callbacks: []
+      callbacks: {}
     }
   })
-  .service('promiseInjector', ['$q', function($q){
-    return {};
+  .service('promiseInjector', ['$q', 'callbacks', function($q, callbacks){
+    var inject = function(model) {
+      callbacks.callbacks["id"] = function(data) { }
+    };
+
+    return {
+      inject: inject
+    };
   }])
   .service('liftProxy', ['$http', '$q', 'callbacks', function ($http, $q, callbacks) {
     var svc = {
