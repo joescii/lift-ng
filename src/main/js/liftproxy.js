@@ -1,5 +1,8 @@
 angular
   .module('lift-ng', [])
+  .service('promiseInjector', ['$q', function($q){
+    return {};
+  }])
   .service('liftProxy', ['$http', '$q', function ($http, $q) {
     var svc = {
       callbacks: {},

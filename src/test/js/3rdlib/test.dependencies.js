@@ -4,3 +4,4 @@
 
 EnvJasmine.loadGlobal(EnvJasmine.libDir + "/angular.js");
 EnvJasmine.loadGlobal(EnvJasmine.rootDir + "/liftproxy.js");
+EnvJasmine.loadGlobal(EnvJasmine.mocksDir + "/angular-mocks.js");
