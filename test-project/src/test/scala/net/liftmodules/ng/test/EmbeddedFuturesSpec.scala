@@ -40,5 +40,12 @@ class EmbeddedFuturesSpec extends BaseSpec {
     }
   }
 
+  "The future field that contains an object with its own embedded futures" should "set the two fields from the embedded array[future]" ignore {
+    eventually {
+      id("object-future-obj-arr1-output").element.text should be ("arr[0]")
+      id("object-future-obj-arr2-output").element.text should be ("arr[1]")
+    }
+  }
+
 
 }
