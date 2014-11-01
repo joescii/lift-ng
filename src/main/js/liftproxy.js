@@ -12,11 +12,16 @@ angular
       return text;
     };
 
-    var create = function() {
+    var create = function(id) {
       var q = $q.defer();
-      var id = random();
-      defers[id] = q;
-      return [q, id];
+      if(id) {
+        defers[id] = q;
+        return q;
+      } else {
+        var id = random()
+        defers[id] = q;
+        return [q, id];
+      }
     };
 
     var fulfill = function(data, id) {
@@ -24,7 +29,7 @@ angular
       var q = defers[theId];
       if(typeof q !== "undefined" && q !== null) {
         if (data.success) {
-          if (data.data) {
+          if (typeof data.data !== 'undefined') {
             q.resolve(data.data);
           }
           else {
@@ -39,8 +44,7 @@ angular
 
     return {
       createDefer: create,
-      fulfill: fulfill,
-      defers: {}
+      fulfill: fulfill
     }
   }])
   .service('promiseInjector', ['$q', 'plumbing', function($q, plumbing){
