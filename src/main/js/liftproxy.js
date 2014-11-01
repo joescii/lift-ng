@@ -49,7 +49,14 @@ angular
   }])
   .service('promiseInjector', ['$q', 'plumbing', function($q, plumbing){
     var inject = function(model) {
-//      plumbing.callbacks["id"] = function(data) { }
+      for(var k in model) {
+        var id = model[k]["net.liftmodules.ng.Angular.futureId"];
+        if(id) {
+          model[k] = plumbing.createDefer(id).promise
+        } else if(typeof model[k] === 'object') {
+          inject(model[k])
+        }
+      }
     };
 
     return {
