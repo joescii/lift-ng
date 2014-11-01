@@ -30,6 +30,7 @@ angular
       if(typeof q !== "undefined" && q !== null) {
         if (data.success) {
           if (typeof data.data !== 'undefined') {
+            inject(data.data);
             q.resolve(data.data);
           }
           else {
@@ -42,17 +43,11 @@ angular
       }
     };
 
-    return {
-      createDefer: create,
-      fulfill: fulfill
-    }
-  }])
-  .service('promiseInjector', ['$q', 'plumbing', function($q, plumbing){
     var inject = function(model) {
       for(var k in model) {
         var id = model[k]["net.liftmodules.ng.Angular.futureId"];
         if(id) {
-          model[k] = plumbing.createDefer(id).promise
+          model[k] = create(id).promise
         } else if(typeof model[k] === 'object') {
           inject(model[k])
         }
@@ -60,8 +55,10 @@ angular
     };
 
     return {
+      createDefer: create,
+      fulfill: fulfill,
       inject: inject
-    };
+    }
   }])
   .service('liftProxy', ['$http', '$q', 'plumbing', function ($http, $q, plumbing) {
     var svc = {
