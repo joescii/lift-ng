@@ -18,7 +18,7 @@ angular
         defers[id] = q;
         return q;
       } else {
-        var id = random()
+        var id = random();
         defers[id] = q;
         return [q, id];
       }
