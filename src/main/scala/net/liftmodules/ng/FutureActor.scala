@@ -18,7 +18,7 @@ class LiftNgFutureActor extends AngularActor {
       "i=0;" +
       "for(l=es.length;i<l;i++){" +
         "e=angular.element(es[i]);" +
-        "e.scope().$apply(function(){e.injector().get('liftProxy').response("+stringify(p)+")});" +
+        "e.scope().$apply(function(){e.injector().get('plumbing').fulfill("+stringify(p)+")});" +
       "}"
     JsRaw(js)
   }

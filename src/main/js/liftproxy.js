@@ -1,72 +1,82 @@
 angular
   .module('lift-ng', [])
-  .service('callbacks', function(){
+  .service('plumbing', [ '$q', function($q){
+    var defers = {};
+    var random = function() {
+      var text = "";
+      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+      for( var i=0; i < 20; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+      return text;
+    };
+
+    var create = function() {
+      var q = $q.defer();
+      var id = random();
+      defers[id] = q;
+      return [q, id];
+    };
+
+    var fulfill = function(data, id) {
+      var theId = id || data.id;
+      var q = defers[theId];
+      if(typeof q !== "undefined" && q !== null) {
+        if (data.success) {
+          if (data.data) {
+            q.resolve(data.data);
+          }
+          else {
+            q.resolve();
+          }
+        } else {
+          q.reject(data.msg)
+        }
+        delete defers[theId];
+      }
+    };
+
     return {
-      callbacks: {}
+      createDefer: create,
+      fulfill: fulfill,
+      defers: {}
     }
-  })
-  .service('promiseInjector', ['$q', 'callbacks', function($q, callbacks){
+  }])
+  .service('promiseInjector', ['$q', 'plumbing', function($q, plumbing){
     var inject = function(model) {
-      callbacks.callbacks["id"] = function(data) { }
+//      plumbing.callbacks["id"] = function(data) { }
     };
 
     return {
       inject: inject
     };
   }])
-  .service('liftProxy', ['$http', '$q', 'callbacks', function ($http, $q, callbacks) {
+  .service('liftProxy', ['$http', '$q', 'plumbing', function ($http, $q, plumbing) {
     var svc = {
       request: function (requestData) {
-        var random = function() {
-          var text = "";
-          var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-          for( var i=0; i < 20; i++ )
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-          return text;
-        };
-
-        var q = $q.defer();
-        var id = random();
+        var q = plumbing.createDefer();
+        var defer = q[0];
+        var id = q[1];
         var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
-        var cleanup = function() {delete callbacks.callbacks[id];};
 
-        var responseToQ = function(data) {
-          if (data.success) {
-            if (data.data) {
-              q.resolve(data.data);
+        var post = function() {
+          return $http.post(net_liftmodules_ng.endpoint(), req, {
+            headers : {
+              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
             }
-            else {
-              q.resolve();
-            }
-          } else {
-            q.reject(data.msg)
-          }
-          cleanup();
+          });
         };
 
-        callbacks.callbacks[id] = responseToQ;
-
-        var returnQ = function(response) {
+        var resolve = function(response) {
           var data = response.data;
           if(!data.future) {
-            responseToQ(data)
+            plumbing.fulfill(data, id)
           }
-          return q.promise;
+          return defer.promise;
         };
 
-        return $http.post(net_liftmodules_ng.endpoint(), req, {
-          headers : {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-          }
-        }).then(returnQ);
-      },
-      response: function(response) {
-        // The callback won't exist in the case of multiple apps on one page.
-        var cb = callbacks.callbacks[response.id];
-        if(typeof cb !== "undefined" && cb !== null)
-          cb(response);
+        return post().then(resolve);
       }
     };
 
