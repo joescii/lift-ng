@@ -18,7 +18,7 @@ angular.module('EmbeddedFuturesApp', ['EmbeddedFutures'])
       obj.arr[1].then(put("arr1"));
       obj.fobj.then(function(fobj){
         fobj.resolved.then(put("fobj_resolved"));
-        fobj.failed.then(put("fobj_failed"));
+        fobj.failed.catch(put("fobj_failed"));
         fobj.string.then(put("fobj_string"));
         fobj.obj.then(put("fobj_obj"));
       });

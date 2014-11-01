@@ -25,27 +25,23 @@ class EmbeddedFuturesSpec extends BaseSpec {
     }
   }
 
-  "The future field that contains an object with its own embedded futures" should "set its num and str fields" in {
+  "The future field that contains an array of futures" should "set the two string fields" in {
     eventually {
-      id("object-future-str-output").element.text should be ("string")
-      id("object-future-num-output").element.text should be ("43")
-      id("object-future-fail-output").element.text should be ("failed2")
+      id("object-arr0-output").element.text should be ("Roll")
+      id("object-arr1-output").element.text should be ("Tide!")
     }
   }
 
-  "The future field that contains an object with its own embedded futures" should "set the two fields from the embedded future[object]" in {
+  "The future field that contains an object with its own embedded futures" should "set all of its fields" in {
     eventually {
-      id("object-future-obj-str-output").element.text should be ("string")
-      id("object-future-obj-num-output").element.text should be ("44")
+      id("object-fobj-resolved-output").element.text should be ("sub resolved")
+      id("object-fobj-failed-output").element.text should be ("sub fail")
+      id("object-fobj-string-output").element.text should be ("sub string")
+      id("object-fobj-obj-str-output").element.text should be ("sub obj string")
+      id("object-fobj-obj-num-output").element.text should be ("44")
     }
   }
 
-  "The future field that contains an object with its own embedded futures" should "set the two fields from the embedded array[future]" in {
-    eventually {
-      id("object-future-obj-arr1-output").element.text should be ("arr[0]")
-      id("object-future-obj-arr2-output").element.text should be ("arr[1]")
-    }
-  }
 
 
 }
