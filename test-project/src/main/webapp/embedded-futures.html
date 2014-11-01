@@ -13,18 +13,18 @@
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="EmbeddedFuturesController">
           <input id="go-button" type="button" value="Go!" ng-click="click()"/>
-          <span id="resolved-output">{{obj.resolved}}</span>
+          <span id="resolved-output" ng-bind="obj.resolved">Hard-coded</span>
           <span id="failed-output" ng-bind="obj.failed">Hard-coded</span>
           <span id="string-output" ng-bind="obj.string">Hard-coded</span>
-          <span id="object-str-output" ng-bind="obj.obj.str">Hard-coded</span>
-          <span id="object-num-output" ng-bind="obj.obj.num">Hard-coded</span>
-          <span id="object-future-str-output" ng-bind="obj.future.str">Hard-coded</span>
-          <span id="object-future-num-output" ng-bind="obj.future.num">Hard-coded</span>
-          <span id="object-future-fail-output" ng-bind="obj.future.fail">Hard-coded</span>
-          <span id="object-future-obj-str-output" ng-bind="obj.future.obj.str">Hard-coded</span>
-          <span id="object-future-obj-num-output" ng-bind="obj.future.obj.num">Hard-coded</span>
-          <span id="object-future-obj-arr1-output" ng-bind="obj.future.obj.arr1">Hard-coded</span>
-          <span id="object-future-obj-arr2-output" ng-bind="obj.future.obj.arr2">Hard-coded</span>
+          <span id="object-str-output" ng-bind="obj.obj_str">Hard-coded</span>
+          <span id="object-num-output" ng-bind="obj.obj_num">Hard-coded</span>
+          <span id="object-future-str-output" ng-bind="obj.future_str">Hard-coded</span>
+          <span id="object-future-num-output" ng-bind="obj.future_num">Hard-coded</span>
+          <span id="object-future-fail-output" ng-bind="obj.future_fail">Hard-coded</span>
+          <span id="object-future-obj-str-output" ng-bind="obj.future_obj_str">Hard-coded</span>
+          <span id="object-future-obj-num-output" ng-bind="obj.future_obj_num">Hard-coded</span>
+          <span id="object-future-obj-arr1-output" ng-bind="obj.future_obj_arr1">Hard-coded</span>
+          <span id="object-future-obj-arr2-output" ng-bind="obj.future_obj_arr2">Hard-coded</span>
         </div>
       </div>
     </div>

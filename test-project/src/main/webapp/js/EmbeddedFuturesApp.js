@@ -1,12 +1,17 @@
 angular.module('EmbeddedFuturesApp', ['EmbeddedFutures'])
-.config(['$parseProvider', function($parseProvider){ $parseProvider.unwrapPromises(true) }])
 .controller('EmbeddedFuturesController', ['$scope', 'embeddedFutureServices', function($scope, svc) {
   $scope.obj = {};
 
   $scope.click = function() {
+    var put = function(field) {
+      return function(val) {
+        $scope.obj[field] = val;
+      }
+    };
+
     svc.fetch().then(function(obj){
-      console.log(obj);
-      $scope.obj = obj;
+      obj.resolved.then(put("resolved"));
+      obj.failed.catch(put("failed"));
     });
   };
 }])
