@@ -16,6 +16,10 @@ class LAFutureSerializer[T <: NgModel : Manifest] extends CustomSerializer[LAFut
   }
 },
 {
-  case future:LAFuture[Box[T]] => JObject(List(JField("net.liftmodules.ng.Angular.futureId", JString(rand))))
+  case future:LAFuture[Box[T]] => {
+    val id = rand
+    plumbFuture(future, id)
+    JObject(List(JField("net.liftmodules.ng.Angular.futureId", JString(id))))
+  }
 }
 ))

@@ -63,8 +63,6 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     else truthy.find(_.equalsIgnoreCase(s)).isDefined
   }
   
-  private implicit val formats = DefaultFormats
-
   private object AngularModules extends RequestVar[mutable.HashSet[Module]](mutable.HashSet.empty)
 
   /**
@@ -220,6 +218,17 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
       NodeSeq.Empty
     }
   }
+
+  private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String) = {
+    S.session map { s =>
+      f.foreach{ box =>
+        s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box))
+      }
+    }
+    f
+  }
+
+
 
   object angular {
 
@@ -421,6 +430,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
    * Maps an api result to a Promise object that will be used to fulfill the javascript promise object.
    */
   object DefaultApiSuccessMapper extends PromiseMapper {
+    private implicit val formats = DefaultFormats + new LAFutureSerializer
 
     def toPromise(box: Box[Any]): Promise = {
       box match {
@@ -447,7 +457,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
    */
   sealed trait Promise
 
-  case class Resolve(data: Option[JsExp] = None, futures: Option[JsExp] = None) extends Promise
+  case class Resolve(data: Option[JsExp] = None, future: Boolean = false) extends Promise
 
   case class Reject(reason: String = "server error") extends Promise
 
@@ -465,6 +475,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
   protected case class AjaxStringToJsonFunctionGenerator(stringToPromise: (String) => Promise)
     extends LiftAjaxFunctionGenerator {
+    implicit val formats = DefaultFormats
 
     private val ParamName = "str"
 
@@ -483,6 +494,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
   protected case class AjaxJsonToJsonFunctionGenerator[Model <: NgModel : Manifest](modelToPromise: Model => Promise)
     extends LiftAjaxFunctionGenerator {
+    implicit val formats = DefaultFormats
 
     private val ParamName = "json"
 
@@ -501,23 +513,15 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
   protected abstract class FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
     protected def jsonFunc[T <: Any](jsonToFuture: (String) => LAFuture[Box[T]]): String => JsObj = {
+      implicit val formats = DefaultFormats
 
       val futureToJsObj = (f:LAFuture[Box[T]]) =>
         if(f.isSatisfied)
           promiseToJson(DefaultApiSuccessMapper.toPromise(f.get))
         else
-          promiseToJson(Resolve(None, Some(JsTrue)))
+          promiseToJson(Resolve(None, true))
 
       jsonToFuture andThen futureToJsObj
-    }
-
-    protected def callFuture[T <: Any](f: LAFuture[Box[T]], id:String) = {
-      S.session map { s =>
-        f.foreach{ box =>
-          s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box))
-        }
-      }
-      f
     }
 
     protected def reject[T <: Any] = {
@@ -533,26 +537,28 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
 
     val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json) \\ "id" match {
-      case JString(id) => callFuture(func(), id)
+      case JString(id) => Angular.plumbFuture(func(), id)
       case _ => reject[T]
     }
   }
 
   protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]]) extends FutureFunctionGenerator {
     private val ParamName = "str"
+    implicit val formats = DefaultFormats
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
     val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json).extractOpt[RequestString] match {
-      case Some(RequestString(id, data)) => callFuture(func(data), id)
+      case Some(RequestString(id, data)) => Angular.plumbFuture(func(data), id)
       case _ => reject[T]
     }
   }
 
   protected case class JsonFutureFunctionGenerator[Model <: NgModel : Manifest, T <: Any](func: Model => LAFuture[Box[T]]) extends FutureFunctionGenerator {
     private val ParamName = "json"
+    implicit val formats = DefaultFormats
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
@@ -571,7 +577,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         id <- idOpt
         data <- dataOpt
       } yield {
-        callFuture(func(data), id)
+        Angular.plumbFuture(func(data), id)
       }
 
       fOpt.openOr(reject[T])
@@ -583,6 +589,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
   }
 
   protected case class ToJsonFunctionGenerator(obj:AnyRef) extends LiftAjaxFunctionGenerator {
+    implicit val formats = DefaultFormats
     def toAnonFunc = AnonFunc(JsReturn(JsRaw(write(obj))))
   }
 
@@ -606,9 +613,8 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
     protected def promiseToJson(promise: Promise): JsObj = {
       promise match {
-        case Resolve(Some(jsExp), None) => JsObj(SuccessField -> JsTrue, "data" -> jsExp)
-        case Resolve(None, Some(futureExp)) => JsObj(SuccessField -> JsTrue, FutureField -> futureExp)
-        case Resolve(None, None) => JsObj(SuccessField -> JsTrue)
+        case Resolve(Some(jsExp), future) => JsObj(SuccessField -> JsTrue, "data" -> jsExp, FutureField -> future)
+        case Resolve(None, future) => JsObj(SuccessField -> JsTrue, FutureField -> future)
         case Reject(reason) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
       }
     }
