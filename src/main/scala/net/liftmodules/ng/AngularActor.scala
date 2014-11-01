@@ -63,7 +63,7 @@ trait AngularActor extends CometActor with LiftNgJsHelpers {
   /** Render a div for us to hook into */
   override def fixedRender = nodesToRender
 
-  private implicit val formats = DefaultFormats // Some crap needed for stringify
+  private implicit val formats = DefaultFormats + new LAFutureSerializer
   protected def stringify(obj:AnyRef):String = obj match {
       case s:String => StringHelpers.encJs(s)
       case _ => write(obj)

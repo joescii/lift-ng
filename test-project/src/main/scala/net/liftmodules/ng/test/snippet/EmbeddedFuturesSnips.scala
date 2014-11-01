@@ -3,16 +3,25 @@ package test.snippet
 
 import Angular._
 import net.liftweb.actor.LAFuture
-import net.liftmodules.ng.test.model.Test2Obj
-import net.liftweb.common.{Failure, Full, Box, Empty}
+import net.liftmodules.ng.test.model.StringInt
+import net.liftweb.common.{Failure, Full, Box}
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 
 case class EmbeddedFutures(
   resolved: LAFuture[Box[String]],
-  failed: LAFuture[Box[String]]
-//  string: LAFuture[Box[String]],
-//  obj: LAFuture[Box[Test2Obj]]
+  failed:   LAFuture[Box[String]],
+  string:   LAFuture[Box[String]],
+  obj:      LAFuture[Box[StringInt]],
+  arr:      List[LAFuture[Box[String]]],
+  fobj:     LAFuture[Box[EmbeddedObj]]
+)
+
+case class EmbeddedObj(
+  resolved: LAFuture[Box[String]],
+  failed:   LAFuture[Box[String]],
+  string:   LAFuture[Box[String]],
+  obj:      LAFuture[Box[StringInt]]
 )
 
 object EmbeddedFuturesSnips {
@@ -28,7 +37,28 @@ object EmbeddedFuturesSnips {
           val failed = new LAFuture[Box[String]]
           satisfy(failed, Failure("failed"))
 
-          val model = EmbeddedFutures(resolved, failed)
+          val string = new LAFuture[Box[String]]
+          satisfy(string, Full("future"))
+
+          val obj = new LAFuture[Box[StringInt]]
+          satisfy(obj, Full(StringInt("string", 42)))
+
+          val arr = List(new LAFuture[Box[String]], new LAFuture[Box[String]])
+          satisfy(arr(0), Full("Roll"))
+          satisfy(arr(1), Full("Tide!"))
+
+          val fobj = new LAFuture[Box[EmbeddedObj]]
+          val fobjResolved = new LAFuture[Box[String]]
+          val fobjFailed   = new LAFuture[Box[String]]
+          val fobjString   = new LAFuture[Box[String]]
+          val fobjObj      = new LAFuture[Box[StringInt]]
+          satisfy(fobj, Full(EmbeddedObj(fobjResolved, fobjFailed, fobjString, fobjObj)))
+          fobjResolved.satisfy(Full("sub resolved"))
+          satisfy(fobjFailed, Failure("sub fail"))
+          satisfy(fobjString, Full("sub string"))
+          satisfy(fobjObj,    Full(StringInt("sub obj string", 44)))
+
+          val model = EmbeddedFutures(resolved, failed, string, obj, arr, fobj)
           f.satisfy(Full(model))
           f
         })
@@ -36,7 +66,7 @@ object EmbeddedFuturesSnips {
   )
 
   def satisfy[T](future:LAFuture[Box[T]], value:Box[T]) {
-    def delay = (Math.random() * 2000).toInt.millis
+    def delay = (Math.random() * 3000).toInt.millis
     Schedule(() => {
       future.satisfy(value)
     }, delay)
