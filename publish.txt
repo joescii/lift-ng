@@ -1,6 +1,7 @@
-alias pub=publish-signed
+alias pub=publishSigned
 
 clean 
+jasmine
 
 set liftVersion in ThisBuild :="3.0-SNAPSHOT"
 set crossScalaVersions := Seq("2.11.2")
