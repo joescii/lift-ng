@@ -9,8 +9,11 @@ import common._
 import js._
 import JE._
 import JsCmds._
+import scala.xml.NodeSeq
 
-class LiftNgFutureActor extends AngularActor {
+class LiftNgFutureActor extends CometActor with LiftNgJsHelpers{
+  def render = NodeSeq.Empty
+
   def callback(p:Promise) = partialUpdate {
     val js =
       "var es=document.querySelectorAll('"+Angular.appSelectorDefault+"');"+

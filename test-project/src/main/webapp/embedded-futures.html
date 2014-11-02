@@ -13,18 +13,35 @@
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="EmbeddedFuturesController">
           <input id="go-button" type="button" value="Go!" ng-click="click()"/>
-          <div id="resolved-output" ng-bind="obj.resolved">Hard-coded</div>
-          <div id="failed-output" ng-bind="obj.failed">Hard-coded</div>
-          <div id="string-output" ng-bind="obj.string">Hard-coded</div>
-          <div id="object-str-output" ng-bind="obj.obj.str">Hard-coded</div>
-          <div id="object-num-output" ng-bind="obj.obj.num">Hard-coded</div>
-          <div id="object-arr0-output" ng-bind="obj.arr0">Hard-coded</div>
-          <div id="object-arr1-output" ng-bind="obj.arr1">Hard-coded</div>
-          <div id="object-fobj-resolved-output" ng-bind="obj.fobj_resolved">Hard-coded</div>
-          <div id="object-fobj-failed-output" ng-bind="obj.fobj_failed">Hard-coded</div>
-          <div id="object-fobj-string-output" ng-bind="obj.fobj_string">Hard-coded</div>
-          <div id="object-fobj-obj-str-output" ng-bind="obj.fobj_obj.str">Hard-coded</div>
-          <div id="object-fobj-obj-num-output" ng-bind="obj.fobj_obj.num">Hard-coded</div>
+          <div id="svc-resolved-output" ng-bind="obj.resolved">Hard-coded</div>
+          <div id="svc-failed-output" ng-bind="obj.failed">Hard-coded</div>
+          <div id="svc-string-output" ng-bind="obj.string">Hard-coded</div>
+          <div id="svc-object-str-output" ng-bind="obj.obj.str">Hard-coded</div>
+          <div id="svc-object-num-output" ng-bind="obj.obj.num">Hard-coded</div>
+          <div id="svc-object-arr0-output" ng-bind="obj.arr0">Hard-coded</div>
+          <div id="svc-object-arr1-output" ng-bind="obj.arr1">Hard-coded</div>
+          <div id="svc-object-fobj-resolved-output" ng-bind="obj.fobj_resolved">Hard-coded</div>
+          <div id="svc-object-fobj-failed-output" ng-bind="obj.fobj_failed">Hard-coded</div>
+          <div id="svc-object-fobj-string-output" ng-bind="obj.fobj_string">Hard-coded</div>
+          <div id="svc-object-fobj-obj-str-output" ng-bind="obj.fobj_obj.str">Hard-coded</div>
+          <div id="svc-object-fobj-obj-num-output" ng-bind="obj.fobj_obj.num">Hard-coded</div>
+
+          <hr>
+
+          <div data-lift="comet?type=EmbeddedFutureActor"></div>
+          <div id="event-resolved-output" ng-bind="event.resolved">Hard-coded</div>
+          <div id="event-failed-output" ng-bind="event.failed">Hard-coded</div>
+          <div id="event-string-output" ng-bind="event.string">Hard-coded</div>
+          <div id="event-object-str-output" ng-bind="event.obj.str">Hard-coded</div>
+          <div id="event-object-num-output" ng-bind="event.obj.num">Hard-coded</div>
+          <div id="event-object-arr0-output" ng-bind="event.arr0">Hard-coded</div>
+          <div id="event-object-arr1-output" ng-bind="event.arr1">Hard-coded</div>
+          <div id="event-object-fobj-resolved-output" ng-bind="event.fobj_resolved">Hard-coded</div>
+          <div id="event-object-fobj-failed-output" ng-bind="event.fobj_failed">Hard-coded</div>
+          <div id="event-object-fobj-string-output" ng-bind="event.fobj_string">Hard-coded</div>
+          <div id="event-object-fobj-obj-str-output" ng-bind="event.fobj_obj.str">Hard-coded</div>
+          <div id="event-object-fobj-obj-num-output" ng-bind="event.fobj_obj.num">Hard-coded</div>
+
         </div>
       </div>
     </div>

@@ -7,7 +7,6 @@ import util._
 import http.js._
 import JE._
 import JsCmds._
-import StringHelpers._
 import json.Serialization._
 import json.DefaultFormats
 import scala.xml.NodeSeq
@@ -20,10 +19,15 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
   private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
 
   /** Variable assignment for \$scope */
-  private val varScope = JsCrVar("s", AnonFunc(
+  private val varScope = JsCrVar("e", AnonFunc(
     JsRaw(
       "if(typeof angular==='undefined'||typeof angular.element==='undefined')return void 0;else " +
-        "return angular.element(document.querySelector('#"+id+"')).scope()"
+        "return angular.element(document.querySelector('#"+id+"'))"
+    )
+  )) & JsCrVar("s", AnonFunc(
+    JsRaw(
+      "if(typeof e()==='undefined')return void 0;else " +
+        "return e().scope()"
     )
   ))
   /** Variable assignment for \$rootScope */
@@ -51,6 +55,12 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
     logger.trace(cmds)
     cmds
   }
+
+  private implicit val formats = DefaultFormats + new LAFutureSerializer
+  protected def stringify(obj:AnyRef):String = obj match {
+    case s:String => StringHelpers.encJs(s)
+    case _ => write(obj)
+  }
 }
 
 /** A comet actor for Angular action */
@@ -62,14 +72,6 @@ trait AngularActor extends CometActor with LiftNgJsHelpers {
 
   /** Render a div for us to hook into */
   override def fixedRender = nodesToRender
-
-  private implicit val formats = DefaultFormats + new LAFutureSerializer
-  protected def stringify(obj:AnyRef):String = obj match {
-      case s:String => StringHelpers.encJs(s)
-      case _ => write(obj)
-    }
-
-
 
 
   trait Scope {
@@ -84,20 +86,16 @@ trait AngularActor extends CometActor with LiftNgJsHelpers {
     protected def root:Boolean
     private def scopeVar = if(root) "r()" else "s()"
 
-    protected val varElement = JsCrVar("e", Call("angular.element", Call("document.querySelector", JString("#"+id))))// "var s=angular.element(document.querySelector('#"+id+"')).scope();"
-    /** Variable assignment for \$scope */
-    protected val varScope = JsCrVar("s", AnonFunc(JsReturn(Call("e.scope"))))
-    /** Variable assignment for \$rootScope */
-    protected val varRoot  = JsCrVar("r", AnonFunc(JsReturn(JsRaw("(typeof s()==='undefined')?void 0:s().$root"))))// "var r=(typeof s==='undefined')?void 0:s.$root;"
+    protected def model(obj:AnyRef) = JsCrVar("m", JsRaw(stringify(obj))) & Call("e().injector().get('plumbing').inject", JsVar("m"))
 
     /** Sends an event command, i.e. broadcast or emit */
     private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {
-      buildCmd(root, JsRaw(scopeVar+".$"+method+"('"+event+"',"+stringify(obj)+")"))
+      buildCmd(root, model(obj) & JsRaw(scopeVar+".$"+method+"('"+event+"',m)"))
     }
 
     /** Sends an assignment command */
     private def assignCmd(field:String, obj:AnyRef):JsCmd = {
-      buildCmd(root, JsRaw(scopeVar+"."+field+"="+stringify(obj)))
+      buildCmd(root, model(obj) & JsRaw(scopeVar+"."+field+"="+stringify(obj)))
     }
   }
 
