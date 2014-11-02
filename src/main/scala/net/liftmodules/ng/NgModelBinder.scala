@@ -284,14 +284,15 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
 
 
   private def toJValue(m: M): JValue = {
-    implicit val formats = DefaultFormats
+    implicit val formats = DefaultFormats + new LAFutureSerializer
     m match {
       case m: NgModel if m != null => parse(write(m))
       case e => JNull
     }
   }
 
-  private def renderCurrentState = SetExp(JsVar("s()." + bindTo), stateJson) // Send the current state with the page
+  private def renderCurrentState = SetExp(JsVar("s()." + bindTo), stateJson) & // Send the current state with the page
+    Call("e().injector().get('plumbing').inject", JsVar("s()." + bindTo)) // Inject any promises we're sending
   private val renderThrottleCount = SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) // Set the last server val to avoid echoing it back
 
   private def watch(f:JsCmd):JsCmd = Call("s().$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison

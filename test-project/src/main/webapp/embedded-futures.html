@@ -11,7 +11,7 @@
       <h2>Embedded Futures tests</h2>
       <div ng-app="EmbeddedFuturesApp" class="application">
         <div data-lift="embed?what=ready"></div>
-        <div ng-controller="EmbeddedFuturesController">
+        <div ng-controller="EmbeddedFuturesController" data-lift="Angular.bind?type=EmbeddedFuturesBinder">
           <input id="go-button" type="button" value="Go!" ng-click="click()"/>
           <div id="svc-resolved-output" ng-bind="obj.resolved">Hard-coded</div>
           <div id="svc-failed-output" ng-bind="obj.failed">Hard-coded</div>
@@ -41,6 +41,21 @@
           <div id="event-object-fobj-string-output" ng-bind="event.fobj_string">Hard-coded</div>
           <div id="event-object-fobj-obj-str-output" ng-bind="event.fobj_obj.str">Hard-coded</div>
           <div id="event-object-fobj-obj-num-output" ng-bind="event.fobj_obj.num">Hard-coded</div>
+
+          <hr>
+
+          <div id="binding-resolved-output" ng-bind="binding.resolved">Hard-coded</div>
+          <div id="binding-failed-output" ng-bind="binding.failed">Hard-coded</div>
+          <div id="binding-string-output" ng-bind="binding.string">Hard-coded</div>
+          <div id="binding-object-str-output" ng-bind="binding.obj.str">Hard-coded</div>
+          <div id="binding-object-num-output" ng-bind="binding.obj.num">Hard-coded</div>
+          <div id="binding-object-arr0-output" ng-bind="binding.arr0">Hard-coded</div>
+          <div id="binding-object-arr1-output" ng-bind="binding.arr1">Hard-coded</div>
+          <div id="binding-object-fobj-resolved-output" ng-bind="binding.fobj_resolved">Hard-coded</div>
+          <div id="binding-object-fobj-failed-output" ng-bind="binding.fobj_failed">Hard-coded</div>
+          <div id="binding-object-fobj-string-output" ng-bind="binding.fobj_string">Hard-coded</div>
+          <div id="binding-object-fobj-obj-str-output" ng-bind="binding.fobj_obj.str">Hard-coded</div>
+          <div id="binding-object-fobj-obj-num-output" ng-bind="binding.fobj_obj.num">Hard-coded</div>
 
         </div>
       </div>

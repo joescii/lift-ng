@@ -16,14 +16,14 @@ case class EmbeddedFutures(
   obj:      LAFuture[Box[StringInt]],
   arr:      List[LAFuture[Box[String]]],
   fobj:     LAFuture[Box[EmbeddedObj]]
-)
+) extends NgModel
 
 case class EmbeddedObj(
   resolved: LAFuture[Box[String]],
   failed:   LAFuture[Box[String]],
   string:   LAFuture[Box[String]],
   obj:      LAFuture[Box[StringInt]]
-)
+) extends NgModel
 
 object EmbeddedFuturesSnips {
   def services = renderIfNotAlreadyDefined(
@@ -36,9 +36,7 @@ object EmbeddedFuturesSnips {
       )
   )
 
-  def buildFuture = {
-    val f = new LAFuture[Box[EmbeddedFutures]]
-
+  def buildModel = {
     val resolved = new LAFuture[Box[String]]
     resolved.satisfy(Full("resolved"))
 
@@ -66,8 +64,12 @@ object EmbeddedFuturesSnips {
     satisfy(fobjString, Full("sub string"))
     satisfy(fobjObj,    Full(StringInt("sub obj string", 44)))
 
-    val model = EmbeddedFutures(resolved, failed, string, obj, arr, fobj)
-    f.satisfy(Full(model))
+    EmbeddedFutures(resolved, failed, string, obj, arr, fobj)
+  }
+
+  def buildFuture = {
+    val f = new LAFuture[Box[EmbeddedFutures]]
+    f.satisfy(Full(buildModel))
     f
   }
 

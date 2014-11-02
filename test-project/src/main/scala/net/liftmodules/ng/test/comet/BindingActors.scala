@@ -6,6 +6,7 @@ import net.liftmodules.ng.Angular.NgModel
 import net.liftweb.http.S
 import scala.util.Try
 import net.liftweb.util.Schedule
+import net.liftmodules.ng.test.snippet.{EmbeddedFuturesSnips, EmbeddedFutures}
 
 case class Message(msg:String) extends NgModel
 
@@ -64,3 +65,5 @@ with BindingToClient with BindingToServer {
     next
   }
 }
+
+class EmbeddedFuturesBinder extends SimpleNgModelBinder[EmbeddedFutures] ("bound", EmbeddedFuturesSnips.buildModel) with BindingToClient

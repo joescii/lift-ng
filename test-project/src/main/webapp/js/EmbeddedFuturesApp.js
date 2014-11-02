@@ -2,6 +2,7 @@ angular.module('EmbeddedFuturesApp', ['EmbeddedFutures'])
 .controller('EmbeddedFuturesController', ['$scope', 'embeddedFutureServices', function($scope, service) {
   $scope.obj = {};
   $scope.event = {};
+  $scope.binding = {};
 
   $scope.click = function() {
     var svc = function(field) {
@@ -32,7 +33,6 @@ angular.module('EmbeddedFuturesApp', ['EmbeddedFutures'])
     };
 
     $scope.$on('embedded', function(e, obj){
-      console.log(obj);
       obj.resolved.then(event("resolved"));
       obj.failed.catch(event("failed"));
       obj.string.then(event("string"));
@@ -44,6 +44,28 @@ angular.module('EmbeddedFuturesApp', ['EmbeddedFutures'])
         fobj.failed.catch(event("fobj_failed"));
         fobj.string.then(event("fobj_string"));
         fobj.obj.then(event("fobj_obj"));
+      });
+    });
+
+    var binding = function(field) {
+      return function(val) {
+        $scope.binding[field] = val;
+      }
+    };
+
+    $scope.$watch('bound', function(obj){
+      console.log(obj);
+      obj.resolved.then(binding("resolved"));
+      obj.failed.catch(binding("failed"));
+      obj.string.then(binding("string"));
+      obj.obj.then(binding("obj"));
+      obj.arr[0].then(binding("arr0"));
+      obj.arr[1].then(binding("arr1"));
+      obj.fobj.then(function(fobj){
+        fobj.resolved.then(binding("fobj_resolved"));
+        fobj.failed.catch(binding("fobj_failed"));
+        fobj.string.then(binding("fobj_string"));
+        fobj.obj.then(binding("fobj_obj"));
       });
     });
   };

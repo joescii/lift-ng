@@ -80,5 +80,42 @@ class EmbeddedFuturesSpec extends BaseSpec {
   }
 
 
+  "The future binding field that resolves before sending" should "be set to 'resolved'" in {
+    eventually { id("binding-resolved-output").element.text should be ("resolved") }
+  }
+
+  "The future binding field that fails" should "be set to 'failed'" in {
+    eventually { id("binding-failed-output").element.text should be ("failed") }
+  }
+
+  "The future binding field that contains a string" should "be set to 'future'" in {
+    eventually { id("binding-string-output").element.text should be ("future") }
+  }
+
+  "The future binding field that contains an object" should "set its two fields" in {
+    eventually {
+      id("binding-object-str-output").element.text should be ("string")
+      id("binding-object-num-output").element.text should be ("42")
+    }
+  }
+
+  "The future binding field that contains an array of futures" should "set the two string fields" in {
+    eventually {
+      id("binding-object-arr0-output").element.text should be ("Roll")
+      id("binding-object-arr1-output").element.text should be ("Tide!")
+    }
+  }
+
+  "The future binding field that contains an object with its own embedded futures" should "set all of its fields" in {
+    eventually {
+      id("binding-object-fobj-resolved-output").element.text should be ("sub resolved")
+      id("binding-object-fobj-failed-output").element.text should be ("sub fail")
+      id("binding-object-fobj-string-output").element.text should be ("sub string")
+      id("binding-object-fobj-obj-str-output").element.text should be ("sub obj string")
+      id("binding-object-fobj-obj-num-output").element.text should be ("44")
+    }
+  }
+
+
 
 }
