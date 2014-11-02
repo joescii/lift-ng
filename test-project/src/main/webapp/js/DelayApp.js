@@ -1,6 +1,6 @@
 angular.element(document).ready(function() {
 
-  angular.module('DelayApp', [])
+  angular.module('DelayApp', ['lift-ng'])
   .controller('EarlyEmitController', ['$rootScope', '$scope', function($rootScope, $scope) {
     $scope.earlyEmitOut = ["Angular data"];
     $rootScope.$on('earlyEmit', function(e, str) {

@@ -1,4 +1,4 @@
-angular.module('EmbeddedFuturesApp', ['EmbeddedFutures'])
+angular.module('EmbeddedFuturesApp', ['lift-ng', 'EmbeddedFutures'])
 .controller('EmbeddedFuturesController', ['$scope', 'embeddedFutureServices', function($scope, service) {
   $scope.obj = {};
   $scope.event = {};

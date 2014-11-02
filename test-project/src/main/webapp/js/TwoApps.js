@@ -1,4 +1,4 @@
-angular.module('App1', ['Futures'])
+angular.module('App1', ['lift-ng', 'Futures'])
 .controller('Controller', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 

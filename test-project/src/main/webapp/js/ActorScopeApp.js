@@ -1,4 +1,4 @@
-angular.module('ActorScopeApp', [])
+angular.module('ActorScopeApp', ['lift-ng'])
 .controller('ParentController', ['$scope', function($scope) {
   $scope.parentMsg = "Waiting...";
   $scope.$on('scope-msg', function(e, msg) {

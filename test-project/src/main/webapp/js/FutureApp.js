@@ -1,4 +1,4 @@
-angular.module('FutureApp', ['Futures'])
+angular.module('FutureApp', ['lift-ng', 'Futures'])
 .controller('NoArgController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 

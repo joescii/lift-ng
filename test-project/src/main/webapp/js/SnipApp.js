@@ -1,4 +1,4 @@
-angular.module('SnipApp', ['SnipServices1', 'SnipServices2'])
+angular.module('SnipApp', ['lift-ng', 'SnipServices1', 'SnipServices2'])
 .controller('Test1Controller', ['$scope', '$window', 'snipServices1', function($scope, $window, snipServices1) {
   $scope.output1 = "";
   $scope.clickButton1a = function() {

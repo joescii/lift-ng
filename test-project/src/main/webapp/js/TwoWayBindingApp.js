@@ -1,3 +1,3 @@
-angular.module('TwoWayBindingApp', [])
+angular.module('TwoWayBindingApp', ['lift-ng'])
 .controller('Controller', function(){})
 ;

@@ -1,4 +1,4 @@
-angular.module('ActorAssignmentApp', []).run(['$rootScope', function($rootScope) {
+angular.module('ActorAssignmentApp', ['lift-ng']).run(['$rootScope', function($rootScope) {
   $rootScope.rootStr = "Waiting...";
   $rootScope.rootObj = {
     num: "Waiting...",
