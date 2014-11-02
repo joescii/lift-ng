@@ -45,11 +45,26 @@ angular
 
     var inject = function(model) {
       for(var k in model) {
-        var id = model[k]["net.liftmodules.ng.Angular.futureId"];
-        if(id) {
-          model[k] = create(id).promise
-        } else if(typeof model[k] === 'object') {
-          inject(model[k])
+        // It is a future which we need to inject
+        if(model[k]["net.liftmodules.ng.Angular.future"]) {
+          var id   = model[k].id;
+          var data = model[k].data;
+          var msg  = model[k].msg;
+          if(id) {
+            model[k] = create(id).promise;
+          } else if(msg) {
+            var d = $q.defer();
+            d.reject(msg);
+            model[k] = d.promise;
+          } else {
+            var d = $q.defer();
+            d.resolve(data);
+            model[k] = d.promise;
+          }
+        }
+        // Not a future, so check children
+        else if(typeof model[k] === 'object') {
+          inject(model[k]);
         }
       }
     };
@@ -66,6 +81,8 @@ angular
         var q = plumbing.createDefer();
         var defer = q[0];
         var id = q[1];
+
+        // TODO: quit creating a random id and let the server generate it instead
         var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
 
         var post = function() {

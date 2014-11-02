@@ -108,7 +108,8 @@ describe('lift-ng', function(){
       var model = {
         str: "a string",
         f: {
-          "net.liftmodules.ng.Angular.futureId": "NG1234"
+          "net.liftmodules.ng.Angular.future": true,
+          "id": "NG1234"
         }
       };
       var data = {
@@ -132,7 +133,8 @@ describe('lift-ng', function(){
         obj: {
           num: 42,
           f: {
-            "net.liftmodules.ng.Angular.futureId": "NG1234"
+            "net.liftmodules.ng.Angular.future": true,
+            "id": "NG1234"
           }
         }
       };
@@ -154,8 +156,8 @@ describe('lift-ng', function(){
 
     it('should inject promises in arrays', function() {
       var arr = [
-        {"net.liftmodules.ng.Angular.futureId": "NG1234"},
-        {"net.liftmodules.ng.Angular.futureId": "NG1235"}
+        {"net.liftmodules.ng.Angular.future": true, id: "NG1234"},
+        {"net.liftmodules.ng.Angular.future": true, id: "NG1235"}
       ];
       var data1 = {
         success: true,
@@ -181,8 +183,8 @@ describe('lift-ng', function(){
       var model = {
         str: "a string",
         arr: [
-          { "net.liftmodules.ng.Angular.futureId": "NG1234" },
-          { "net.liftmodules.ng.Angular.futureId": "NG1236" }
+          {"net.liftmodules.ng.Angular.future": true, id: "NG1234"},
+          {"net.liftmodules.ng.Angular.future": true, id: "NG1236"}
         ]
       };
       var data1 = {
@@ -204,6 +206,57 @@ describe('lift-ng', function(){
 
       rootScope.$apply();
     });
+
+    it('should inject fulfilled promises in the base level', function() {
+      var model = {
+        str: "a string",
+        f: {
+          "net.liftmodules.ng.Angular.future": true,
+          data: "y'all"
+        }
+      };
+
+      plumbing.inject(model);
+
+      model.f.then(function(val){ expect(val).toBe("y'all") });
+      expect(model.str).toBe("a string");
+
+      rootScope.$apply();
+    });
+
+    it('should inject failed promises in the base level', function() {
+      var model = {
+        str: "a string",
+        f: {
+          "net.liftmodules.ng.Angular.future": true,
+          msg: "shit, y'all!"
+        }
+      };
+
+      plumbing.inject(model);
+
+      model.f.catch(function(val){ expect(val).toBe("shit, y'all!") });
+      expect(model.str).toBe("a string");
+
+      rootScope.$apply();
+    });
+
+    it('should inject fulfilled promises in the base level for the empty case', function() {
+      var model = {
+        str: "a string",
+        f: {
+          "net.liftmodules.ng.Angular.future": true
+        }
+      };
+
+      plumbing.inject(model);
+
+      model.f.then(function(val){ expect(val).toBeUndefined });
+      expect(model.str).toBe("a string");
+
+      rootScope.$apply();
+    });
+
   })
 })
 ;
