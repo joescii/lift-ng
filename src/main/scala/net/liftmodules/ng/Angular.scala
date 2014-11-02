@@ -457,7 +457,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
    */
   sealed trait Promise
 
-  case class Resolve(data: Option[JsExp] = None, future: Boolean = false) extends Promise
+  case class Resolve(data: Option[JsExp] = None, futureId: Option[String] = None) extends Promise
 
   case class Reject(reason: String = "server error") extends Promise
 
@@ -485,7 +485,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
-        case Some(RequestString(id, data)) => stringToPromise(data)
+        case Some(RequestString(data)) => stringToPromise(data)
         case None => Reject("invalid json")
       }
       jsonToPromise andThen promiseToJson
@@ -512,22 +512,22 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
   }
 
   protected abstract class FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
-    protected def jsonFunc[T <: Any](jsonToFuture: (String) => LAFuture[Box[T]]): String => JsObj = {
+    protected def jsonFunc[T <: Any](jsonToFuture: (String) => NgFuture[T]): String => JsObj = {
       implicit val formats = DefaultFormats
 
-      val futureToJsObj = (f:LAFuture[Box[T]]) =>
-        if(f.isSatisfied)
-          promiseToJson(DefaultApiSuccessMapper.toPromise(f.get))
+      val futureToJsObj = (f:NgFuture[T]) =>
+        if(f._1.isSatisfied)
+          promiseToJson(DefaultApiSuccessMapper.toPromise(f._1.get))
         else
-          promiseToJson(Resolve(None, true))
+          promiseToJson(Resolve(None, Some(f._2)))
 
       jsonToFuture andThen futureToJsObj
     }
 
-    protected def reject[T <: Any] = {
+    protected def reject[T <: Any]:NgFuture[T] = {
       val f = new LAFuture[Box[T]]
       f.satisfy(Failure("invalid json"))
-      f
+      (f, FutureIdNA)
     }
   }
 
@@ -536,9 +536,9 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
 
-    val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json) \\ "id" match {
-      case JString(id) => Angular.plumbFuture(func(), id)
-      case _ => reject[T]
+    val jsonToFuture:(String) => NgFuture[T] = json => {
+      val id = rand
+      (Angular.plumbFuture(func(), id), id)
     }
   }
 
@@ -550,8 +550,11 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
-    val jsonToFuture:(String) => LAFuture[Box[T]] = json => JsonParser.parse(json).extractOpt[RequestString] match {
-      case Some(RequestString(id, data)) => Angular.plumbFuture(func(data), id)
+    val jsonToFuture:(String) => NgFuture[T] = json => JsonParser.parse(json).extractOpt[RequestString] match {
+      case Some(RequestString(data)) => {
+        val id = rand
+        (Angular.plumbFuture(func(data), id), id)
+      }
       case _ => reject[T]
     }
   }
@@ -564,20 +567,15 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
-    val jsonToFuture:(String) => LAFuture[Box[T]] = json => {
+    val jsonToFuture:(String) => NgFuture[T] = json => {
       val parsed = JsonParser.parse(json)
-
-      val idOpt = parsed \\ "id" match {
-        case JString(id) => Some(id)
-        case _ => None
-      }
       val dataOpt = (parsed \\ "data").extractOpt[Model]
+      val id = rand
 
       val fOpt = for {
-        id <- idOpt
         data <- dataOpt
       } yield {
-        Angular.plumbFuture(func(data), id)
+        (Angular.plumbFuture(func(data), id), id)
       }
 
       fOpt.openOr(reject[T])
@@ -609,12 +607,14 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     def serviceDependencies: Set[String] = Set("liftProxy")
 
     private val SuccessField = "success"
-    private val FutureField = "future"
+    private val FutureField = "futureId"
 
     protected def promiseToJson(promise: Promise): JsObj = {
       promise match {
-        case Resolve(Some(jsExp), future) => JsObj(SuccessField -> JsTrue, "data" -> jsExp, FutureField -> future)
-        case Resolve(None, future) => JsObj(SuccessField -> JsTrue, FutureField -> future)
+        case Resolve(Some(jsExp), _) => JsObj(SuccessField -> JsTrue, "data" -> jsExp)
+        case Resolve(None, futureId) => futureId.map(
+          id => JsObj(SuccessField -> JsTrue, FutureField -> id)
+        ).getOrElse(JsObj(SuccessField -> JsTrue))
         case Reject(reason) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
       }
     }
@@ -625,7 +625,15 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
    */
   trait NgModel
 
-  case class RequestData[Model <: NgModel : Manifest](id:String, data:Model)
-  case class RequestString(id:String, data:String)
-  case class ReturnData(id:String, data:Any)
+  // These case classes encapsulate the incoming request. We used to have an id field, which was the impetus
+  // for having explicit classes. Now they're just a hold over/placeholder in case we need anything like this in
+  // the future. Consider refactoring and removing these...
+  case class RequestData[Model <: NgModel : Manifest](data:Model)
+  case class RequestString(data:String)
+
+  case class ReturnData(id:FutureId, data:Any)
+
+  type FutureId = String
+  val FutureIdNA:FutureId = ""
+  type NgFuture[T <: Any] = (LAFuture[Box[T]], FutureId)
 }

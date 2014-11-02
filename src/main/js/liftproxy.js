@@ -2,43 +2,33 @@ angular
   .module('lift-ng', [])
   .service('plumbing', [ '$q', function($q){
     var defers = {};
-    var random = function() {
-      var text = "";
-      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-      for( var i=0; i < 20; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-      return text;
-    };
 
     var create = function(id) {
       var q = $q.defer();
-      if(id) {
-        defers[id] = q;
-        return q;
+      defers[id] = q;
+      return q;
+    };
+
+    var resolve = function(data, q) {
+      if (data.success) {
+        if (typeof data.data !== 'undefined') {
+          inject(data.data);
+          q.resolve(data.data);
+        }
+        else {
+          q.resolve();
+        }
       } else {
-        var id = random();
-        defers[id] = q;
-        return [q, id];
+        q.reject(data.msg)
       }
+      return q;
     };
 
     var fulfill = function(data, id) {
       var theId = id || data.id;
       var q = defers[theId];
       if(typeof q !== "undefined" && q !== null) {
-        if (data.success) {
-          if (typeof data.data !== 'undefined') {
-            inject(data.data);
-            q.resolve(data.data);
-          }
-          else {
-            q.resolve();
-          }
-        } else {
-          q.reject(data.msg)
-        }
+        resolve(data, q);
         delete defers[theId];
       }
     };
@@ -71,6 +61,7 @@ angular
 
     return {
       createDefer: create,
+      resolve: resolve,
       fulfill: fulfill,
       inject: inject
     }
@@ -78,12 +69,7 @@ angular
   .service('liftProxy', ['$http', '$q', 'plumbing', function ($http, $q, plumbing) {
     var svc = {
       request: function (requestData) {
-        var q = plumbing.createDefer();
-        var defer = q[0];
-        var id = q[1];
-
-        // TODO: quit creating a random id and let the server generate it instead
-        var req = requestData.name+'='+encodeURIComponent(JSON.stringify({id:id, data:requestData.data}));
+        var req = requestData.name+'='+encodeURIComponent(JSON.stringify({data:requestData.data}));
 
         var post = function() {
           return $http.post(net_liftmodules_ng.endpoint(), req, {
@@ -95,10 +81,19 @@ angular
 
         var resolve = function(response) {
           var data = response.data;
-          if(!data.future) {
-            plumbing.fulfill(data, id)
+
+          // If there is no future ID, then we have our data and we're done.
+          if(!data.futureId) {
+            var defer = $q.defer();
+            plumbing.resolve(data, defer);
+            return defer.promise;
           }
-          return defer.promise;
+
+          // Otherwise, we need to plumb out a promise
+          else {
+            var defer = plumbing.createDefer(data.futureId);
+            return defer.promise;
+          }
         };
 
         return post().then(resolve);

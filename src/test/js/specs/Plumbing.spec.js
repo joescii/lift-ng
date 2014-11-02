@@ -16,9 +16,8 @@ describe('lift-ng', function(){
     });
 
     it('should resolve data with success==true', function(){
-      var pair = plumbing.createDefer();
-      var defer = pair[0];
-      var id = pair[1];
+      var id = "myDefer";
+      var defer = plumbing.createDefer(id);
       var data = {
         success: true,
         data: "string"
@@ -34,9 +33,8 @@ describe('lift-ng', function(){
     });
 
     it('should reject data with success==false', function(){
-      var pair = plumbing.createDefer();
-      var defer = pair[0];
-      var id = pair[1];
+      var id = "myDefer";
+      var defer = plumbing.createDefer(id);
       var data = {
         success: false,
         data: "string",
@@ -53,9 +51,8 @@ describe('lift-ng', function(){
     });
 
     it('should resolve with empty data', function(){
-      var pair = plumbing.createDefer();
-      var defer = pair[0];
-      var id = pair[1];
+      var id = "myDefer";
+      var defer = plumbing.createDefer(id);
       var data = {
         success: true
       };
@@ -70,9 +67,8 @@ describe('lift-ng', function(){
     });
 
     it('should resolve with data == false', function(){
-      var pair = plumbing.createDefer();
-      var defer = pair[0];
-      var id = pair[1];
+      var id = "myDefer";
+      var defer = plumbing.createDefer(id);
       var data = {
         success: true,
         data: false
@@ -83,23 +79,6 @@ describe('lift-ng', function(){
       defer.promise
         .then(function(data) { expect(data).toBe(false) })
         .catch(function(msg) { expect(msg).toBeNull() });
-
-      rootScope.$apply();
-    });
-
-    it('should allow providing an id for the defer', function(){
-      var id = "myDefer";
-      var defer = plumbing.createDefer(id);
-      var data = {
-        success: true,
-        data: "string"
-      };
-
-      plumbing.fulfill(data, id);
-
-      defer.promise
-        .then(function(data) { expect(data).toBe("string") })
-        .catch(function(err) { expect(err).toBeNull() });
 
       rootScope.$apply();
     });
