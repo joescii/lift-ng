@@ -228,7 +228,9 @@ angular.module("lift.pony")
   )
 ```
 
-Finally, perhaps most importantly, we expect a case class to be sent to the server.  Note that the case class must extend `NgModel` for this to work.
+Finally, perhaps most importantly, we expect a case class to be sent to the server.
+Note that the case class must extend `NgModel` for this to work.
+(Read more about models [here](#models))
 
 ```scala
 case class Pony (name:String, img:URL) extends NgModel
@@ -265,7 +267,8 @@ angular.module("lift.pony")
 ```
 
 #### Futures
-All of the examples thus far have assumed the value can be calculated quickly without expensive blocking or asynchronous calls.  Since it is quite common to perform expensive operations or call APIs which return a `Future[T]`, it is important that **lift-ng** likewise supports returning an `LAFuture`.
+All of the examples thus far have assumed the value can be calculated quickly without expensive blocking or asynchronous calls.
+Since it is quite common to perform expensive operations or call APIs which return a `Future[T]`, it is important that **lift-ng** likewise supports returning an `LAFuture`.
 
 The same signatures for `jsonCall` are supported for futures:
 
@@ -294,7 +297,11 @@ angular.module("lift.pony")
   )
 ```
 
-Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.  As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.  By default, we look for any elements containing the `ng-app` attribute.  This can be overridden in the `Angular.init()` call via the `appSelector` property.  This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service.
+Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.
+As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.
+By default, we look for any elements containing the `ng-app` attribute.
+This can be overridden in the `Angular.init()` call via the `appSelector` property.
+This allows us to hook in to your app via comet and send messages asynchronously back to the lift-proxy service.
 
 #### Testing
 Testing services provided by **lift-ng** with Jasmine (etc) can be accomplished in the same manner as you would test any Angular service.
@@ -388,7 +395,7 @@ angular.module("StaticServices")
 
 The above produces a simple service equivalent to the following JavaScript
 ```javascript
-angular.module("StaticServices",["zen.lift.proxy"])
+angular.module("StaticServices",["lift-ng"])
   .factory("staticService", function(liftProxy) { return {
     string:  function() {return "FromServer1"},
     integer: function() {return "42"},
@@ -400,7 +407,9 @@ angular.module("StaticServices",["zen.lift.proxy"])
 
 Now we can take a look at how to utilize Lift's comet support to asynchronously send angular updates from the server
 
-First you should write a new class which extends the `AngularActor` trait, which is a sub-trait of Lift's `CometActor`.  Thus you can do anything you can normally with a `CometActor`, as well as get access the `$scope` where the actor is defined in the DOM and the `$rootScope` of the angular application.  Currently we support `$emit`, `$broadcast`, and assignment of arbitrary fields on the given scope object.
+First you should write a new class which extends the `AngularActor` trait, which is a sub-trait of Lift's `CometActor`.
+Thus you can do anything you can normally with a `CometActor`, as well as get access the `$scope` where the actor is defined in the DOM and the `$rootScope` of the angular application.
+Currently we support `$emit`, `$broadcast`, and assignment of arbitrary fields on the given scope object.
 
 ```scala
 class CometExample extends AngularActor {
@@ -429,7 +438,7 @@ Now add the comet actor into your HTML DOM within the scope you wish to belong t
 Then do whatever you need in your angular application to listen for events, watch for changes, etc.
 
 ```javascript
-angular.module('ExampleApp', [])
+angular.module('ExampleApp', ['lift-ng'])
 .controller('ExampleController', ['$rootScope', '$scope', function($rootScope, $scope) {
   $rootScope.$on('emit-message', function(e, msg) {
     $scope.emitMessage = msg;
@@ -452,11 +461,13 @@ angular.module('ExampleApp', [])
 }]);
 ```
 
-Note that messages sent prior to a page bootstrapping the Angular application will be queued up and released in order once the application is ready.  The retry interval defaults to 100 milliseconds and can be configured in your Lift application's props files with the `net.liftmodules.ng.AngularActor.retryInterval` Int property.
+Note that messages sent prior to a page bootstrapping the Angular application will be queued up and released in order once the application is ready.
+The retry interval defaults to 100 milliseconds and can be configured in your Lift application's props files with the `net.liftmodules.ng.AngularActor.retryInterval` Int property.
 
 ### Client-Server Model Binding
 Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features binding of a model between the client and server.
 To take advantage of this feature, first create a model case class which extends `NgModel`.
+(Read more about models [here](#models))
 
 ```scala
 case class Message(msg:String) extends NgModel
@@ -547,6 +558,41 @@ Only changes or additions to the model will be synced up to the client.
 Depending on the mixins utilized, you will store up more memory on the server when using an `NgModelBinder`.
 If utilizing `BindingOptimizations` or `SessionScope`, we must maintain the last known state of your model.
 This allows us to (1) compare to any model changes provided and transmit only the diff from the server and (2) render new pages with the current state.
+
+### Model objects
+Any case class can be used as a model in **lift-ng**.
+However, models which are sent to the server from the client must mix in the `NgModel` trait.
+While models serialized to the client don't need this flag trait, but it is a good practice to include it to avoid errors as your application changes over time.
+Note that objects contained in an `NgModel` instance also do not need this flag trait either.
+
+#### Embedded Futures
+In addition to data fields which serialize naturally to their equivalent JSON representation, any model can contain fields that are futures of type `net.liftweb.actor.LAFuture[Box[T]]` for an arbitrary `T <: Any`.
+Such fields will be mapped to the client representation of the model as a promise from the `$q` angular service.
+The future will be plumbed to the client-side promise automatically.
+Any futures occurring in the model object graph will be serialized and plumbed.
+
+For instance, given this Scala case class model:
+
+```scala
+case class MyModel (
+  fastValue:String
+  slowValue:Future[Box[String]]
+) extends NgModel
+```
+
+You will receive the following object on the client:
+
+```javascript
+var myModel = // However you get it
+myModel.fastValue // A string
+myModel.slowValue // A promise
+
+myModel.slowValue.then(function(value){
+  console.log('The value is '+value)
+}
+```
+
+Once the `LAFuture` is satisfied, the result will be pushed up via comet to resolve/reject the promise according to the `Box` value.
 
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
@@ -639,7 +685,6 @@ If possible, include tests which validate your fix/enhancement in any Pull Reque
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* Support `LAFuture` fields in model objects by wiring them up to `$q` promises on the client.
 * Correctly support client-side changes to models containing arrays when mixing `BindingOptimizations` into an `NgModelBinder`.
 * Support removing fields in models bound with an `NgModelBinder` with `BindingOptimizations` mixed in.
 * Retain diffs in `NgModelBinder`. Allow server to reject client-side changes.
@@ -654,6 +699,8 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.6.0*: Introduction of [embedded futures](#embedded-futures).
+All of your angular modules now must directly or indirectly depend on the `lift-ng` module.
 * *0.5.6*: Bug Fix: Strings pushed to the client are now properly escaped.
 Prior to this fix, a string containing illegal characters such as a newline would be silently discarded.
 * *0.5.5*: Further decomposed `NgModelBinder`, separating the transmission optimizations into the `BindingOptimizations` mixin.
