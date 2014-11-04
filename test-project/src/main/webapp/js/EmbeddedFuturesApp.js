@@ -3,6 +3,7 @@ angular.module('EmbeddedFuturesApp', ['lift-ng', 'EmbeddedFutures'])
   $scope.obj = {};
   $scope.event = {};
   $scope.binding = {};
+  $scope.static = {};
 
   $scope.click = function() {
     var svc = function(field) {
@@ -54,7 +55,6 @@ angular.module('EmbeddedFuturesApp', ['lift-ng', 'EmbeddedFutures'])
     };
 
     $scope.$watch('bound', function(obj){
-      console.log(obj);
       obj.resolved.then(binding("resolved"));
       obj.failed.catch(binding("failed"));
       obj.string.then(binding("string"));
@@ -68,6 +68,27 @@ angular.module('EmbeddedFuturesApp', ['lift-ng', 'EmbeddedFutures'])
         fobj.obj.then(binding("fobj_obj"));
       });
     });
+
+    var static = function(field) {
+      return function(val) {
+        $scope.static[field] = val;
+      }
+    };
+
+//    var obj = service.static();
+//    console.log(obj);
+//    obj.resolved.then(binding("resolved"));
+//    obj.failed.catch(binding("failed"));
+//    obj.string.then(binding("string"));
+//    obj.obj.then(binding("obj"));
+//    obj.arr[0].then(binding("arr0"));
+//    obj.arr[1].then(binding("arr1"));
+//    obj.fobj.then(function(fobj){
+//      fobj.resolved.then(binding("fobj_resolved"));
+//      fobj.failed.catch(binding("fobj_failed"));
+//      fobj.string.then(binding("fobj_string"));
+//      fobj.obj.then(binding("fobj_obj"));
+//    });
   };
 }])
 ;

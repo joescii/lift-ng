@@ -117,5 +117,42 @@ class EmbeddedFuturesSpec extends BaseSpec {
   }
 
 
+//  "The future-embedded static object's field that resolves before sending" should "be set to 'resolved'" in {
+//    eventually { id("static-resolved-output").element.text should be ("resolved") }
+//  }
+//
+//  "The future-embedded static object's field that fails" should "be set to 'failed'" in {
+//    eventually { id("static-failed-output").element.text should be ("failed") }
+//  }
+//
+//  "The future-embedded static object's field that contains a string" should "be set to 'future'" in {
+//    eventually { id("static-string-output").element.text should be ("future") }
+//  }
+//
+//  "The future-embedded static object's field that contains an object" should "set its two fields" in {
+//    eventually {
+//      id("static-object-str-output").element.text should be ("string")
+//      id("static-object-num-output").element.text should be ("42")
+//    }
+//  }
+//
+//  "The future-embedded static object's field that contains an array of futures" should "set the two string fields" in {
+//    eventually {
+//      id("static-object-arr0-output").element.text should be ("Roll")
+//      id("static-object-arr1-output").element.text should be ("Tide!")
+//    }
+//  }
+//
+//  "The future-embedded static object's field that contains an object with its own embedded futures" should "set all of its fields" in {
+//    eventually {
+//      id("static-object-fobj-resolved-output").element.text should be ("sub resolved")
+//      id("static-object-fobj-failed-output").element.text should be ("sub fail")
+//      id("static-object-fobj-string-output").element.text should be ("sub string")
+//      id("static-object-fobj-obj-str-output").element.text should be ("sub obj string")
+//      id("static-object-fobj-obj-num-output").element.text should be ("44")
+//    }
+//  }
+
+
 
 }
