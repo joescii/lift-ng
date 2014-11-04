@@ -1,0 +1,45 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+The 0.6.0 release of lift-ng introduces support for *embedded-futures* within model objects serialized to the client.
+In addition to data fields which serialize naturally to their equivalent JSON representation, any model can contain fields that are futures of type `net.liftweb.actor.LAFuture[Box[T]]` for an arbitrary `T <: Any`.
+Such fields will be mapped to the client representation of the model as a promise from the `$q` angular service.
+The future will be plumbed to the client-side promise automatically, regardless of where the future appears in the model object graph.
+
+For instance, given this Scala case class model:
+
+`case class MyModel (`
+
+`  fastValue:String,`
+
+`  slowValue:Future[Box[String]]`
+
+`) extends NgModel`
+
+You will receive the following object on the client:
+
+`var myModel = // However you get it from lift-ng`
+
+`myModel.fastValue // A string`
+
+`myModel.slowValue // A promise`
+
+`myModel.slowValue.then(function(value){`
+
+`  console.log('The value is '+value)`
+
+`});`
+
+Once the `LAFuture` is satisfied, the result will be pushed up via comet to resolve/reject the promise according to the `Box` value.
+The `Box` value is mapped with the same logic as with client-initiated service calls.
+See [Mapping Box to Promise](https://github.com/joescii/lift-ng#mapping-box-to-promise).
+
+### BREAKING CHANGE
+
+In order to provide this functionality, every module requiring interactions with **lift-ng** must depend on the `lift-ng` angular module either directly or indirectly.
+For instance, a module which receives `$scope`/`$rootScope` via an `AngularActor` or is bound to a model via an `NgModelBinder` should declare `lift-ng` as a module dependency:
+
+`angular.module('my-module', ['lift-ng']) // ...`
+
+A module which depends on a [**lift-ng** service](https://github.com/joescii/lift-ng#client-initiated-service-calls) already depends on `lift-ng` transitively and will continue to operate as expected.
