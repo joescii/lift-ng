@@ -706,6 +706,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
 * Support server comet pushes to client via services.
+* Provide a means of utilizing the third `notify` function of promises to send progress updates to the client.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 * `AngularActor.scope.parent` support
 
