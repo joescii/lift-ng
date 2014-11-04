@@ -200,13 +200,14 @@ angular.module('pony', ['lift.pony'])
 Values requested from the client are always wrapped in a `net.liftweb.common.Box`.
 These `Box[T]` values are mapped to their respective `$q` promises as follows:
 
-`Full(value)` => A resolved promise with the given value.
-`Empty` => A resolved promise with `undefined` value.
-`Failure(msg)` => A rejected promise with the given message value.
+* `Full(value)` => A resolved promise with the given value.
+* `Empty` => A resolved promise with `undefined` value.
+* `Failure(msg)` => A rejected promise with the given message value.
 
 #### No arguments, string arguments, or case class arguments
 
-Just like with Lift's `SHtml.ajaxInvoke`, you can make a service which takes no arguments.  Hence we could have defined our `ponyService.getBestPony` like the following...
+Just like with Lift's `SHtml.ajaxInvoke`, you can make a service which takes no arguments.
+Hence we could have defined our `ponyService.getBestPony` like the following:
 
 ```scala
 angular.module("lift.pony")
@@ -599,7 +600,7 @@ myModel.slowValue // A promise
 
 myModel.slowValue.then(function(value){
   console.log('The value is '+value)
-}
+});
 ```
 
 Once the `LAFuture` is satisfied, the result will be pushed up via comet to resolve/reject the promise according to the `Box` value.
@@ -712,7 +713,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 ## Change log
 
 * *0.6.0*: Introduction of [embedded futures](#embedded-futures).
-All of your angular modules now must directly or indirectly depend on the `lift-ng` module.
+**BREAKING CHANGE:** All of your angular modules now must directly or indirectly depend on the `lift-ng` module.
 * *0.5.6*: Bug Fix: Strings pushed to the client are now properly escaped.
 Prior to this fix, a string containing illegal characters such as a newline would be silently discarded.
 * *0.5.5*: Further decomposed `NgModelBinder`, separating the transmission optimizations into the `BindingOptimizations` mixin.
