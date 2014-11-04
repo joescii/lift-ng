@@ -172,7 +172,8 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <script type="text/javascript" src="/scripts/pony.js"></script>
 ```
 
-The resulting angular service returns a `$q` promise (see [AngularJS: ng.$q](http://docs.angularjs.org/api/ng.$q)).  When you call the service, you register callbacks for success, error, and notify (not currently utilized).
+The resulting angular service returns a `$q` promise (see [AngularJS: ng.$q](http://docs.angularjs.org/api/ng.$q)).
+When you call the service, you register callbacks for success, error, and notify (not currently utilized).
 
 ```javascript
 angular.module('pony', ['lift.pony'])
@@ -193,6 +194,15 @@ angular.module('pony', ['lift.pony'])
     };
   });
 ```
+
+#### Mapping Box to Promise
+
+Values requested from the client are always wrapped in a `net.liftweb.common.Box`.
+These `Box[T]` values are mapped to their respective `$q` promises as follows:
+
+`Full(value)` => A resolved promise with the given value.
+`Empty` => A resolved promise with `undefined` value.
+`Failure(msg)` => A rejected promise with the given message value.
 
 #### No arguments, string arguments, or case class arguments
 
@@ -230,7 +240,7 @@ angular.module("lift.pony")
 
 Finally, perhaps most importantly, we expect a case class to be sent to the server.
 Note that the case class must extend `NgModel` for this to work.
-(Read more about models [here](#models))
+(Read more about models [here](#model-objects))
 
 ```scala
 case class Pony (name:String, img:URL) extends NgModel
@@ -467,7 +477,7 @@ The retry interval defaults to 100 milliseconds and can be configured in your Li
 ### Client-Server Model Binding
 Just as Angular provides declarative 2-way binding between the model and view with automatic synchronization, **lift-ng** features binding of a model between the client and server.
 To take advantage of this feature, first create a model case class which extends `NgModel`.
-(Read more about models [here](#models))
+(Read more about models [here](#model-objects))
 
 ```scala
 case class Message(msg:String) extends NgModel
@@ -575,7 +585,7 @@ For instance, given this Scala case class model:
 
 ```scala
 case class MyModel (
-  fastValue:String
+  fastValue:String,
   slowValue:Future[Box[String]]
 ) extends NgModel
 ```
@@ -583,7 +593,7 @@ case class MyModel (
 You will receive the following object on the client:
 
 ```javascript
-var myModel = // However you get it
+var myModel = // However you get it from lift-ng
 myModel.fastValue // A string
 myModel.slowValue // A promise
 
@@ -593,6 +603,8 @@ myModel.slowValue.then(function(value){
 ```
 
 Once the `LAFuture` is satisfied, the result will be pushed up via comet to resolve/reject the promise according to the `Box` value.
+The `Box` value is mapped with the same logic as with client-initiated service calls.
+See [Mapping Box to Promise](#mapping-box-to-promise).
 
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
