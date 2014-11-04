@@ -172,7 +172,7 @@ This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will 
 <script type="text/javascript" src="/scripts/pony.js"></script>
 ```
 
-The resulting angular service returns a `$q` promise (see [AngularJS: ng.$q](http://docs.angularjs.org/api/ng.$q)).
+The resulting angular service returns a [`$q` promise](http://docs.angularjs.org/api/ng.$q).
 When you call the service, you register callbacks for success, error, and notify (not currently utilized).
 
 ```javascript
@@ -198,7 +198,7 @@ angular.module('pony', ['lift.pony'])
 #### Mapping Box to Promise
 
 Values requested from the client are always wrapped in a `net.liftweb.common.Box`.
-These `Box[T]` values are mapped to their respective `$q` promises as follows:
+These `Box[T]` values are mapped to their respective [`$q` promises](http://docs.angularjs.org/api/ng.$q) as follows:
 
 * `Full(value)` => A resolved promise with the given value.
 * `Empty` => A resolved promise with `undefined` value.
@@ -578,7 +578,7 @@ Note that objects contained in an `NgModel` instance also do not need this flag 
 
 #### Embedded Futures
 In addition to data fields which serialize naturally to their equivalent JSON representation, any model can contain fields that are futures of type `net.liftweb.actor.LAFuture[Box[T]]` for an arbitrary `T <: Any`.
-Such fields will be mapped to the client representation of the model as a promise from the `$q` angular service.
+Such fields will be mapped to the client representation of the model as a promise from the [`$q` angular service](http://docs.angularjs.org/api/ng.$q).
 The future will be plumbed to the client-side promise automatically, regardless of where the future appears in the model object graph.
 
 For instance, given this Scala case class model:
@@ -605,6 +605,9 @@ myModel.slowValue.then(function(value){
 Once the `LAFuture` is satisfied, the result will be pushed up via comet to resolve/reject the promise according to the `Box` value.
 The `Box` value is mapped with the same logic as with client-initiated service calls.
 See [Mapping Box to Promise](#mapping-box-to-promise).
+
+Embedded futures work for responses to [client-initiated service calls](#client-initiated-service-calls), [server-initiated events](#server-initiated-events), and [client-server model binding](#client-server-model-binding).
+The only call which does not support embedded futures is [non-AJAX service calls](#non-ajax) via `jsObjFactory().json` where the intent is to provide values known at page load time.
 
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
