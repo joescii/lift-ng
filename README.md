@@ -579,8 +579,7 @@ Note that objects contained in an `NgModel` instance also do not need this flag 
 #### Embedded Futures
 In addition to data fields which serialize naturally to their equivalent JSON representation, any model can contain fields that are futures of type `net.liftweb.actor.LAFuture[Box[T]]` for an arbitrary `T <: Any`.
 Such fields will be mapped to the client representation of the model as a promise from the `$q` angular service.
-The future will be plumbed to the client-side promise automatically.
-Any futures occurring in the model object graph will be serialized and plumbed.
+The future will be plumbed to the client-side promise automatically, regardless of where the future appears in the model object graph.
 
 For instance, given this Scala case class model:
 
