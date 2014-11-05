@@ -8,7 +8,8 @@ import net.liftweb.common.{Empty, Failure, Full, Box}
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 import net.liftweb.http.S
-import scala.concurrent.Future
+import scala.concurrent.{ Future, Promise => ScalaPromise }
+import scala.util.Try
 
 case class EmbeddedFutures(
   resolved: LAFuture[Box[String]],
@@ -23,8 +24,14 @@ case class EmbeddedObj(
   resolved: LAFuture[Box[String]],
   failed:   LAFuture[Box[String]],
   string:   LAFuture[Box[String]],
-  obj:      LAFuture[Box[StringInt]],
-  scala:    Future[String]
+  obj:      LAFuture[Box[StringInt]]
+) extends NgModel
+
+case class EmbeddedScalaFutures(
+  resolved: Future[String],
+  failed:   Future[String],
+  string:   Future[String],
+  obj:      Future[StringInt]
 ) extends NgModel
 
 object EmbeddedFuturesSnips {
@@ -35,6 +42,7 @@ object EmbeddedFuturesSnips {
           S.session.map(_.sendCometActorMessage("EmbeddedFutureActor", Empty, "go"))
           buildFuture
         })
+        .jsonCall("sfetch", { Full(buildScalaModel) })
       )
   )
 
@@ -75,10 +83,32 @@ object EmbeddedFuturesSnips {
     f
   }
 
-  def satisfy[T](future:LAFuture[Box[T]], value:Box[T]) {
+  def sched(f: => Unit) = {
     def delay = (Math.random() * 3000).toInt.millis
-    Schedule(() => {
-      future.satisfy(value)
-    }, delay)
+    Schedule(() => { f }, delay)
+  }
+
+  def satisfy[T](future:LAFuture[Box[T]], value:Box[T]) {
+    sched( future.satisfy(value) )
+  }
+
+  def satisfy[T](p:ScalaPromise[T], value:T) {
+    sched( p.complete(Try(value)) )
+  }
+
+  def buildScalaModel = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    val resolved = Future("resolved")
+    val failed = ScalaPromise[String]()
+    sched( failed.failure(new Exception("failed")) )
+
+    val string = ScalaPromise[String]()
+    satisfy(string, "future")
+
+    val obj = ScalaPromise[StringInt]()
+    satisfy(obj, StringInt("string", 42))
+
+    EmbeddedScalaFutures(resolved, failed.future, string.future, obj.future)
   }
 }

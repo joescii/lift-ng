@@ -116,4 +116,24 @@ class EmbeddedFuturesSpec extends BaseSpec {
     }
   }
 
+
+  "The scala future field that resolves before sending" should "be set to 'resolved'" in {
+    eventually { id("scala-resolved-output").element.text should be ("resolved") }
+  }
+
+  "The scala future field that fails" should "be set to 'failed'" in {
+    eventually { id("scala-failed-output").element.text should be ("failed") }
+  }
+
+  "The scala future field that contains a string" should "be set to 'future'" in {
+    eventually { id("scala-string-output").element.text should be ("future") }
+  }
+
+  "The scala future field that contains an object" should "set its two fields" in {
+    eventually {
+      id("scala-object-str-output").element.text should be ("string")
+      id("scala-object-num-output").element.text should be ("42")
+    }
+  }
+
 }
