@@ -53,7 +53,7 @@ libraryDependencies ++= {
   val ngVersion = "1.3.1"  // If using lift-ng-js as recommended
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.6.0"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.6.1"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.2_"+ngVersion) % "compile"
    )
 }
@@ -279,7 +279,7 @@ angular.module("lift.pony")
 
 #### Futures
 All of the examples thus far have assumed the value can be calculated quickly without expensive blocking or asynchronous calls.
-Since it is quite common to perform expensive operations or call APIs which return a `Future[T]`, it is important that **lift-ng** likewise supports returning an `LAFuture`.
+Since it is quite common to perform expensive operations or call APIs which return a `Future[T]`, it is important that **lift-ng** likewise supports returning a future.
 
 The same signatures for `jsonCall` are supported for futures:
 
@@ -308,7 +308,10 @@ angular.module("lift.pony")
   )
 ```
 
-Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1), we had to circumvent this limitation by utilizing comet.
+In addition to supporting `net.liftweb.actor.LAFuture`, we also provide support for `scala.concurrent.Future` via conversions.
+See [this section](#scala.concurrent.future) for details
+
+Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1/2.6), we had to circumvent this limitation by utilizing comet.
 As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.
 By default, we look for any elements containing the `ng-app` attribute.
 This can be overridden in the `Angular.init()` call via the `appSelector` property.
@@ -609,6 +612,45 @@ See [Mapping Box to Promise](#mapping-box-to-promise).
 Embedded futures work for responses to [client-initiated service calls](#client-initiated-service-calls), [server-initiated events](#server-initiated-events), and [client-server model binding](#client-server-model-binding).
 The only call which does not support embedded futures is [non-AJAX service calls](#non-ajax) via `jsObjFactory().json` where the intent is to provide values known at page load time.
 
+In addition to Lift's `LAFuture`, Scala's `scala.concurrent.Future` can also be embedded.
+The conversion details are documented [below](#scala.concurrent.future).
+
+
+### scala.concurrent.Future
+As of Scala 2.10, the language library includes support for futures via the `scala.concurrent.Future`.
+Builds of **lift-ng** for Scala 2.10+ provide support for this implementation of `Future` as well.
+The object `net.liftmodules.ng.FutureConversions` provides two implicit conversions.
+One will convert a `Future[T]` into an `LAFuture[Box[T]]` implicitly.
+The other decorates `Future[T]` with a function named `la` to force the conversion as needed.
+See below for a full example.
+
+```scala
+import net.liftweb.util.Schedule
+import net.liftweb.util.Helpers._
+import net.liftmodules.ng.FutureConversions._
+import scala.concurrent. { Promise, Future }
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
+
+// Create a Scala Promise first.
+val p = Promise[String]()
+
+// Satisfy the promise with a String a second from now.
+Schedule.schedule(() => p.complete(Try("ScalaFuture")), 1 second)
+
+// Implicit conversion to LAFuture
+val laf1:LAFuture[Box[String]] = p.future
+
+// Slightly less implicit conversion to LAFuture
+val laf2 = p.future.la
+```
+
+The mapping of `Future[T]` to `LAFuture[Box[T]]` works as follows:
+
+* A satisfied `Future[T]` with value `t` will be mapped to `LAFuture(Full(t))`.
+* A failed `Future[T]` with exception `e` will be mapped to `LAFuture(Failure(e.getMessage, Full(e), None))`
+
+
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
 
@@ -684,7 +726,7 @@ Below is the recommended procedure for git:
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
+4. Push the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
 Please include as much as you are able, such as tests, documentation, updates to this README, etc.
@@ -711,10 +753,10 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Support server comet pushes to client via services.
 * Provide a means of utilizing the third `notify` function of promises to send progress updates to the client.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
-* `AngularActor.scope.parent` support
 
 ## Change log
 
+* *0.6.1*: Added support for `scala.concurrent.Future`.
 * *0.6.0*: Introduction of [embedded futures](#embedded-futures).
 **BREAKING CHANGE:** All of your angular modules now must directly or indirectly depend on the `lift-ng` module.
 * *0.5.6*: Bug Fix: Strings pushed to the client are now properly escaped.
