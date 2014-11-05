@@ -650,6 +650,8 @@ The mapping of `Future[T]` to `LAFuture[Box[T]]` works as follows:
 * A satisfied `Future[T]` with value `t` will be mapped to an `LAFuture[Box[T]]` satisfied with `Full(t)`.
 * A failed `Future[T]` with exception `e` will be mapped to an `LAFuture[Box[T]]` satisfied with `Failure(e.getMessage, Full(e), None)`
 
+The `Box[T]` is then wired up to a [`$q` promise](http://docs.angularjs.org/api/ng.$q) on the client [as outlined here](#mapping-box-to-promise).
+The net result is a completed `Future[T]` maps to a resolved promise, and a failed `Future[T]` maps to a rejected promise.
 
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
