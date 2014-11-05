@@ -647,8 +647,8 @@ val laf2 = p.future.la
 
 The mapping of `Future[T]` to `LAFuture[Box[T]]` works as follows:
 
-* A satisfied `Future[T]` with value `t` will be mapped to `LAFuture(Full(t))`.
-* A failed `Future[T]` with exception `e` will be mapped to `LAFuture(Failure(e.getMessage, Full(e), None))`
+* A satisfied `Future[T]` with value `t` will be mapped to an `LAFuture[Box[T]]` satisfied with `Full(t)`.
+* A failed `Future[T]` with exception `e` will be mapped to an `LAFuture[Box[T]]` satisfied with `Failure(e.getMessage, Full(e), None)`
 
 
 ### i18n Internationalization
