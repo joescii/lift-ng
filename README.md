@@ -309,7 +309,7 @@ angular.module("lift.pony")
 ```
 
 In addition to supporting `net.liftweb.actor.LAFuture`, we also provide support for `scala.concurrent.Future` via conversions.
-See [this section](#scala.concurrent.future) for details
+See [this section](#scalaconcurrentfuture) for details
 
 Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1/2.6), we had to circumvent this limitation by utilizing comet.
 As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.
@@ -613,7 +613,7 @@ Embedded futures work for responses to [client-initiated service calls](#client-
 The only call which does not support embedded futures is [non-AJAX service calls](#non-ajax) via `jsObjFactory().json` where the intent is to provide values known at page load time.
 
 In addition to Lift's `LAFuture`, Scala's `scala.concurrent.Future` can also be embedded.
-The conversion details are documented [below](#scala.concurrent.future).
+The conversion details are documented [below](#scalaconcurrentfuture).
 
 
 ### scala.concurrent.Future
