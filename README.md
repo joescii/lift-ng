@@ -80,6 +80,9 @@ class Boot {
       // net_liftmodules_ng.
       includeJsScript = true
     )
+
+    val context:ExecutionContext = // Create context
+    net.liftmodules.ng.AngularExecutionContext(context) // Tell lift-ng to use it
   }
 }
 ```
@@ -88,6 +91,12 @@ If you want to handle the downloading of javascript assets yourself with a libra
 This will prevent our `Angular` snippet from including the `liftproxy.js` file.
 Instead, you can use the global `ng_liftmodules_ng` object to include the file yourself.
 You can get the full path to the `liftproxy.js` file via `net_liftmodules_ng.path` or get just the lift-ng version alone with `net_liftmodules_ng.version`.
+
+If you plan to use futures of type `scala.concurrent.Future[T]`, you can dictate the `scala.concurrent.ExecutionContext` that is implicitly required when **lift-ng** converts them to `LAFuture[T]`.
+By default, we will use `scala.concurrent.ExecutionContext.global`.
+To specify a different `ExecutionContext`, in your `Boot.boot` invoke the `apply` method of `net.liftmodules.ng.AngularExecutionContext` with your preferred `ExecutionContext` as shown above.
+For more details about how we handle `scala.concurrent.Future[T]`, [read here](#scalaconcurrentfuture)
+
 
 ## Supported Versions
 
