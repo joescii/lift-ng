@@ -35,7 +35,6 @@ object EmbeddedFuturesSnips {
           S.session.map(_.sendCometActorMessage("EmbeddedFutureActor", Empty, "go"))
           buildFuture
         })
-        .json("static", buildModel)
       )
   )
 
