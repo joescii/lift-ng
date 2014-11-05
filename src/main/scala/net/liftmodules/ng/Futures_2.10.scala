@@ -4,12 +4,17 @@ import net.liftweb.json._
 import scala.concurrent.{ExecutionContext, Future}
 import net.liftweb.actor.LAFuture
 import net.liftweb.common.{Empty, Failure, Full, Box}
-import net.liftmodules.ng.Angular.NgModel
 
 object AngularExecutionContext {
   implicit var ec:ExecutionContext = ExecutionContext.global
   def apply(ec:ExecutionContext) {
     this.ec = ec
+  }
+}
+
+trait ScalaFutureSerializer {
+  def scalaFutureSerializer(formats:Formats)(implicit ctx:ExecutionContext):PartialFunction[Any, JValue] = {
+    case future:Future[_] => LAFutureSerializer.laFuture2JValue(formats, FutureConversions.FutureToLAFuture(future))
   }
 }
 
@@ -24,14 +29,4 @@ object FutureConversions {
       laf
     }
   }
-}
-
-class LAFutureSerializer[T <: NgModel](implicit ctx:ExecutionContext, m: Manifest[T]) extends LAFutureSerializerBase[T] {
-  override val futureSerializer = new LAFutureSerializer[T]
-
-  private def scalaFutureSerializer(formats:Formats)(implicit ctx:ExecutionContext):PartialFunction[Any, JValue] = {
-    case future:Future[_] => laFuture2JValue(formats, FutureConversions.FutureToLAFuture(future))
-  }
-
-  def serialize(implicit format: Formats) = laFutureSerializer(format) orElse scalaFutureSerializer(format)
 }

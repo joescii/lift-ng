@@ -430,7 +430,6 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
    * Maps an api result to a Promise object that will be used to fulfill the javascript promise object.
    */
   object DefaultApiSuccessMapper extends PromiseMapper {
-    import AngularExecutionContext._
     private implicit val formats = DefaultFormats + new LAFutureSerializer
 
     def toPromise(box: Box[Any]): Promise = {

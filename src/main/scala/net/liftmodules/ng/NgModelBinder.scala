@@ -283,7 +283,6 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
   }
 
   private def toJValue(m: M): JValue = {
-    import AngularExecutionContext._
     implicit val formats = DefaultFormats + new LAFutureSerializer
     m match {
       case m: NgModel if m != null => parse(write(m))

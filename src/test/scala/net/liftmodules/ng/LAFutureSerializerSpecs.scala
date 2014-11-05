@@ -13,6 +13,7 @@ case class Model(str:String, num:Int)
 case class ModelF(str:String, num:Int, f:LAFuture[Box[String]])
 
 class LAFutureSerializerSpecs extends WordSpec with ShouldMatchers {
+  import AngularExecutionContext._
   implicit val formats = Serialization.formats(NoTypeHints) + new LAFutureSerializer
 
   "An LAFutureSerializer" should {

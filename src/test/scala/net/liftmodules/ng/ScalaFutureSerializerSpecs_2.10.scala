@@ -12,6 +12,7 @@ case class TestScala[T](f:Future[T])
 case class ModelScalaF(str:String, num:Int, f:Future[String])
 
 class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Eventually {
+  import AngularExecutionContext._
   implicit val formats = Serialization.formats(NoTypeHints) + new LAFutureSerializer
   import scala.concurrent.ExecutionContext.Implicits.global
 

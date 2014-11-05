@@ -56,7 +56,6 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
     cmds
   }
 
-  import AngularExecutionContext._
   private implicit val formats = DefaultFormats + new LAFutureSerializer
   protected def stringify(obj:AnyRef):String = obj match {
     case s:String => StringHelpers.encJs(s)
