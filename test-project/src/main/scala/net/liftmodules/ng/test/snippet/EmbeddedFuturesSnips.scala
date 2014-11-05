@@ -8,6 +8,7 @@ import net.liftweb.common.{Empty, Failure, Full, Box}
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 import net.liftweb.http.S
+import scala.concurrent.Future
 
 case class EmbeddedFutures(
   resolved: LAFuture[Box[String]],
@@ -22,7 +23,8 @@ case class EmbeddedObj(
   resolved: LAFuture[Box[String]],
   failed:   LAFuture[Box[String]],
   string:   LAFuture[Box[String]],
-  obj:      LAFuture[Box[StringInt]]
+  obj:      LAFuture[Box[StringInt]],
+  scala:    Future[String]
 ) extends NgModel
 
 object EmbeddedFuturesSnips {
