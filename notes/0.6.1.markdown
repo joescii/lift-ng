@@ -1,0 +1,60 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+This release of lift-ng adds support for Scala's built-in `scala.concurrrent.Future` in addition to Lift's `net.liftweb.actor.LAFuture`.
+As of Scala 2.10, the language library includes support for futures via the `scala.concurrent.Future`.
+Builds of **lift-ng** for Scala 2.10+ now provide support for this implementation of `Future` as well.
+
+The object `net.liftmodules.ng.FutureConversions` provides two implicit conversions.
+One will convert a `Future[T]` into an `LAFuture[Box[T]]` implicitly.
+The other decorates `Future[T]` with a function named `la` to force the conversion as needed.
+See below for a full example.
+
+    import net.liftweb.util.Schedule
+    import net.liftweb.util.Helpers._
+    import net.liftmodules.ng.FutureConversions._
+    import scala.concurrent. { Promise, Future }
+    import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.util.Try
+
+    // Create a Scala Promise first.
+    val p = Promise[String]()
+
+    // Satisfy the promise with a String a second from now.
+    Schedule.schedule(() => p.complete(Try("ScalaFuture")), 1 second)
+
+    // Implicit conversion to LAFuture
+    val laf1:LAFuture[Box[String]] = p.future
+
+    // Slightly less implicit conversion to LAFuture
+    val laf2 = p.future.la
+
+The mapping of `Future[T]` to `LAFuture[Box[T]]` works as follows:
+
+* A satisfied `Future[T]` with value `t` will be mapped to an `LAFuture[Box[T]]` satisfied with `Full(t)`.
+* A failed `Future[T]` with exception `e` will be mapped to an `LAFuture[Box[T]]` satisfied with `Failure(e.getMessage, Full(e), None)`
+
+The `Box[T]` is then wired up to a [`$q` promise](http://docs.angularjs.org/api/ng.$q) on the client [as outlined here](https://github.com/joescii/lift-ng/#mapping-box-to-promise).
+The net result is a completed `Future[T]` maps to a resolved promise, and a failed `Future[T]` maps to a rejected promise.
+
+### Configuration
+
+If you plan to use futures of type `scala.concurrent.Future[T]`, you can dictate the `scala.concurrent.ExecutionContext` that is implicitly required when **lift-ng** converts them to `LAFuture[T]`.
+By default, we will use `scala.concurrent.ExecutionContext.global`.
+To specify a different `ExecutionContext`, in your `Boot.boot` invoke the `apply` method of `net.liftmodules.ng.AngularExecutionContext` with your preferred `ExecutionContext` as shown below.
+
+    package bootstrap.liftweb
+
+    class Boot {
+      def boot {
+        // Other stuff...
+
+        net.liftmodules.ng.Angular.init(
+          // Init params for lift-ng...
+        )
+
+        val context:ExecutionContext = // Create context
+        net.liftmodules.ng.AngularExecutionContext(context) // Tell lift-ng to use it
+      }
+    }
