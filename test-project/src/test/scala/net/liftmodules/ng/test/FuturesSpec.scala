@@ -42,6 +42,11 @@ class FuturesSpec extends BaseSpec {
     eventually(id("satisfied-output").element.text should be ("satisfied"))
   }
 
+  "The angular service with a Scala Future" should "send 'ScalaFuture' up to the client after roughly 1 second" in {
+    click on "scala-future-button"
+    eventually{id("scala-future-output").element.text should be ("ScalaFuture")}
+  }
+
 
   "The futures page" should "reload" in {
     initialize("futures")
@@ -57,6 +62,7 @@ class FuturesSpec extends BaseSpec {
     click on "json-button"
     click on "empty-button"
     click on "satisfied-button"
+    click on "scala-future-button"
     eventually{
       id("no-arg-output").element.text should be ("FromFuture")
       id("failure-output").element.text should be ("FailureTest")
@@ -65,6 +71,7 @@ class FuturesSpec extends BaseSpec {
       id("json-output-b").element.text should be ("FromFuture argB")
       id("empty-output").element.text should be ("returned")
       id("satisfied-output").element.text should be ("satisfied")
+      id("scala-future-output").element.text should be ("ScalaFuture")
     }
   }
 

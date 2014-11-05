@@ -72,4 +72,13 @@ angular.module('FutureApp', ['lift-ng', 'Futures'])
     });
   };
 }])
+.controller('ScalaFutureController', ['$scope', 'futureServices', function($scope, svc) {
+  $scope.output = "";
+
+  $scope.click = function() {
+    svc.scalaFuture().then(function(str){
+      $scope.output = str;
+    });
+  };
+}])
 ;

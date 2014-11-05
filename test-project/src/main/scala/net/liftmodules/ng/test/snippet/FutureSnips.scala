@@ -46,6 +46,16 @@ object FutureSnips extends Loggable {
         f.satisfy(Empty)
         f
       })
+      .future("scalaFuture", {
+        import FutureConversions._
+        import scala.concurrent. { Promise => ScalaPromise, Future }
+        import scala.concurrent.ExecutionContext.Implicits.global
+        import scala.util.Try
+
+        val p = ScalaPromise[String]()
+        Schedule.schedule(() => p.complete(Try("ScalaFuture")), 1 second)
+        p.future.la
+      })
     )
   )
 }
