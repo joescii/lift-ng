@@ -53,7 +53,7 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
       "net_liftmodules_ng_q.push({t:t,f:f});"
     val cmds = vars & ready & fn & JsRaw(dequeue+"if(typeof net_liftmodules_ng_q==='undefined'&&t()){f();}else{"+enqueue+"}")
     logger.trace(cmds)
-    cmds
+    JsRaw("(function(){"+cmds.toJsCmd+"}).call(this)")
   }
 
   private implicit val formats = DefaultFormats + new LAFutureSerializer
