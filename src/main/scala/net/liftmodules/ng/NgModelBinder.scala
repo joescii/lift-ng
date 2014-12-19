@@ -108,7 +108,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
   self:BindDirection  =>
   import Angular._
 
-  private [ng] def buildMutator(newState:JValue):JsCmd = super.buildMutator(id, newState)
+  private [ng] def buildMutator(newState:JValue):JsCmd = buildMutator(id, newState)
   private [ng] val jsScope = "s('"+id+"')"
 
   /** Initial value on session initialization */
