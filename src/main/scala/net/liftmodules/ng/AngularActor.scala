@@ -19,23 +19,23 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
   private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
 
   /** Variable assignment for \$scope */
-  private val varScope = JsCrVar("e", AnonFunc(
+  private val varScope = JsCrVar("e", AnonFunc("id",
     JsRaw(
       "if(typeof angular==='undefined'||typeof angular.element==='undefined')return void 0;else " +
-        "return angular.element(document.querySelector('#"+id+"'))"
+        "return angular.element(document.querySelector('#'+id))"
     )
-  )) & JsCrVar("s", AnonFunc(
+  )) & JsCrVar("s", AnonFunc("id",
     JsRaw(
-      "if(typeof e()==='undefined')return void 0;else " +
-        "return e().scope()"
+      "if(typeof e(id)==='undefined')return void 0;else " +
+        "return e(id).scope()"
     )
   ))
   /** Variable assignment for \$rootScope */
-  private val varRoot  = JsCrVar("r", AnonFunc(JsReturn(JsRaw("(typeof s()==='undefined')?void 0:s().$root"))))
+  private val varRoot  = JsCrVar("r", AnonFunc("id", JsReturn(JsRaw("(typeof s(id)==='undefined')?void 0:s(id).$root"))))
 
   /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
   protected def buildCmd(root:Boolean, f:JsCmd):JsCmd = {
-    val scopeFn = if(root) "r()" else "s()"
+    val scopeFn = if(root) "r('"+id+"')" else "s('"+id+"')"
     val vars = varScope & (if(root) varRoot else Noop)
     val ready = JsCrVar("t", AnonFunc(JsReturn(JsRaw("typeof " + scopeFn + "!=='undefined'"))))
     val fn = JsCrVar("f", AnonFunc(Call(scopeFn+".$apply", AnonFunc(f))))
@@ -84,9 +84,9 @@ trait AngularActor extends CometActor with LiftNgJsHelpers {
     def assign(field:String, obj:AnyRef):Unit = partialUpdate(assignCmd(field, obj))
 
     protected def root:Boolean
-    private def scopeVar = if(root) "r()" else "s()"
+    private def scopeVar = if(root) "r('"+id+"')" else "s('"+id+"')"
 
-    protected def model(obj:AnyRef) = JsCrVar("m", JsRaw(stringify(obj))) & Call("e().injector().get('plumbing').inject", JsVar("m"))
+    protected def model(obj:AnyRef) = JsCrVar("m", JsRaw(stringify(obj))) & Call("e('"+id+"').injector().get('plumbing').inject", JsVar("m"))
 
     /** Sends an event command, i.e. broadcast or emit */
     private def eventCmd(method:String, event:String, obj:AnyRef):JsCmd = {

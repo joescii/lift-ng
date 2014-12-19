@@ -46,7 +46,7 @@ private [ng] sealed trait BindingBase {
   /** The server-side state of the binder */
   private [ng] var stateJson: JValue
   /** Builds the $JsCmd to mutate the client state on server update */
-  private [ng] def buildMutator(newState:JValue):JsCmd = SetExp(JsVar("s()." + bindTo), newState)
+  private [ng] def buildMutator(id:String, newState:JValue):JsCmd = SetExp(JsVar("s('"+id+"')." + bindTo), newState)
   /** Builds the client-side update variable to send to the server on client-side update */
   private [ng] def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("n")))
   /** Converts the $JValue sent from the client to the server into the respective $NgModel */
@@ -84,9 +84,9 @@ trait SessionScope extends BindingScope {
 
 /** Mix with your NgModelBinder to optimize the binding and attempt to send the least amount of data needed.  Regard this as incomplete and experimental. */
 trait BindingOptimizations extends BindingBase {
-  private [ng] override def buildMutator(newState: JValue) = {
+  private [ng] override def buildMutator(id:String, newState: JValue) = {
     val diff = stateJson dfn newState
-    diff(JsVar("s()." + bindTo)) // Send the diff
+    diff(JsVar("s('"+id+"')." + bindTo)) // Send the diff
   }
   private [ng] override def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}")))
   private [ng] override def jValueToState[M <: NgModel : Manifest](update:JValue, current:M):M = {
@@ -107,6 +107,9 @@ trait BindingOptimizations extends BindingBase {
 abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with BindingBase with BindingScope {
   self:BindDirection  =>
   import Angular._
+
+  private [ng] def buildMutator(newState:JValue):JsCmd = super.buildMutator(id, newState)
+  private [ng] val jsScope = "s('"+id+"')"
 
   /** Initial value on session initialization */
   def initialValue: M
@@ -176,7 +179,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     override def render = Script(buildCmd(root = false,
       renderCurrentState &
       renderThrottleCount &
-      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) & // This prevents us from sending a server-sent value back to the server when doing 2-way binding
+      SetExp(JsVar(jsScope+"." + lastServerVal + bindTo), JsVar(jsScope+"." + bindTo)) & // This prevents us from sending a server-sent value back to the server when doing 2-way binding
       watch(ifNotServerEcho(timeThrottledCall(sendToServer(handleJson))))
     ))
 
@@ -197,7 +200,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     override def render = Script(buildCmd(root = false,
       renderCurrentState &
       renderThrottleCount &
-      SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // This prevents us from sending a server-sent value back to the server when doing 2-way binding
+      SetExp(JsVar(jsScope+"." + lastServerVal + bindTo), JsVar(jsScope+"." + bindTo)) // This prevents us from sending a server-sent value back to the server when doing 2-way binding
     ))
 
     override def receive = receiveFromServer(sendToClient(Empty)) orElse receiveFromClient(afterUpdate)
@@ -217,7 +220,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
 
     private def afterUpdate(exclude:Box[String]): Unit = {
       val cmd = buildMutator(stateJson) &
-        SetExp(JsVar("s()." + lastServerVal + bindTo), JsVar("s()." + bindTo)) // And remember what we sent so we can ignore it later
+        SetExp(JsVar(jsScope+"." + lastServerVal + bindTo), JsVar(jsScope+"." + bindTo)) // And remember what we sent so we can ignore it later
 
       sendToClient(exclude)(cmd)
     }
@@ -290,24 +293,24 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     }
   }
 
-  private def renderCurrentState = SetExp(JsVar("s()." + bindTo), stateJson) & // Send the current state with the page
-    Call("e().injector().get('plumbing').inject", JsVar("s()." + bindTo)) // Inject any promises we're sending
-  private val renderThrottleCount = SetExp(JsVar("s()." + queueCount + bindTo), JInt(0)) // Set the last server val to avoid echoing it back
+  private def renderCurrentState = SetExp(JsVar(jsScope+"." + bindTo), stateJson) & // Send the current state with the page
+    Call("e('"+id+"').injector().get('plumbing').inject", JsVar(jsScope+"." + bindTo)) // Inject any promises we're sending
+  private val renderThrottleCount = SetExp(JsVar(jsScope+"." + queueCount + bindTo), JInt(0)) // Set the last server val to avoid echoing it back
 
-  private def watch(f:JsCmd):JsCmd = Call("s().$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison
+  private def watch(f:JsCmd):JsCmd = Call(jsScope+".$watch", JString(bindTo), AnonFunc("n,o", f), JsTrue) // True => Deep comparison
 
   private def ifNotServerEcho(f:JsCmd):JsCmd =
   // If the new value, n, is not equal to the last server val, send it.
-    JsIf(JsNotEq(JsVar("n"), JsRaw("s()." + lastServerVal + bindTo)),
+    JsIf(JsNotEq(JsVar("n"), JsRaw(jsScope+"." + lastServerVal + bindTo)),
       f,
       // else remove our last saved value so we can forget about it
-      SetExp(JsVar("s()." + lastServerVal + bindTo), JsNull)
+      SetExp(JsVar(jsScope+"." + lastServerVal + bindTo), JsNull)
     )
 
   private def timeThrottledCall(f:JsCmd):JsCmd =
-    JsCrVar("c", JsVar("s()." + queueCount + bindTo + "++")) &
+    JsCrVar("c", JsVar(jsScope + "." + queueCount + bindTo + "++")) &
       Call("setTimeout", AnonFunc(
-        JsIf(JsEq(JsVar("c+1"), JsVar("s()." + queueCount + bindTo)), f)
+        JsIf(JsEq(JsVar("c+1"), JsVar(jsScope + "." + queueCount + bindTo)), f)
       ), JInt(clientSendDelay))
 
   private def sendToServer(handler: JsonHandlerFn):JsCmd = buildClientUpdateVar &
