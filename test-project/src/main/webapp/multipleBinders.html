@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+      <h2>Multiple Server to Client Binders</h2>
+      <div ng-app="MultipleBindersApp">
+        <div data-lift="embed?what=ready"></div>
+        <div ng-controller="Controller1" data-lift="Angular.bind?type=MultipleBinder1">
+          Binder 1: <span id="binder1" ng-bind="bound1.msg"></span>
+        </div>
+        <div ng-controller="Controller2" data-lift="Angular.bind?type=MultipleBinder2">
+          Binder 2: <span id="binder2" ng-bind="bound2.msg"></span>
+        </div>
+      </div>
+
+      <script data-lift="AngularJS"></script>
+      <script id="multiple-binders-app_js" src="/js/MultipleBindersApp.js" type="text/javascript"></script>
+      <script id="liftmodules-ng_js"  data-lift="Angular"></script>
+    </div>
+  </body>
+</html>
+
