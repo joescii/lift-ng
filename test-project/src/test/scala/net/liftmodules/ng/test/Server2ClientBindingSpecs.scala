@@ -134,3 +134,21 @@ class Server2ClientRequestBindingSpecs extends BaseSpec {
     eventually { id("output").element.text should be ("0") }
   }
 }
+
+class MultipleBinderSpecs extends BaseSpec {
+  "Multiple Server to Client Binders page" should "load" in {
+    initialize("multipleBinders")
+  }
+
+  "The first binder" should "should be set to Bound-1" in {
+    eventually {
+      id("binder1").element.text should be("Bound-1")
+    }
+  }
+
+  "The second binder" should "should be set to Bound-2" in {
+    eventually {
+      id("binder2").element.text should be("Bound-2")
+    }
+  }
+}
