@@ -1,0 +1,29 @@
+{
+  "organization" : "net.liftmodules",
+  "name" : "lift-ng",
+  "version" : "0.6.2",
+  "description" : "lift-ng is the most powerful, most secure AngularJS backend available today",
+  "site" : "https://github.com/joescii/lift-ng",
+  "tags" : [ "lift", "angular" ],
+  "docs" : "",
+  "resolvers" : [ "https://oss.sonatype.org/content/repositories/releases" ],
+  "dependencies" : [ {
+    "organization" : "net.liftweb",
+    "name" : "lift-webkit",
+    "version" : "2.5.1"
+  }, {
+    "organization" : "com.joescii",
+    "name" : "j2js-i18n",
+    "version" : "0.1"
+  }, {
+    "organization" : "org.scalaz",
+    "name" : "scalaz-core",
+    "version" : "7.0.6"
+  } ],
+  "scalas" : [ "2.11.2", "2.10.4", "2.9.2", "2.9.1" ],
+  "licenses" : [ {
+    "name" : "Apache-2.0",
+    "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+  } ],
+  "sbt" : false
+}

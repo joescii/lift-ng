@@ -1,0 +1,6 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+This release of lift-ng fixes some bugs exposed by placing two `NgModelBinder`s in two different controllers on one page.
+Regardless of your current use case, it is recommended you upgrade to this release in order to provide consistent behavior.

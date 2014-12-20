@@ -53,7 +53,7 @@ libraryDependencies ++= {
   val ngVersion = "1.3.1"  // If using lift-ng-js as recommended
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.6.1"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.6.2"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.2_"+ngVersion) % "compile"
    )
 }
@@ -767,6 +767,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.6.2*: Fixes for bugs exposed by placing two `NgModelBinder`s in two different controllers on one page.
 * *0.6.1*: Added support for `scala.concurrent.Future`.
 * *0.6.0*: Introduction of [embedded futures](#embedded-futures).
 **BREAKING CHANGE:** All of your angular modules now must directly or indirectly depend on the `lift-ng` module.
