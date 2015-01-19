@@ -5,6 +5,7 @@ import Angular._
 import net.liftweb.actor.LAFuture
 import net.liftmodules.ng.test.model.StringInt
 import net.liftweb.common.{Empty, Failure, Full, Box}
+import net.liftweb.json.JsonAST.{JValue, JNull}
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 import net.liftweb.http.S
@@ -17,7 +18,8 @@ case class EmbeddedFutures(
   string:   LAFuture[Box[String]],
   obj:      LAFuture[Box[StringInt]],
   arr:      List[LAFuture[Box[String]]],
-  fobj:     LAFuture[Box[EmbeddedObj]]
+  fobj:     LAFuture[Box[EmbeddedObj]],
+  np:       JValue = JNull
 ) extends NgModel
 
 case class EmbeddedObj(
