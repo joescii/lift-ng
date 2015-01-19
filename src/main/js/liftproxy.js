@@ -35,8 +35,11 @@ angular
 
     var inject = function(model) {
       for(var k in model) {
+        if(model[k] == null) {
+          // Don't do anything, skip
+        }
         // It is a future which we need to inject
-        if(model[k]["net.liftmodules.ng.Angular.future"]) {
+        else if(model[k]["net.liftmodules.ng.Angular.future"]) {
           var id   = model[k].id;
           var data = model[k].data;
           var msg  = model[k].msg;
