@@ -1,0 +1,6 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+This release of lift-ng fixes a client-side error that occurs when a model returned from a service contains a `null` field.
+This bug was likely introduced in *0.6.0*.
