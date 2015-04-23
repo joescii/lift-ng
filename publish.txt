@@ -3,20 +3,20 @@ alias pub=publishSigned
 clean 
 jasmine
 
-set liftVersion in ThisBuild :="3.0-M3"
-set crossScalaVersions := Seq("2.11.4")
+set liftVersion in ThisBuild :="3.0-M4-1"
+set crossScalaVersions := Seq("2.11.6")
 + update
 + test
 + pub
 
-set liftVersion in ThisBuild:="2.6"
-set crossScalaVersions := Seq("2.11.4", "2.10.4", "2.9.2", "2.9.1")
+set liftVersion in ThisBuild:="2.6.2"
+set crossScalaVersions := Seq("2.11.6", "2.10.5", "2.9.2", "2.9.1")
 + update
 + test
 + pub
 
-set liftVersion in ThisBuild:="2.5.1"
-set crossScalaVersions := Seq("2.10.4", "2.9.2", "2.9.1")
+set liftVersion in ThisBuild:="2.5.3"
+set crossScalaVersions := Seq("2.10.5", "2.9.2", "2.9.1")
 + update
 + test
 + pub
