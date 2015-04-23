@@ -4,8 +4,8 @@ angular.module('FuturesRaceConditionApp', ['lift-ng', 'FuturesRaceCondition'])
 
   $scope.click = function() {
     service.fetch().then(function(obj){
-      for(var i = 0; i <= 20; i++) {
-        (function(i){obj["f"+i].then(function(f){$scope.obj["f"+i]=f})})(i);
+      for(var i = 0; i < 10; i++) {
+        (function(i){obj.fs[i].then(function(f){$scope.obj[i]=f})})(i);
       }
     });
   };
