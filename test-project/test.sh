@@ -31,9 +31,9 @@ run_tests_rec () {
   return $status
 }
 
-run_tests "3.0-M3" "2.11.4"
-run_tests "2.6" "2.11.4"
-run_tests "2.6" "2.10.4"
-run_tests "2.5.1" "2.10.4"
+run_tests "3.0-M4-1" "2.11.6"
+run_tests "2.6.2" "2.11.6"
+run_tests "2.6.2" "2.10.5"
+run_tests "2.5.3" "2.10.5"
 
 exit $?
