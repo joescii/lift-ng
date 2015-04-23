@@ -24,15 +24,19 @@ angular
       return q;
     };
 
+    // Called by the LiftNgFutureActor when a Future is fulfilled
     var fulfill = function(data, id) {
       var theId = id || data.id;
       var q = defers[theId];
-      if(typeof q !== "undefined" && q !== null) {
+      if(typeof q !== "undefined" && q !== null) { // We found our awaiting defer/promise
         resolve(data, q);
         delete defers[theId];
+      } else { // We arrived before the model which embeds us!
+        resolve(data, create(theId));
       }
     };
 
+    // Called to inject promises wherever our serializer encountered a Future
     var inject = function(model) {
       for(var k in model) {
         if(model[k] == null) {
@@ -43,13 +47,17 @@ angular
           var id   = model[k].id;
           var data = model[k].data;
           var msg  = model[k].msg;
-          if(id) {
+          var q = defers[id];
+          if(id && typeof q !== "undefined" && q !== null) { // The future resolved before we arrived here
+            model[k] = q.promise;
+            delete defers[id];
+          } else if(id) { // Promise/Future pending
             model[k] = create(id).promise;
-          } else if(msg) {
+          } else if(msg) { // An error message has been provided
             var d = $q.defer();
             d.reject(msg);
             model[k] = d.promise;
-          } else {
+          } else { // The future had already resolved at serialization time
             var d = $q.defer();
             d.resolve(data);
             model[k] = d.promise;
