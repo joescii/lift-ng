@@ -486,7 +486,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
         case Some(RequestString(data)) => stringToPromise(data)
-        case None => Reject("invalid json")
+        case None => Reject(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
     }
@@ -505,7 +505,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).\\("data").extractOpt[Model] match {
         case Some(model) => modelToPromise(model)
-        case None => Reject("invalid json")
+        case None => Reject(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
     }
@@ -524,9 +524,9 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
       jsonToFuture andThen futureToJsObj
     }
 
-    protected def reject[T <: Any]:NgFuture[T] = {
+    protected def reject[T <: Any](json:String):NgFuture[T] = {
       val f = new LAFuture[Box[T]]
-      f.satisfy(Failure("invalid json"))
+      f.satisfy(Failure(invalidJson(json)))
       (f, FutureIdNA)
     }
   }
@@ -555,7 +555,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         val id = rand
         (Angular.plumbFuture(func(data), id), id)
       }
-      case _ => reject[T]
+      case _ => reject[T](json)
     }
   }
 
@@ -578,7 +578,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         (Angular.plumbFuture(func(data), id), id)
       }
 
-      fOpt.openOr(reject[T])
+      fOpt.openOr(reject[T](json))
     }
   }
 
@@ -617,6 +617,11 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
         ).getOrElse(JsObj(SuccessField -> JsTrue))
         case Reject(reason) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
       }
+    }
+
+    protected def invalidJson(json:String) = {
+      logger.warn("Received invalid JSON from the client. Perhaps you forgot to extend NgModel? => "+json)
+      "invalid json"
     }
   }
 
