@@ -53,7 +53,7 @@ libraryDependencies ++= {
   val ngVersion = "1.3.1"  // If using lift-ng-js as recommended
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.6.3"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.6.4"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.2_"+ngVersion) % "compile"
    )
 }
@@ -767,6 +767,9 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.6.4*: Corrects a race condition where an embedded `Future` or `LAFuture` which happened to resolve during JSON serialization would never arrive on the client.
+Added a developer `WARN` server console message for when the client sends invalid json.
+The message asks the developer if they remembered to extend `NgModel` which is a super common root cause of the problem, and very frustrating to diagnose.
 * *0.6.3*: Fixes a client-side error that occurs when a model returned from a service contains a `null` field.  This bug was likely introduced in *0.6.0*.
 * *0.6.2*: Fixes for bugs exposed by placing two `NgModelBinder`s in two different controllers on one page.
 * *0.6.1*: Added support for `scala.concurrent.Future`.
