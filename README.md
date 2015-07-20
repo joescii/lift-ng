@@ -753,15 +753,15 @@ If possible, include tests which validate your fix/enhancement in any Pull Reque
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
+* Minify `liftproxy.js`.
+* Support server comet pushes to client via services.
 * Correctly support client-side changes to models containing arrays when mixing `BindingOptimizations` into an `NgModelBinder`.
 * Support removing fields in models bound with an `NgModelBinder` with `BindingOptimizations` mixed in.
 * Retain diffs in `NgModelBinder`. Allow server to reject client-side changes.
 * Support Lift's Record with `NgModel`.
 * Support dynamically-loaded templates for routing frameworks. (See [Issue 7](https://github.com/joescii/lift-ng/issues/7))
-* Produce an error message when an attempt is made to use a model which does not extend `NgModel`. (Currently this silently fails)
 * Support handling parameters of type `json.JValue`.
 * Support returning values of type `JsExp`.
-* Support server comet pushes to client via services.
 * Provide a means of utilizing the third `notify` function of promises to send progress updates to the client.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 
