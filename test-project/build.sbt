@@ -8,7 +8,7 @@ liftVersion := System.getProperty("lift.version", "2.6.2")
 
 liftEdition <<= liftVersion { _.substring(0,3) }
 
-scalaVersion := System.getProperty("scala.version", "2.11.6")
+scalaVersion := System.getProperty("scala.version", "2.11.7")
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
