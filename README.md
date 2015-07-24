@@ -754,6 +754,8 @@ If possible, include tests which validate your fix/enhancement in any Pull Reque
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
 * Minify `liftproxy.js`.
+* Optimize `Future` handling to only require one key, i.e. `{ "net.liftmodules.ng.Angular.future": "RANDOM_ID" }`.
+* Support configurable `net.liftweb.json.Formats`.
 * Add an `onRender` function to `AngularActor` to allow performing a scope operation when the page is rendered.
 * Support server comet pushes to client via services.
 * Cleanup `JsObjFactory` method names, preferably only two indicating when the function is run (on page load vs every invocation).
