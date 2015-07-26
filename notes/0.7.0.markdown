@@ -1,0 +1,7 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Optimized serialization of `Future`.
+Previously in our JSON object we created a field named `net.liftmodules.ng.Angular.future` set to the value `true` followed by an `id` field with our randomly generated identifier.
+These two have been merged into one field named `net.liftmodules.ng.Angular.future` with the value being the random identifier.
