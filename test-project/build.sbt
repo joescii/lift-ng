@@ -29,11 +29,12 @@ libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
     "net.liftmodules"         %%  ("lift-jquery-module_"+liftEdition) % "2.9-SNAPSHOT"        % "compile",
     "net.liftmodules"         %%  ("ng_"+liftEdition)                 % liftng                % "compile", // https://github.com/joescii/lift-ng
     "net.liftmodules"         %%  ("ng-js_"+liftEdition)              % "0.2_1.3.15"          % "compile", // https://github.com/joescii/lift-ng-js
-    "org.eclipse.jetty"       %   "jetty-webapp"                      % "8.1.7.v20120910"     % "container,test",
+    "org.eclipse.jetty"       %   "jetty-webapp"                      % "9.2.7.v20150116"     % "compile",
+    "org.eclipse.jetty"       %   "jetty-plus"                        % "9.2.7.v20150116"     % "container,test", // For Jetty Config
     "org.eclipse.jetty.orbit" %   "javax.servlet"                     % "3.0.0.v201112011016" % "container,test" artifacts Artifact("javax.servlet", "jar", "jar"),
     "ch.qos.logback"          %   "logback-classic"                   % "1.0.6"               % "compile",
     "org.scalatest"           %%  "scalatest"                         % "2.2.4"               % "test->*", // http://www.scalatest.org/
-    "org.seleniumhq.selenium" %   "selenium-java"                     % "2.45.0"              % "test"     // http://www.seleniumhq.org/download/
+    "org.seleniumhq.selenium" %   "selenium-java"                     % "2.46.0"              % "test"     // http://www.seleniumhq.org/download/
   )
 }
 
