@@ -769,6 +769,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 ## Change log
 
+* *0.7.0*: Optimized `LAFuture`/`Future` serialization.
 * *0.6.4*: Corrects a race condition where an embedded `Future` or `LAFuture` which happened to resolve during JSON serialization would never arrive on the client.
 Added a developer `WARN` server console message for when the client sends invalid json.
 The message asks the developer if they remembered to extend `NgModel` which is a super common root cause of the problem, and very frustrating to diagnose.
