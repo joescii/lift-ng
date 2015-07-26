@@ -598,7 +598,7 @@ For instance, given this Scala case class model:
 ```scala
 case class MyModel (
   fastValue:String,
-  slowValue:Future[Box[String]]
+  slowValue:LAFuture[Box[String]]
 ) extends NgModel
 ```
 
