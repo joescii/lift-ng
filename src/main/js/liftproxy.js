@@ -38,29 +38,30 @@ angular
 
     // Called to inject promises wherever our serializer encountered a Future
     var inject = function(model) {
+      console.log(JSON.stringify(model));
       for(var k in model) {
         if(model[k] == null) {
           // Don't do anything, skip
         }
         // It is a future which we need to inject
         else if(model[k]["net.liftmodules.ng.Angular.future"]) {
-          var id   = model[k].id;
+          var id   = model[k]["net.liftmodules.ng.Angular.future"];
           var data = model[k].data;
           var msg  = model[k].msg;
           var q = defers[id];
-          if(id && typeof q !== "undefined" && q !== null) { // The future resolved before we arrived here
+          if(typeof q !== "undefined" && q !== null) { // The future resolved before we arrived here
             model[k] = q.promise;
             delete defers[id];
-          } else if(id) { // Promise/Future pending
-            model[k] = create(id).promise;
-          } else if(msg) { // An error message has been provided
-            var d = $q.defer();
-            d.reject(msg);
-            model[k] = d.promise;
-          } else { // The future had already resolved at serialization time
+          } else if(data) { // The future had already RESOLVED at serialization time
             var d = $q.defer();
             d.resolve(data);
             model[k] = d.promise;
+          } else if(msg) { // The future had already FAILED at serialization time
+            var d = $q.defer();
+            d.reject(msg);
+            model[k] = d.promise;
+          } else { // Promise/Future pending
+            model[k] = create(id).promise;
           }
         }
         // Not a future, so check children

@@ -12,11 +12,11 @@ object LAFutureSerializer {
     implicit val f = formats + new LAFutureSerializer
 
     val id = rand
-    val flagField = JField("net.liftmodules.ng.Angular.future", JBool(true))
+    val flagField = JField("net.liftmodules.ng.Angular.future", JString(id))
     val fields = flagField +:
       (if (!future.isSatisfied) {
         plumbFuture(future, id)
-        List(JField("id", JString(id)))
+        List()
       } else {
         future.get match {
           case Full(data) => List(JField("data", Extraction.decompose(data)))
@@ -38,7 +38,7 @@ class LAFutureSerializer[T <: NgModel : Manifest] extends Serializer[LAFuture[Bo
   import AngularExecutionContext._
 
   private def deserializer:PartialFunction[JValue, LAFuture[Box[T]]] = {
-    case JObject(List(JField("net.liftmodules.ng.Angular.futureId", JString(id)))) => {
+    case JObject(List(JField("net.liftmodules.ng.Angular.future", JString(id)))) => {
       val future = new LAFuture[Box[T]]()
       future.abort()
       future
