@@ -755,6 +755,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 * Optimize `Future` handling to only require one key, i.e. `{ "net.liftmodules.ng.Angular.future": "RANDOM_ID" }`.
 * Support configurable `net.liftweb.json.Formats`.
+* Resolve [Issue 10](https://github.com/joescii/lift-ng/issues/10) to handle futures in Binders.
 * Resolve the `RequestVar was set but not read` warning (see [Issue #11](https://github.com/joescii/lift-ng/issues/11)).
 * Resolve [Issue 12](https://github.com/joescii/lift-ng/issues/12) either by compilation failure or supporting the different value types.
 * Add an `onRender` function to `AngularActor` to allow performing a scope operation when the page is rendered.
