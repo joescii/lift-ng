@@ -38,7 +38,6 @@ angular
 
     // Called to inject promises wherever our serializer encountered a Future
     var inject = function(model) {
-      console.log(JSON.stringify(model));
       for(var k in model) {
         if(model[k] == null) {
           // Don't do anything, skip
