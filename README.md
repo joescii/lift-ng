@@ -755,6 +755,7 @@ Here are things we would like in this library.  It's not a road map, but should 
 
 * Optimize `Future` handling to only require one key, i.e. `{ "net.liftmodules.ng.Angular.future": "RANDOM_ID" }`.
 * Support configurable `net.liftweb.json.Formats`.
+* Resolve the `RequestVar was set but not read` warning (see [Issue #11](https://github.com/joescii/lift-ng/issues/11)).
 * Add an `onRender` function to `AngularActor` to allow performing a scope operation when the page is rendered.
 * Support server comet pushes to client via services.
 * Cleanup `JsObjFactory` method names, preferably only two indicating when the function is run (on page load vs every invocation).
