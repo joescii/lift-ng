@@ -32,7 +32,7 @@ class LiftNgFutureActor extends CometActor with LiftNgJsHelpers{
     case ReturnData(id, Failure(msg, _, _)) => callback(Reject(id, msg))
   }
 
-  sealed trait Promise{def id:String; def success:Boolean}
-  case class Resolve(id:String, data:Any, success:Boolean = true) extends Promise
-  case class Reject(id:String, msg:String, success:Boolean = false) extends Promise
+  sealed trait Promise{def id:String}
+  case class Resolve(id:String, data:Any) extends Promise
+  case class Reject(id:String, msg:String) extends Promise
 }

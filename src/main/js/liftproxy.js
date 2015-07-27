@@ -10,7 +10,9 @@ angular
     };
 
     var resolve = function(data, q) {
-      if (data.success) {
+      if(data.msg) {
+        q.reject(data.msg)
+      } else {
         if (typeof data.data !== 'undefined') {
           inject(data.data);
           q.resolve(data.data);
@@ -18,8 +20,6 @@ angular
         else {
           q.resolve();
         }
-      } else {
-        q.reject(data.msg)
       }
       return q;
     };
