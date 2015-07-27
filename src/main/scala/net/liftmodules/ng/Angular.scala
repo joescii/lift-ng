@@ -21,7 +21,7 @@ import net.liftweb.util.StringHelpers._
 /**
  * Primary lift-ng module
  */
-object Angular extends DispatchSnippet with AngularProperties with Loggable {
+object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpers with Loggable {
 
   private [ng] var futuresDefault:Boolean = true
   private [ng] var appSelectorDefault:String = "[ng-app]"
@@ -220,18 +220,14 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
   }
 
   private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String) = {
-    S.session map { s =>
-      f.foreach{ box =>
-        s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box))
-      }
-    }
+    S.session map { s => f foreach { box =>
+      val json = S.initIfUninitted(s)(box map stringify)
+      s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, json))
+    }}
     f
   }
 
-
-
   object angular {
-
     def module(moduleName: String) = new Module(moduleName)
   }
 
@@ -636,7 +632,7 @@ object Angular extends DispatchSnippet with AngularProperties with Loggable {
   case class RequestData[Model <: NgModel : Manifest](data:Model)
   case class RequestString(data:String)
 
-  case class ReturnData(id:FutureId, data:Any)
+  case class ReturnData(id:FutureId, json:Box[String])
 
   type FutureId = String
   val FutureIdNA:FutureId = ""
