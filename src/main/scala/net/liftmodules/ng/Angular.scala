@@ -342,9 +342,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def jsonCall[Model <: NgModel : Manifest]
+    def jsonCall[Model <: NgModel]
       (functionName: String, func: Model => Box[Any])
-      (implicit formats:Formats)
+      (implicit mf:Manifest[Model], formats:Formats)
       : JsObjFactory = {
       registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
     }
@@ -385,9 +385,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def future[Model <: NgModel : Manifest, T <: Any]
+    def future[Model <: NgModel, T <: Any]
       (functionName: String, func: Model => LAFuture[Box[T]])
-      (implicit formats:Formats)
+      (implicit mf:Manifest[Model], formats:Formats)
       : JsObjFactory = {
       registerFunction(functionName, JsonFutureFunctionGenerator(func))
     }
@@ -503,7 +503,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class AjaxJsonToJsonFunctionGenerator[Model <: NgModel : Manifest](modelToPromise: Model => Promise)(implicit formats:Formats)
+  protected case class AjaxJsonToJsonFunctionGenerator[Model <: NgModel](modelToPromise: Model => Promise)(implicit mf:Manifest[Model], formats:Formats)
     extends LiftAjaxFunctionGenerator {
     private val ParamName = "json"
 
@@ -565,7 +565,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class JsonFutureFunctionGenerator[Model <: NgModel : Manifest, T <: Any](func: Model => LAFuture[Box[T]])(implicit formats:Formats) extends FutureFunctionGenerator {
+  protected case class JsonFutureFunctionGenerator[Model <: NgModel, T <: Any](func: Model => LAFuture[Box[T]])(implicit mf:Manifest[Model], formats:Formats) extends FutureFunctionGenerator {
     private val ParamName = "json"
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
