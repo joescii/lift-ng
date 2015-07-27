@@ -3,7 +3,7 @@ package net.liftmodules.ng
 import Angular.NgModel
 import js.JsonDeltaFuncs._
 import net.liftweb._
-import json.{JsonParser, DefaultFormats, parse}
+import net.liftweb.json.{DefaultFormats, Formats, JsonParser, parse}
 import json.Serialization._
 import json.JsonAST._
 import common._
@@ -33,15 +33,21 @@ import net.liftweb.json.JsonAST.JInt
  * @param clientSendDelay Milliseconds for the client to delay sending updates, allowing them to batch into one request. Defaults to 1 second (1000)
  * @tparam M The type of the model to be used in this actor
  */
-abstract class SimpleNgModelBinder[M <: NgModel : Manifest]
-  (val bindTo:String, val initialValue:M, override val onClientUpdate:M=>M = { m:M => m }, override val clientSendDelay:Int = 1000)
-  extends NgModelBinder[M]{
+abstract class SimpleNgModelBinder[M <: NgModel : Manifest] (
+  val bindTo:String,
+  val initialValue:M,
+  override val onClientUpdate:M=>M = { m:M => m },
+  override val clientSendDelay:Int = 1000,
+  override val formats:Formats = DefaultFormats
+) extends NgModelBinder[M]{
   direction:BindDirection =>
 }
 
 private [ng] sealed trait BindingBase {
   /** The client `\$scope` element to bind to */
   def bindTo: String
+
+  def formats:Formats
 
   /** The server-side state of the binder */
   private [ng] var stateJson: JValue
@@ -50,9 +56,8 @@ private [ng] sealed trait BindingBase {
   /** Builds the client-side update variable to send to the server on client-side update */
   private [ng] def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("n")))
   /** Converts the $JValue sent from the client to the server into the respective $NgModel */
-  private [ng] def jValueToState[M <: NgModel : Manifest](update:JValue, current:M):M = {
-    implicit val formats = DefaultFormats
-    update.extract
+  private [ng] def jValueToState[M <: NgModel](update:JValue, current:M)(implicit mf:Manifest[M]):M = {
+    update.extract(formats, mf)
   }
 
   private [ng] def retainState:Boolean = false
@@ -89,10 +94,10 @@ trait BindingOptimizations extends BindingBase {
     diff(JsVar("s('"+id+"')." + bindTo)) // Send the diff
   }
   private [ng] override def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}")))
-  private [ng] override def jValueToState[M <: NgModel : Manifest](update:JValue, current:M):M = {
+  private [ng] override def jValueToState[M <: NgModel](update:JValue, current:M)(implicit mf:Manifest[M]):M = {
     import js.ToWithExtractMerged
     val added = update \\ "add"
-    added.extractMerged(current)
+    added.extractMerged(current)(mf, formats)
   }
 
   private [ng] override def retainState = true
@@ -286,9 +291,8 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
   }
 
   private def toJValue(m: M): JValue = {
-    implicit val formats = DefaultFormats + new LAFutureSerializer
     m match {
-      case m: NgModel if m != null => parse(write(m))
+      case m: NgModel if m != null => parse(stringify(m)(formats))
       case e => JNull
     }
   }

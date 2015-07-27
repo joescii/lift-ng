@@ -5,6 +5,7 @@ import Angular._
 import net.liftweb.actor.LAFuture
 import net.liftmodules.ng.test.model.StringInt
 import net.liftweb.common.{Empty, Failure, Full, Box}
+import net.liftweb.json.DefaultFormats
 import net.liftweb.json.JsonAST.{JValue, JNull}
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
@@ -37,6 +38,8 @@ case class EmbeddedScalaFutures(
 ) extends NgModel
 
 object EmbeddedFuturesSnips {
+  implicit val formats = DefaultFormats
+
   def services = renderIfNotAlreadyDefined(
     angular.module("EmbeddedFutures")
       .factory("embeddedFutureServices", jsObjFactory()

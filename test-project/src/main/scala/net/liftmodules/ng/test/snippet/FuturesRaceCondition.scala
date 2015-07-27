@@ -2,6 +2,7 @@ package net.liftmodules.ng.test.snippet
 
 import net.liftmodules.ng.Angular._
 import net.liftweb.common.Full
+import net.liftweb.json.DefaultFormats
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 
@@ -11,6 +12,7 @@ case class FuturesRaceConditionModel(
 ) extends NgModel
 
 object FuturesRaceCondition {
+  implicit val formats = DefaultFormats
 
   def services = renderIfNotAlreadyDefined(
     angular.module("FuturesRaceCondition")

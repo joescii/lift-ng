@@ -7,9 +7,7 @@ import scala.xml.{Elem, NodeSeq}
 
 import net.liftweb.actor.LAFuture
 import net.liftweb.common._
-import net.liftweb.json.Serialization.write
-import net.liftweb.json.{DefaultFormats, JsonParser}
-import net.liftweb.json.JsonAST.JString
+import net.liftweb.json.{DefaultFormats, Formats, JsonParser}
 import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer, S, RequestVar, SessionVar }
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
@@ -219,7 +217,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String) = {
+  private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String)(implicit formats:Formats) = {
     S.session map { s => f foreach { box =>
       val json = S.initIfUninitted(s)(box map stringify)
       s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, json))
@@ -315,7 +313,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def jsonCall(functionName: String, func: => Box[AnyRef]): JsObjFactory = {
+    def jsonCall
+      (functionName: String, func: => Box[AnyRef])
+      (implicit formats:Formats)
+      : JsObjFactory = {
       registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
     }
 
@@ -326,7 +327,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def jsonCall(functionName: String, func: String => Box[AnyRef]): JsObjFactory = {
+    def jsonCall
+      (functionName: String, func: String => Box[AnyRef])
+      (implicit formats:Formats)
+      : JsObjFactory = {
       registerFunction(functionName, AjaxStringToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
     }
 
@@ -338,7 +342,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def jsonCall[Model <: NgModel : Manifest](functionName: String, func: Model => Box[Any]): JsObjFactory = {
+    def jsonCall[Model <: NgModel : Manifest]
+      (functionName: String, func: Model => Box[Any])
+      (implicit formats:Formats)
+      : JsObjFactory = {
       registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
     }
 
@@ -349,7 +356,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def future[T <: Any](functionName: String, func: => LAFuture[Box[T]]): JsObjFactory = {
+    def future[T <: Any]
+      (functionName: String, func: => LAFuture[Box[T]])
+      (implicit formats:Formats)
+      : JsObjFactory = {
       registerFunction(functionName, NoArgFutureFunctionGenerator(() => func))
     }
 
@@ -360,7 +370,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def future[T <: Any](functionName: String, func: String => LAFuture[Box[T]]): JsObjFactory = {
+    def future[T <: Any]
+      (functionName: String, func: String => LAFuture[Box[T]])
+      (implicit formats:Formats)
+      : JsObjFactory = {
       registerFunction(functionName, StringFutureFunctionGenerator(func))
     }
 
@@ -372,7 +385,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def future[Model <: NgModel : Manifest, T <: Any](functionName: String, func: Model => LAFuture[Box[T]]): JsObjFactory = {
+    def future[Model <: NgModel : Manifest, T <: Any]
+      (functionName: String, func: Model => LAFuture[Box[T]])
+      (implicit formats:Formats)
+      : JsObjFactory = {
       registerFunction(functionName, JsonFutureFunctionGenerator(func))
     }
 
@@ -383,7 +399,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    def string(functionName: String, value:String): JsObjFactory =
+    def string(functionName: String, value:String)(implicit formats:Formats = DefaultFormats): JsObjFactory =
       registerFunction(functionName, ToStringFunctionGenerator(value))
 
     /**
@@ -393,7 +409,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    def anyVal(functionName: String, value:AnyVal): JsObjFactory =
+    def anyVal(functionName: String, value:AnyVal)(implicit formats:Formats = DefaultFormats): JsObjFactory =
       string(functionName, value.toString)
 
     /**
@@ -403,7 +419,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    def json(functionName: String, value:AnyRef): JsObjFactory =
+    def json(functionName: String, value:AnyRef)(implicit formats:Formats = DefaultFormats): JsObjFactory =
       registerFunction(functionName, ToJsonFunctionGenerator(value))
 
     /**
@@ -426,12 +442,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    * Maps an api result to a Promise object that will be used to fulfill the javascript promise object.
    */
   object DefaultApiSuccessMapper extends PromiseMapper {
-    private implicit val formats = DefaultFormats + new LAFutureSerializer
+//    private implicit val formats = DefaultFormats + new LAFutureSerializer
 
-    def toPromise(box: Box[Any]): Promise = {
+    def toPromise(box: Box[Any])(implicit formats:Formats): Promise = {
       box match {
         case Full(jsExp: JsExp) => Resolve(Some(jsExp)) // prefer using a case class instead
-        case Full(serializable: AnyRef) => Resolve(Some(JsRaw(write(serializable))))
+        case Full(serializable: AnyRef) => Resolve(Some(JsRaw(stringify(serializable))))
         case Full(other) => Resolve(Some(JsRaw(other.toString)))
         case Full(Unit) | Empty => Resolve()
         case Failure(msg, _, _) => Reject(msg)
@@ -445,7 +461,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    */
   trait PromiseMapper {
 
-    def toPromise(box: Box[Any]): Promise
+    def toPromise(box: Box[Any])(implicit formats:Formats): Promise
   }
 
   /**
@@ -469,9 +485,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def liftPostData = SHtmlExtensions.ajaxJsonPost((id) => promiseToJson(jsFunc()))
   }
 
-  protected case class AjaxStringToJsonFunctionGenerator(stringToPromise: (String) => Promise)
+  protected case class AjaxStringToJsonFunctionGenerator(stringToPromise: (String) => Promise)(implicit formats:Formats)
     extends LiftAjaxFunctionGenerator {
-    implicit val formats = DefaultFormats
 
     private val ParamName = "str"
 
@@ -488,10 +503,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class AjaxJsonToJsonFunctionGenerator[Model <: NgModel : Manifest](modelToPromise: Model => Promise)
+  protected case class AjaxJsonToJsonFunctionGenerator[Model <: NgModel : Manifest](modelToPromise: Model => Promise)(implicit formats:Formats)
     extends LiftAjaxFunctionGenerator {
-    implicit val formats = DefaultFormats
-
     private val ParamName = "json"
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
@@ -508,9 +521,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   }
 
   protected abstract class FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
-    protected def jsonFunc[T <: Any](jsonToFuture: (String) => NgFuture[T]): String => JsObj = {
-      implicit val formats = DefaultFormats
-
+    protected def jsonFunc[T <: Any](jsonToFuture: (String) => NgFuture[T])(implicit formats:Formats): String => JsObj = {
       val futureToJsObj = (f:NgFuture[T]) =>
         if(f._1.isSatisfied)
           promiseToJson(DefaultApiSuccessMapper.toPromise(f._1.get))
@@ -527,7 +538,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class NoArgFutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]]) extends FutureFunctionGenerator {
+  protected case class NoArgFutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]])(implicit formats:Formats) extends FutureFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
@@ -538,15 +549,14 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]]) extends FutureFunctionGenerator {
+  protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]])(implicit formats:Formats) extends FutureFunctionGenerator {
     private val ParamName = "str"
-    implicit val formats = DefaultFormats
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
-    val jsonToFuture:(String) => NgFuture[T] = json => JsonParser.parse(json).extractOpt[RequestString] match {
+    def jsonToFuture:(String) => NgFuture[T] = json => JsonParser.parse(json).extractOpt[RequestString] match {
       case Some(RequestString(data)) => {
         val id = rand
         (Angular.plumbFuture(func(data), id), id)
@@ -555,15 +565,14 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class JsonFutureFunctionGenerator[Model <: NgModel : Manifest, T <: Any](func: Model => LAFuture[Box[T]]) extends FutureFunctionGenerator {
+  protected case class JsonFutureFunctionGenerator[Model <: NgModel : Manifest, T <: Any](func: Model => LAFuture[Box[T]])(implicit formats:Formats) extends FutureFunctionGenerator {
     private val ParamName = "json"
-    implicit val formats = DefaultFormats
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
-    val jsonToFuture:(String) => NgFuture[T] = json => {
+    def jsonToFuture:(String) => NgFuture[T] = json => {
       val parsed = JsonParser.parse(json)
       val dataOpt = (parsed \\ "data").extractOpt[Model]
       val id = rand
@@ -578,13 +587,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class ToStringFunctionGenerator(s:String) extends LiftAjaxFunctionGenerator {
+  protected case class ToStringFunctionGenerator(s:String)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(s))
   }
 
-  protected case class ToJsonFunctionGenerator(obj:AnyRef) extends LiftAjaxFunctionGenerator {
-    implicit val formats = DefaultFormats
-    def toAnonFunc = AnonFunc(JsReturn(JsRaw(write(obj))))
+  protected case class ToJsonFunctionGenerator(obj:AnyRef)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
+    def toAnonFunc = AnonFunc(JsReturn(JsRaw(stringify(obj))))
   }
 
   trait AjaxFunctionGenerator {

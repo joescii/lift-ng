@@ -4,9 +4,8 @@ import net.liftweb.common.Loggable
 import net.liftweb.http.js.JE.{Call, JsRaw, AnonFunc}
 import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.json.{JsonAST, Extraction, DefaultFormats}
-import net.liftweb.json.Serialization._
-import net.liftweb.util.{StringHelpers, Props}
+import net.liftweb.json.{Formats, JsonAST, Extraction}
+import net.liftweb.util.Props
 
 private [ng] trait LiftNgJsHelpers extends Loggable {
   protected val id:String = Angular.rand
@@ -52,6 +51,6 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
     JsRaw("(function(){"+cmds.toJsCmd+"}).call(this)")
   }
 
-  private implicit val formats = DefaultFormats + new LAFutureSerializer
-  protected def stringify(obj:Any):String = JsonAST.compactRender(Extraction.decompose(obj)(formats))
+  protected def stringify(obj:Any)(implicit formats:Formats):String =
+    JsonAST.compactRender(Extraction.decompose(obj)(formats + new LAFutureSerializer))
 }

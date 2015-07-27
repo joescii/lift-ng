@@ -2,6 +2,7 @@ package net.liftmodules.ng
 package test.snippet
 
 import Angular._
+import net.liftweb.json.DefaultFormats
 import test.model.Test2Obj
 
 import net.liftweb._
@@ -13,6 +14,8 @@ import util.Helpers._
 import scala.xml.NodeSeq
 
 object FutureSnips extends Loggable {
+  implicit val formats = DefaultFormats
+
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("Futures").factory("futureServices", jsObjFactory()
       .future("noArg", {
