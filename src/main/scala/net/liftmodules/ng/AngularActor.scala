@@ -5,7 +5,7 @@ import http._
 import http.js._
 import JE._
 import JsCmds._
-import net.liftweb.json.Formats
+import net.liftweb.json.{DefaultFormats, Formats}
 import scala.xml.NodeSeq
 
 /** A comet actor for Angular action */
@@ -22,11 +22,11 @@ trait AngularActor extends CometActor with LiftNgJsHelpers {
   trait Scope {
     // TODO: Use an Int and change this to obj:Any??
     /** Performs a <code>\$broadcast()</code> with the given event name and object argument */
-    def broadcast(event:String, obj:AnyRef)(implicit formats:Formats):Unit = partialUpdate(eventCmd("broadcast", event, obj))
+    def broadcast(event:String, obj:AnyRef)(implicit formats:Formats = DefaultFormats):Unit = partialUpdate(eventCmd("broadcast", event, obj))
     /** Performs a <code>\$emit()</code> with the given event name and object argument */
-    def emit(event:String, obj:AnyRef)(implicit formats:Formats):Unit = partialUpdate(eventCmd("emit", event, obj))
+    def emit(event:String, obj:AnyRef)(implicit formats:Formats = DefaultFormats):Unit = partialUpdate(eventCmd("emit", event, obj))
     /** Performs assignment of the second argument to the scope variable/field specified in the first argument */
-    def assign(field:String, obj:AnyRef)(implicit formats:Formats):Unit = partialUpdate(assignCmd(field, obj))
+    def assign(field:String, obj:AnyRef)(implicit formats:Formats = DefaultFormats):Unit = partialUpdate(assignCmd(field, obj))
 
     protected def root:Boolean
     private def scopeVar = if(root) "r('"+id+"')" else "s('"+id+"')"

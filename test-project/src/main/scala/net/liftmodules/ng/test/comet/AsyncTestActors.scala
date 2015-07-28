@@ -1,7 +1,6 @@
 package net.liftmodules.ng
 package test.comet
 
-import net.liftweb.json.DefaultFormats
 import test.model.BroadcastObj
 
 import net.liftweb._
@@ -13,8 +12,6 @@ import net.liftmodules.ng.test.snippet.EmbeddedFuturesSnips
 
 abstract class AsyncTestActor extends AngularActor with Loggable {
   self =>
-
-  implicit val formats = DefaultFormats
 
   def schedule():ScheduledFuture[Unit] = Schedule(() => {
     self ! "next"
@@ -79,8 +76,6 @@ class RootScopeEmitJsonActor extends AsyncTestActor {
 }
 
 class EarlyEmitActor extends AngularActor { self =>
-  implicit val formats = DefaultFormats
-
   val nums  = Stream.from(0).iterator
 
   override def lowPriority = {
@@ -98,8 +93,6 @@ class EarlyEmitActor extends AngularActor { self =>
 }
 
 class ScopeActor extends AngularActor {
-  implicit val formats = DefaultFormats
-
   override def lowPriority = {
     case "emit" => scope.emit("scope-msg", "emit")
     case "broadcast" => scope.broadcast("scope-msg", "broadcast")
@@ -107,8 +100,6 @@ class ScopeActor extends AngularActor {
 }
 
 class AssignmentActor extends AngularActor {
-  implicit val formats = DefaultFormats
-
   override def lowPriority = {
     case "start" => {
       rootScope.assign("rootStr", "Root String")
@@ -121,8 +112,6 @@ class AssignmentActor extends AngularActor {
 }
 
 class EmbeddedFutureActor extends AngularActor {
-  implicit val formats = DefaultFormats
-
   override def lowPriority = {
     case "go" => {
       EmbeddedFuturesSnips.buildFuture.foreach(_.foreach(scope.emit("embedded", _)))
