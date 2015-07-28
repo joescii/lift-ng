@@ -80,7 +80,7 @@ class RootScopeEmitJsonActor extends AsyncTestActor {
 
 class EarlyEmitActor extends AngularActor { self =>
   implicit val formats = DefaultFormats
-  
+
   val nums  = Stream.from(0).iterator
 
   override def lowPriority = {

@@ -4,12 +4,9 @@ package test.snippet
 import Angular._
 import net.liftweb.common.Empty
 import net.liftweb.http.{SessionVar, S}
-import net.liftweb.json.DefaultFormats
 import net.liftweb.util.Schedule
 
 object Server2ClientBindTests {
-  implicit val formats = DefaultFormats
-
   case class ListWrap(l:List[String] = List.empty[String]) extends NgModel {
     def :+ (a:String) = ListWrap(l :+ a)
   }

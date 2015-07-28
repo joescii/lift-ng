@@ -315,8 +315,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
     def jsonCall
       (functionName: String, func: => Box[AnyRef])
-      (implicit formats:Formats)
       : JsObjFactory = {
+      implicit val formats = DefaultFormats
       registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
     }
 
@@ -329,8 +329,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
     def jsonCall
       (functionName: String, func: String => Box[AnyRef])
-      (implicit formats:Formats)
       : JsObjFactory = {
+      implicit val formats = DefaultFormats
       registerFunction(functionName, AjaxStringToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
     }
 
@@ -344,8 +344,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
     def jsonCall[Model <: NgModel]
       (functionName: String, func: Model => Box[Any])
-      (implicit mf:Manifest[Model], formats:Formats)
+      (implicit mf:Manifest[Model])
       : JsObjFactory = {
+      implicit val formats = DefaultFormats
       registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
     }
 
@@ -358,8 +359,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
     def future[T <: Any]
       (functionName: String, func: => LAFuture[Box[T]])
-      (implicit formats:Formats)
       : JsObjFactory = {
+      implicit val formats = DefaultFormats
       registerFunction(functionName, NoArgFutureFunctionGenerator(() => func))
     }
 
@@ -372,8 +373,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
     def future[T <: Any]
       (functionName: String, func: String => LAFuture[Box[T]])
-      (implicit formats:Formats)
       : JsObjFactory = {
+      implicit val formats = DefaultFormats
       registerFunction(functionName, StringFutureFunctionGenerator(func))
     }
 
@@ -387,8 +388,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
     def future[Model <: NgModel, T <: Any]
       (functionName: String, func: Model => LAFuture[Box[T]])
-      (implicit mf:Manifest[Model], formats:Formats)
+      (implicit mf:Manifest[Model])
       : JsObjFactory = {
+      implicit val formats = DefaultFormats
       registerFunction(functionName, JsonFutureFunctionGenerator(func))
     }
 
@@ -399,7 +401,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    def string(functionName: String, value:String)(implicit formats:Formats = DefaultFormats): JsObjFactory =
+    def string
+      (functionName: String, value:String)
+      (implicit formats:Formats = DefaultFormats)
+      : JsObjFactory =
       registerFunction(functionName, ToStringFunctionGenerator(value))
 
     /**
@@ -409,7 +414,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    def anyVal(functionName: String, value:AnyVal)(implicit formats:Formats = DefaultFormats): JsObjFactory =
+    def anyVal
+      (functionName: String, value:AnyVal)
+      (implicit formats:Formats = DefaultFormats)
+      : JsObjFactory =
       string(functionName, value.toString)
 
     /**
@@ -419,7 +427,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    def json(functionName: String, value:AnyRef)(implicit formats:Formats = DefaultFormats): JsObjFactory =
+    def json
+      (functionName: String, value:AnyRef)
+      (implicit formats:Formats = DefaultFormats)
+      : JsObjFactory =
       registerFunction(functionName, ToJsonFunctionGenerator(value))
 
     /**
