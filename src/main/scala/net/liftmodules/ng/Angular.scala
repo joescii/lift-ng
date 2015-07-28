@@ -285,6 +285,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private[Angular] def toGenerator: AnonFunc
   }
 
+  import scala.language.dynamics
   /**
    * Produces a javascript object with ajax functions as keys. e.g.
    * {{{
@@ -294,7 +295,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    * }
    * }}}
    */
-  class JsObjFactory extends Factory {
+  class JsObjFactory extends Factory with Dynamic {
+    import scala.language.experimental.macros
 
     /**
      * name -> function
@@ -305,6 +307,13 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       functions.values.foldLeft(Set.newBuilder[String])(_ ++= _.moduleDependencies).result()
 
     private val promiseMapper = DefaultApiSuccessMapper
+
+    def applyDynamicNamed(name:String)(assignments:(String, Any)*):JsObjFactory =
+      if(name == "vals") vals(assignments)
+      else throw new Exception("Call either 'vals' or 'defs'!")
+
+    private def vals(assignments:Seq[(String, Any)]):JsObjFactory =
+      assignments.foldLeft(this){ case (factory, (name, value)) => factory.valAny(name, value) }
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
@@ -475,7 +484,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    def mkVal
+    def valAny
       (functionName: String, value:Any)
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
@@ -492,7 +501,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def string
       (functionName: String, value:String)
       : JsObjFactory =
-      mkVal(functionName, value)
+      valAny(functionName, value)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns an AnyVal value.
@@ -505,7 +514,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def anyVal
       (functionName: String, value:AnyVal)
       : JsObjFactory =
-      mkVal(functionName, value)
+      valAny(functionName, value)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a json object.
@@ -519,7 +528,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, value:AnyRef)
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      mkVal(functionName, value)
+      valAny(functionName, value)
 
     /**
      * Adds the ajax function factory and its dependencies to the factory.
