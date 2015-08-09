@@ -52,7 +52,10 @@ private [ng] sealed trait BindingBase {
   /** The server-side state of the binder */
   private [ng] var stateJson: JValue
   /** Builds the $JsCmd to mutate the client state on server update */
-  private [ng] def buildMutator(id:String, newState:JValue):JsCmd = SetExp(JsVar("s('"+id+"')." + bindTo), newState)
+  private [ng] def buildMutator(id:String, newState:JValue):JsCmd =
+    JsCrVar("m", newState) &  // Name the state 'm'
+    Call("e('"+id+"').injector().get('plumbing').inject", JsVar("m")) & // Inject promises
+    SetExp(JsVar("s('"+id+"')." + bindTo), JsVar("m")) // Update the scope
   /** Builds the client-side update variable to send to the server on client-side update */
   private [ng] def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("n")))
   /** Converts the $JValue sent from the client to the server into the respective $NgModel */
