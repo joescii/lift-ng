@@ -2,6 +2,28 @@
 
 #scala @liftweb @angularjs
 
-Optimized serialization of `LAFuture`/`Future`.
+**Possible Breaking Changes**
+
+# Calling `defModelToAny`, `defModelToFutureAny`, or `jsonCall` with a function that takes neither a `String` or `NgModel` will fail to compile.
+Resolves [Issue 12](https://github.com/joescii/lift-ng/issues/12).
+This could possibly cause users of 0.6.4 a breaking change on upgrade.
+If your code which defines an `angular.module` has not imported `net.liftmodules.ng.Angular._`, then it will be missing a needed implicit.
+In the unlikely event your code fails to compile after upgrading to 0.7.0, check to see if you need this import.
+
+# Functions which serialize/deserialize JSON now take an implicit `net.liftweb.json.Formats`.
+Existing functions affected: `JsObjFactory`'s `string`, `anyVal`, and `json`. `AngularActor.Scope`'s `broadcast`, `emit`, and `assign`.
+Because `JsObjFactory`'s `jsonCall` and `future` are overloaded, it was not possible to introduce the implicit `Formats` parameter with default values.
+Instead, six methods were introduced: `defAny`, `defStringToAny`, `defModelToAny`, `defFutureAny`, `defStringToFutureAny`, and `defModelToFutureAny`.
+The plan is to create a macro named `defs` which can take multiple function assignments and call the appropriate method for you.
+Once this is in place, the old method names will be deprecated.
+See [New interface for `JsObjFactory`](https://github.com/joescii/lift-ng#new-interface-for-jsobjfactory) for more on this plan.
+
+# Futures can now be embedded in models of an `NgModelBinder`
+Resolves [Issue 10](https://github.com/joescii/lift-ng/issues/10).
+
+# Optimized serialization of `LAFuture`/`Future`.
 Previously in our JSON object we created a field named `net.liftmodules.ng.Angular.future` set to the value `true` followed by an `id` field with our randomly generated identifier.
 These two have been merged into one field named `net.liftmodules.ng.Angular.future` with the value being the random identifier.
+
+Similarly when futures are resolved and pushed to the client, we removed an unneeded `success` flag which had been used to indicate whether the `Future` and succeeded.
+Checking the presence of a failure message or a successful data payload is sufficient.

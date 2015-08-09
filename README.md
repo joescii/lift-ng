@@ -1,6 +1,6 @@
 # lift-ng
 
-lift-ng is the most powerful, most secure AngularJS backend available today.
+**lift-ng** is the most powerful, most secure AngularJS backend available today.
 
 The design philosophy of **lift-ng** is to capture the spirit of both [Lift](http://liftweb.net) and [AngularJS](http://docs.angularjs.org/guide/overview) into one package.
 The result is a secure-by-default framework facilitating powerful and robust client/server interactions for building today's modern web applications.
@@ -212,6 +212,23 @@ These `Box[T]` values are mapped to their respective [`$q` promises](http://docs
 * `Full(value)` => A resolved promise with the given value.
 * `Empty` => A resolved promise with `undefined` value.
 * `Failure(msg)` => A rejected promise with the given message value.
+
+#### JSON Serialization
+
+**lift-ng** uses [Lift JSON](https://github.com/lift/framework/tree/master/core/json) for JSON serialization.
+This JSON serialization is configurable via the implicit [`Formats`](http://liftweb.net/api/26/api/#net.liftweb.json.Formats) trait.
+Originally, **lift-ng** always used the [`DefaultFormats`](http://liftweb.net/api/26/api/#net.liftweb.json.DefaultFormats) which limited the library's flexibility.
+Now **lift-ng** uses `DefaultFormats` if no other implicit `Formats` can be found.
+
+However, this does NOT apply to the old `JsObjFactory` methods `jsonCall` or `future`.
+Because these two were over-loaded with multiple signatures, it is not legal in Scala to provide a default value.
+In order to avoid a breaking change, we chose not to add an implicit `Formats` parameter to `jsonCall` and `future`.
+
+There are now six methods available for handling the three overrides of each `jsonCall` and `future`: `defAny`, `defStringToAny`, `defModelToAny`, `defFutureAny`, `defStringToFutureAny`, and `defModelToFutureAny`.
+These six have the exact same signature as their respective `jsonCall`/`future` methods, except they accept an implicit `Formats`.
+If you need to provide a `Formats`, replace your calls to these new functions.
+
+Regarding these names, please see [New interface for `JsObjFactory`](#new-interface-for-jsobjfactory) below.
 
 #### No arguments, string arguments, or case class arguments
 
@@ -753,11 +770,8 @@ If possible, include tests which validate your fix/enhancement in any Pull Reque
 
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
-* Support configurable `net.liftweb.json.Formats`.
-* Resolve [Issue 10](https://github.com/joescii/lift-ng/issues/10) to handle futures in Binders.
-* Resolve [Issue 12](https://github.com/joescii/lift-ng/issues/12) either by compilation failure or supporting the different value types.
 * Add an `onRender` function to `AngularActor` to allow performing a scope operation when the page is rendered.
-* Cleanup `JsObjFactory` method names, preferably only two indicating when the function is run (on page load vs every invocation).
+* Cleanup `JsObjFactory` method names (see [New interface for `JsObjFactory`](#new-interface-for-jsobjfactory) below).
 * Support server comet pushes to client via services.
 * Remove need to wrap `angular.module` in `renderIfNotAlreadyDefined()`.
 * Resolve the `RequestVar was set but not read` warning (see [Issue #11](https://github.com/joescii/lift-ng/issues/11)).
@@ -771,9 +785,44 @@ Here are things we would like in this library.  It's not a road map, but should 
 * Provide a means of utilizing the third `notify` function of promises to send progress updates to the client.
 * Initial value/first resolve value for services.  The reason for providing a first value will allow the page load to deliver the values rather than require an extra round trip.
 
+### New interface for `JsObjFactory`
+
+As of 0.7.0, **lift-ng** is in a transition phase for cleaning up the `JsObjFactory` interface.
+The end goal is to express the sematics clearly in the name and have low-noise syntax.
+The current plan is to have two methods on `JsObjFactory` which express _when_ the values are evaluated: `vals()` and `defs()`.
+Just like with the Scala keywords `val` and `def`, these names suggest that the values will be evaluated when assigned and on each call, respectively.
+`defs` will take a variable list of function assignments to effectively deprecate `jsonCall` and `future`.
+`vals` will take a variable list of assignments to effectively deprecate `string`, `anyVal`, and `json`.
+Macros will be used to make the syntax clean.
+For example, the following will be a valid Angular module:
+
+```scala
+angular.module("MyServices")
+  .factory("MyService", jsObjFactory()
+    .defs(
+      fn1 = (arg:String) => Service call arg,
+      fn2 = (arg:Model) =>  Service call arg
+    )
+    .vals(
+      constant1 = "Evaluated at page-load!",
+      constant2 = 42
+    )
+  )
+```
+
+Part of the transition period is the introduction of six new methods: `defAny`, `defStringToAny`, `defModelToAny`, `defFutureAny`, `defStringToFutureAny`, and `defModelToFutureAny`.
+These are replacing `jsonCall` and `future`.
+The purpose is to avoid having over-loaded method signatures which cause problems with defaults, inference, etc.
+The macro described above will rewrite `defs` into a chain of these six functions.
+These functions have been introduced ahead of the macro for the sake of allowing the implicit JSON `Formats` parameter to be provided (see [JSON Serialization](#json-serialization)).
+
 ## Change log
 
-* *0.7.0*: Optimized `LAFuture`/`Future` serialization.
+* *0.7.0*: **POSSIBLE BREAKING CHANGE**
+Resolved [Issue 12](https://github.com/joescii/lift-ng/issues/12): Calling `defModelToAny`, `defModelToFutureAny`, or `jsonCall` with a function that takes neither a `String` or `NgModel` will fail to compile.
+Functions which serialize/deserialize JSON now take an implicit `net.liftweb.json.Formats`.
+Resolved [Issue 10](https://github.com/joescii/lift-ng/issues/10): Futures can now be embedded in models of an `NgModelBinder`
+Optimized `LAFuture`/`Future` serialization.
 * *0.6.4*: Corrects a race condition where an embedded `Future` or `LAFuture` which happened to resolve during JSON serialization would never arrive on the client.
 Added a developer `WARN` server console message for when the client sends invalid json.
 The message asks the developer if they remembered to extend `NgModel` which is a super common root cause of the problem, and very frustrating to diagnose.
