@@ -9,11 +9,9 @@ import scala.xml.NodeSeq
 object StaticServices {
   def render(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("StaticServices").factory("staticService", jsObjFactory()
-      .vals(
-        string = "FromServer1",
-        integer = 42,
-        obj = StringInt("FromServer2", 88)
-      )
+      .string("string", "FromServer1")
+      .anyVal("integer", 42)
+      .json("obj", StringInt("FromServer2", 88))
     )
   )
 }

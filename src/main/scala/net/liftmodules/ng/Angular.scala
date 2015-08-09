@@ -285,7 +285,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private[Angular] def toGenerator: AnonFunc
   }
 
-  import scala.language.dynamics
   /**
    * Produces a javascript object with ajax functions as keys. e.g.
    * {{{
@@ -295,9 +294,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    * }
    * }}}
    */
-  class JsObjFactory extends Factory with Dynamic {
-    import scala.language.experimental.macros
-
+  class JsObjFactory extends Factory {
     /**
      * name -> function
      */
@@ -308,15 +305,13 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private val promiseMapper = DefaultApiSuccessMapper
 
-    def applyDynamicNamed(name:String)(assignments:(String, Any)*):JsObjFactory =
-      if(name == "vals") vals(assignments)
-      else throw new Exception("Call either 'vals' or 'defs'!")
-
-    private def vals(assignments:Seq[(String, Any)]):JsObjFactory =
-      assignments.foldLeft(this){ case (factory, (name, value)) => factory.valAny(name, value) }
-
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
+     * This function is an enhancement over `jsonCall` in that it allows the caller to provide an implicit `Formats`
+     * for dictating the JSON serializer.
+     * <p>
+     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
+     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
@@ -336,13 +331,18 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def jsonCall
     (functionName: String, func: => Box[AnyRef])
     : JsObjFactory = defAny(functionName, func)
 
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
+     * This function is an enhancement over `jsonCall` in that it allows the caller to provide an implicit `Formats`
+     * for dictating the JSON serializer.
+     * <p>
+     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
+     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
@@ -362,7 +362,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def jsonCall
       (functionName: String, func: String => Box[AnyRef])
       : JsObjFactory = defStringToAny(functionName, func)
@@ -370,6 +370,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     /**
      * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
      * \$q promise.
+     * This function is an enhancement over `jsonCall` in that it allows the caller to provide an implicit `Formats`
+     * for dictating the JSON serializer.
+     * <p>
+     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
+     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
@@ -390,7 +395,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def jsonCall[Model <: NgModel]
       (functionName: String, func: Model => Box[Any])
       (implicit mf:Manifest[Model])
@@ -398,6 +403,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
+     * This function is an enhancement over `future` in that it allows the caller to provide an implicit `Formats`
+     * for dictating the JSON serializer.
+     * <p>
+     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
+     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
@@ -416,7 +426,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def future[T <: Any]
       (functionName: String, func: => LAFuture[Box[T]])
       : JsObjFactory =
@@ -424,6 +434,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
+     * This function is an enhancement over `future` in that it allows the caller to provide an implicit `Formats`
+     * for dictating the JSON serializer.
+     * <p>
+     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
+     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
@@ -442,7 +457,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def future[T <: Any]
       (functionName: String, func: String => LAFuture[Box[T]])
       : JsObjFactory =
@@ -451,6 +466,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     /**
      * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
      * \$q promise.
+     * This function is an enhancement over `future` in that it allows the caller to provide an implicit `Formats`
+     * for dictating the JSON serializer.
+     * <p>
+     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
+     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
@@ -470,25 +490,26 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def future[Model <: NgModel, T <: Any]
       (functionName: String, func: Model => LAFuture[Box[T]])
       (implicit mf:Manifest[Model])
       : JsObjFactory =
       defModelToFutureAny(functionName, func)
 
-    /**
-     * Registers a no-arg javascript function in this service's javascript object that returns a String value.
-     * Use this to provide string values which are known at page load time and do not change.
-     *
-     * @param functionName name of the function to be made available on the service/factory
-     * @param value value to be returned on invocation of this function in the client.
-     */
-    def valAny
-      (functionName: String, value:Any)
-      (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, FromAnyFunctionGenerator(value))
+    // TODO: Rather than functions, let's put the values directly on the factory
+//    /**
+//     * Registers a no-arg javascript function in this service's javascript object that returns a String value.
+//     * Use this to provide string values which are known at page load time and do not change.
+//     *
+//     * @param functionName name of the function to be made available on the service/factory
+//     * @param value value to be returned on invocation of this function in the client.
+//     */
+//    def valAny
+//      (functionName: String, value:Any)
+//      (implicit formats:Formats = DefaultFormats)
+//      : JsObjFactory =
+//      registerFunction(functionName, FromAnyFunctionGenerator(value))
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a String value.
@@ -497,11 +518,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def string
       (functionName: String, value:String)
+      (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      valAny(functionName, value)
+      registerFunction(functionName, FromAnyFunctionGenerator(value))
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns an AnyVal value.
@@ -510,11 +532,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def anyVal
       (functionName: String, value:AnyVal)
+      (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      valAny(functionName, value)
+      registerFunction(functionName, FromAnyFunctionGenerator(value))
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a json object.
@@ -523,12 +546,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-    @deprecated(message = "", since = "0.7.0")
+//    @deprecated(message = "", since = "0.7.0")
     def json
       (functionName: String, value:AnyRef)
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      valAny(functionName, value)
+      registerFunction(functionName, FromAnyFunctionGenerator(value))
 
     /**
      * Adds the ajax function factory and its dependencies to the factory.
