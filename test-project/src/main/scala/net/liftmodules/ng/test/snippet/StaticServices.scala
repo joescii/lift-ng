@@ -12,7 +12,6 @@ object StaticServices {
       .string("string", "FromServer1")
       .anyVal("integer", 42)
       .json("obj", StringInt("FromServer2", 88))
-
     )
   )
 }
