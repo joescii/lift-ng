@@ -286,6 +286,30 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   }
 
   /**
+   * This exists to wrap the functions passed to `defModelToAny`/`jsonCall` and handle the type contravariance
+   * appropriately.  Users of lift-ng needn't even know it exists.
+   * See http://stackoverflow.com/questions/31907701/why-does-this-scala-function-compile-when-the-argument-does-not-conform-to-the-t/31907828#answer-31907813
+   */
+  case class ModelFnBox[M](f: M => Box[Any])
+
+  /**
+   * This exists to wrap the functions passed to `defModelToFutureAny`/`future` and handle the type contravariance
+   * appropriately.  Users of lift-ng needn't even know it exists.
+   * See http://stackoverflow.com/questions/31907701/why-does-this-scala-function-compile-when-the-argument-does-not-conform-to-the-t/31907828#answer-31907813
+   */
+  case class ModelFnFuture[M, R](f: M => LAFuture[Box[R]])
+
+  /**
+   * Transparently wraps `NgModel => Box[Any]` functions appropriately for `defModelToAny`/`jsonCall`
+   */
+  implicit def wrapModelFnBox[M](f: M => Box[Any]) = ModelFnBox(f)
+
+  /**
+   * Transparently wraps `NgModel => LAFuture[Box[Any]]` functions appropriately for `defModelToFutureAny`
+   */
+  implicit def wrapModelFnFuture[M, R](f: M => LAFuture[Box[R]]) = ModelFnFuture(f)
+
+  /**
    * Produces a javascript object with ajax functions as keys. e.g.
    * {{{
    * function(dependencies) {
@@ -381,10 +405,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
     def defModelToAny[Model <: NgModel]
-      (functionName: String, func: Model => Box[Any])
+      (functionName: String, func: ModelFnBox[Model])
       (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
+      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.f.andThen(promiseMapper.toPromise)))
 
 
     /**
@@ -397,7 +421,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
 //    @deprecated(message = "", since = "0.7.0")
     def jsonCall[Model <: NgModel]
-      (functionName: String, func: Model => Box[Any])
+      (functionName: String, func: ModelFnBox[Model])
       (implicit mf:Manifest[Model])
       : JsObjFactory = defModelToAny(functionName, func)
 
@@ -477,10 +501,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
     def defModelToFutureAny[Model <: NgModel, T <: Any]
-      (functionName: String, func: Model => LAFuture[Box[T]])
+      (functionName: String, func: ModelFnFuture[Model, T])
       (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, JsonFutureFunctionGenerator(func))
+      registerFunction(functionName, JsonFutureFunctionGenerator(func.f))
 
     /**
      * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
