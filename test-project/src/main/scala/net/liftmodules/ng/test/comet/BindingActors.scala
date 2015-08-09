@@ -66,7 +66,9 @@ with BindingToClient with BindingToServer {
   }
 }
 
-class EmbeddedFuturesBinder extends SimpleNgModelBinder[EmbeddedFutures] ("bound", EmbeddedFuturesSnips.buildModel) with BindingToClient
+class EmbeddedFuturesBinder extends SimpleNgModelBinder[EmbeddedFutures] ("bound", EmbeddedFuturesSnips.buildEmptyModel) with BindingToClient {
+  this ! EmbeddedFuturesSnips.buildModel
+}
 
 class MultipleBinder1 extends SimpleNgModelBinder("bound1", Message("Bound-1")) with BindingToClient
 class MultipleBinder2 extends SimpleNgModelBinder("bound2", Message("Bound-2")) with BindingToClient

@@ -48,6 +48,17 @@ object EmbeddedFuturesSnips {
       )
   )
 
+  def buildEmptyModel = {
+    EmbeddedFutures(emptyFuture, emptyFuture, emptyFuture, emptyFuture, List(emptyFuture, emptyFuture), emptyFuture)
+  }
+
+  def emptyFuture[T]: LAFuture[Box[T]] = {
+    val future = new LAFuture[Box[T]]
+    future.satisfy(Empty)
+    future
+  }
+
+
   def buildModel = {
     val resolved = new LAFuture[Box[String]]
     resolved.satisfy(Full("resolved"))

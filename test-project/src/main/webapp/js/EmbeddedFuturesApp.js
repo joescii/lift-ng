@@ -69,6 +69,9 @@ angular.module('EmbeddedFuturesApp', ['lift-ng', 'EmbeddedFutures'])
   };
 
   $scope.$watch('bound', function(obj){
+    if (typeof obj == 'undefined')
+      return;
+    console.log("bound was changed to: ", obj);
     obj.resolved.then(binding("resolved"));
     obj.failed.catch(binding("failed"));
     obj.string.then(binding("string"));
@@ -76,6 +79,8 @@ angular.module('EmbeddedFuturesApp', ['lift-ng', 'EmbeddedFutures'])
     obj.arr[0].then(binding("arr0"));
     obj.arr[1].then(binding("arr1"));
     obj.fobj.then(function(fobj){
+      if (typeof fobj == 'undefined')
+        return;
       fobj.resolved.then(binding("fobj_resolved"));
       fobj.failed.catch(binding("fobj_failed"));
       fobj.string.then(binding("fobj_string"));
