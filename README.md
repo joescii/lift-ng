@@ -754,9 +754,13 @@ If possible, include tests which validate your fix/enhancement in any Pull Reque
 Here are things we would like in this library.  It's not a road map, but should at least give an idea of where we plan to explore soon.
 
 * Support configurable `net.liftweb.json.Formats`.
+* Resolve [Issue 10](https://github.com/joescii/lift-ng/issues/10) to handle futures in Binders.
+* Resolve [Issue 12](https://github.com/joescii/lift-ng/issues/12) either by compilation failure or supporting the different value types.
 * Add an `onRender` function to `AngularActor` to allow performing a scope operation when the page is rendered.
 * Cleanup `JsObjFactory` method names, preferably only two indicating when the function is run (on page load vs every invocation).
 * Support server comet pushes to client via services.
+* Remove need to wrap `angular.module` in `renderIfNotAlreadyDefined()`.
+* Resolve the `RequestVar was set but not read` warning (see [Issue #11](https://github.com/joescii/lift-ng/issues/11)).
 * Correctly support client-side changes to models containing arrays when mixing `BindingOptimizations` into an `NgModelBinder`.
 * Support removing fields in models bound with an `NgModelBinder` with `BindingOptimizations` mixed in.
 * Retain diffs in `NgModelBinder`. Allow server to reject client-side changes.
