@@ -2,7 +2,7 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.7.0-SNAPSHOT"
+version := "0.7.0"
 
 liftVersion := System.getProperty("lift.version", "2.6.2")
 
@@ -24,9 +24,10 @@ unmanagedResourceDirectories in Test <+= (baseDirectory) { _ / "src/main/webapp"
 
 libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
   val liftEdition = lift.substring(0,3)
+  val jq = if(liftEdition == "2.5") "2.8" else "2.9"
   Seq(
     "net.liftweb"             %%  "lift-webkit"                       % lift                  % "compile",
-    "net.liftmodules"         %%  ("lift-jquery-module_"+liftEdition) % "2.9-SNAPSHOT"        % "compile",
+    "net.liftmodules"         %%  ("lift-jquery-module_"+liftEdition) % jq                    % "compile",
     "net.liftmodules"         %%  ("ng_"+liftEdition)                 % liftng                % "compile", // https://github.com/joescii/lift-ng
     "net.liftmodules"         %%  ("ng-js_"+liftEdition)              % "0.2_1.3.15"          % "compile", // https://github.com/joescii/lift-ng-js
     "org.eclipse.jetty"       %   "jetty-webapp"                      % "9.2.7.v20150116"     % "compile",
