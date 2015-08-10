@@ -5,6 +5,7 @@ import org.scalatest. { FlatSpec, ShouldMatchers }
 
 class JsObjFactoryTypeChecks extends FlatSpec with ShouldMatchers {
   case class Model(str:String) extends NgModel
+  case class NonModel(str:String)
 
   "jsObjFactory().jsonCall with an NgModel" should "compile" in {
     """ angular.module("module").factory("factory", jsObjFactory()
@@ -16,6 +17,13 @@ class JsObjFactoryTypeChecks extends FlatSpec with ShouldMatchers {
   "jsObjFactory().jsonCall with a Long" should "not type check" in {
     """ angular.module("module").factory("factory", jsObjFactory()
           .jsonCall("shouldNotTypeCheck", (arg:Long) => net.liftweb.common.Full("String"))
+        )
+    """ shouldNot typeCheck
+  }
+
+  "jsObjFactory().jsonCall with a case class not extending NgModel" should "not type check" in {
+    """ angular.module("module").factory("factory", jsObjFactory()
+          .jsonCall("shouldNotTypeCheck", (arg:NonModel) => net.liftweb.common.Full("String"))
         )
     """ shouldNot typeCheck
   }

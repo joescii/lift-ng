@@ -783,7 +783,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
 
     protected def invalidJson(json:String) = {
-      logger.warn("Received invalid JSON from the client. Perhaps you forgot to extend NgModel? => "+json)
+      logger.warn("Received invalid JSON from the client => "+json)
       "invalid json"
     }
   }
