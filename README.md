@@ -818,7 +818,8 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
-* *0.7.0*: **POSSIBLE BREAKING CHANGE**
+* *0.7.0*: [Release Notes](http://notes.implicit.ly/post/126346929649/lift-ng-070) for details.
+**POSSIBLE BREAKING CHANGE**
 Resolved [Issue 12](https://github.com/joescii/lift-ng/issues/12): Calling `defModelToAny`, `defModelToFutureAny`, or `jsonCall` with a function that takes neither a `String` or `NgModel` will fail to compile.
 Functions which serialize/deserialize JSON now take an implicit `net.liftweb.json.Formats`.
 Resolved [Issue 10](https://github.com/joescii/lift-ng/issues/10): Futures can now be embedded in models of an `NgModelBinder`
