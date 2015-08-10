@@ -50,10 +50,10 @@ Optionally add `lift-ng-js` as a dependency if you would like us to manage the d
 libraryDependencies ++= {
   val liftVersion = "2.5.1" // Also supported: "2.6" and "3.0"
   val liftEdition = liftVersion.substring(0,3)
-  val ngVersion = "1.3.1"  // If using lift-ng-js as recommended
+  val ngVersion = "1.4.3"  // If using lift-ng-js as recommended
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.6.4"            % "compile",
+    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.7.0"            % "compile",
     "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.2_"+ngVersion) % "compile"
    )
 }
