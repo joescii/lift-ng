@@ -29,7 +29,7 @@ libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
     "net.liftweb"             %%  "lift-webkit"                       % lift                  % "compile",
     "net.liftmodules"         %%  ("lift-jquery-module_"+liftEdition) % jq                    % "compile",
     "net.liftmodules"         %%  ("ng_"+liftEdition)                 % liftng                % "compile", // https://github.com/joescii/lift-ng
-    "net.liftmodules"         %%  ("ng-js_"+liftEdition)              % "0.2_1.3.15"          % "compile", // https://github.com/joescii/lift-ng-js
+    "org.webjars"             %   "angularjs"                         % "1.4.7",
     "org.eclipse.jetty"       %   "jetty-webapp"                      % "9.2.7.v20150116"     % "compile",
     "org.eclipse.jetty"       %   "jetty-plus"                        % "9.2.7.v20150116"     % "container,test", // For Jetty Config
     "org.eclipse.jetty.orbit" %   "javax.servlet"                     % "3.0.0.v201112011016" % "container,test" artifacts Artifact("javax.servlet", "jar", "jar"),
