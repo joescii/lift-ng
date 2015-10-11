@@ -31,10 +31,14 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     * @param futures true to include {{{net.liftweb.actor.LAFuture}}} support (and hence add a comet to your page), false otherwise
     * @param appSelector the CSS selector to find your app in the page
     * @param includeJsScript true to include the prerequisite liftproxy.js file, false if you plan to include it yourself.
+    * @param includeAngularJs TODO
+    * @param additionalAngularJsModules TODO
     */
   def init(futures:Boolean = true,
            appSelector:String = "[ng-app]",
-           includeJsScript:Boolean = true
+           includeJsScript:Boolean = true,
+           includeAngularJs:Boolean = false,
+           additionalAngularJsModules:List[String] = List()
            ):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this

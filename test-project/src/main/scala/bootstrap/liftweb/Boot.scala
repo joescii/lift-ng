@@ -93,7 +93,9 @@ class Boot {
     Angular.init(
       futures = false,
       appSelector = ".application",
-      includeJsScript = true
+      includeJsScript = true,
+      includeAngularJs = true,
+      additionalAngularJsModules = List("loader") // Not directly used. Just here for testing that feature
     )
   }
 }
