@@ -24,6 +24,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   private [ng] var futuresDefault:Boolean = true
   private [ng] var appSelectorDefault:String = "[ng-app]"
   private [ng] var includeJsScript:Boolean = true
+  private [ng] var includeAngularJs:Boolean = false
+  private [ng] var additionalAngularJsModules:Seq[String] = Seq()
   private [ng] def rand = "NG"+randomString(18)
 
   /**
@@ -56,7 +58,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     AngularI18nRest.init()
 
-    if(includeAngularJs) AngularJsRest.init()
+    this.includeAngularJs = includeAngularJs
+    if(includeAngularJs) {
+      this.additionalAngularJsModules = additionalAngularJsModules
+      AngularJsRest.init()
+    }
   }
 
   private def bool(s:String, default:Boolean):Boolean = {
@@ -187,8 +193,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     HeadRendered.set(true)
 
-    val includeFutures = S.attr("futures").map(bool(_, futuresDefault)).openOr(futuresDefault)
-
     val liftproxy = if(includeJsScript) <script src={liftproxySrc}></script> else NodeSeq.Empty
     val jsModule = Script(JsRaw(
     //net_liftmodules_ng.contextPath + '/ajax_request/' + lift_page + '/'
@@ -198,10 +202,23 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       "net_liftmodules_ng.jsPath=\"" + liftproxySrc +"\";"
     ))
     val modules = Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
+    val includeFutures = S.attr("futures").map(bool(_, futuresDefault)).openOr(futuresDefault)
     val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor"></div> else NodeSeq.Empty
 
-    liftproxy ++ jsModule ++ modules ++ futureActor
+    angularModules ++ liftproxy ++ jsModule ++ modules ++ futureActor
   }
+
+  private def angularModules:NodeSeq = if(includeAngularJs) {
+    val ms  = S.attr("additional-angularjs-modules").map(_.split(',').map(_.trim).toSeq).openOr(additionalAngularJsModules)
+    val notDev = Props.mode != RunModes.Development
+    val min = S.attr("min").map(bool(_, notDev)).openOr(notDev)
+    ("" +: ms).map { m =>
+      val name = if(m == "") "angular" else "angular-"+m
+      val id = name+"_js"
+      val src = "/net/liftmodules/ng/angular-js/"+name+(if(min) ".min" else "")+".js"
+      <script id={id} src={src} type="text/javascript"></script>
+    }.foldLeft(NodeSeq.Empty)(_ ++ _)
+  } else NodeSeq.Empty
 
   /**
    * Registers the module with the RequestVar so that it may be rendered in base.html.
