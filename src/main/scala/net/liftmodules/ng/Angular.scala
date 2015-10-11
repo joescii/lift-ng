@@ -55,6 +55,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     this.includeJsScript = includeJsScript
 
     AngularI18nRest.init()
+
+    if(includeAngularJs) AngularJsRest.init()
   }
 
   private def bool(s:String, default:Boolean):Boolean = {

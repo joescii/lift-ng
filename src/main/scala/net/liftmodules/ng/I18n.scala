@@ -59,7 +59,7 @@ object AngularI18n extends DispatchSnippet with MemoFunctions {
 
 object AngularI18nRest extends RestHelper {
   def init() {
-    LiftRules.statelessDispatch.append(AngularI18nRest)
+    LiftRules.statelessDispatch.append(this)
   }
 
   serve {
