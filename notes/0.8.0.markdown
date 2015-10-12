@@ -1,0 +1,51 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Added [@webjars](http://www.webjars.org/) integration to inject angularjs javascript files into your pages.
+This update effectively deprecates [lift-ng-js](https://github.com/joescii/lift-ng-js).
+
+To take advantage of this enhancement, add the angularjs webjar to your `libraryDependencies`:
+
+    libraryDependencies ++= {
+      val liftVersion = "2.5.3"
+      val liftEdition = liftVersion.substring(0,3)
+      Seq(
+        // Other dependencies ...
+        "org.webjars"     %  "angularjs"         % "1.4.7",
+        "net.liftmodules" %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
+       )
+    }
+
+And set `includeAngularJs` to `true` in `Angular.init()`:
+
+    package bootstrap.liftweb
+
+    class Boot {
+      def boot {
+        // Other stuff...
+
+        net.liftmodules.ng.Angular.init(
+          futures = true,
+          appSelector = "[ng-app]",
+          includeJsScript = true,
+
+          // Set to true to include angular.js from org.webjars angularjs
+          includeAngularJs = true,
+
+          // Add any additional js modules you want to load in the page from the angularjs webjar
+          additionalAngularJsModules = List("animate", "cookies", "loader", "resource", "route", "sanitize", "scenario", "touch")
+        )
+      }
+    }
+
+Notice here we also set `additionalAngularJsModules` to the list of all optional angular modules available.
+
+Now the `Angular` snippet will expand to include `angular.js` and friends in your page with a single line of HTML.
+
+    <script data-lift="Angular"></script>
+
+Upgrading your angular version is as simple as updating any other library dependency.
+Note that the path we use for the angular assets includes the angular version to ensure proper cache behavior.
+We also do the right thing regarding minified assets.
+That is, we serve non-minified js when in development mode and minified versions in all other modes.

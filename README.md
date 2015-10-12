@@ -45,6 +45,8 @@ Otherwise, you should first [get started with Lift](http://liftweb.net/getting_s
 You can configure an existing Lift project to use **lift-ng** manually.
 Add `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
 Optionally add `"org.webjars" % "angularjs"` as a dependency if you would like us to manage the delivery of your AngularJS library javascript files.
+This is the recommended approach as it allows you to update your angular version in the same place as your Scala dependencies.
+We handle adding the angular version to the asset path for proper cache behavior, and we serve the minified version of the js when you are not running in development mode.
 
 ```scala
 libraryDependencies ++= {
