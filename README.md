@@ -44,17 +44,16 @@ Otherwise, you should first [get started with Lift](http://liftweb.net/getting_s
 
 You can configure an existing Lift project to use **lift-ng** manually.
 Add `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
-Optionally add `lift-ng-js` as a dependency if you would like us to manage the delivery of your AngularJS library javascript files.
+Optionally add `"org.webjars" % "angularjs"` as a dependency if you would like us to manage the delivery of your AngularJS library javascript files.
 
 ```scala
 libraryDependencies ++= {
   val liftVersion = "2.5.1" // Also supported: "2.6" and "3.0"
   val liftEdition = liftVersion.substring(0,3)
-  val ngVersion = "1.4.3"  // If using lift-ng-js as recommended
   Seq(
     // Other dependencies ...
-    "net.liftmodules" %% ("ng_"+liftEdition)    % "0.7.0"            % "compile",
-    "net.liftmodules" %% ("ng-js_"+liftEdition) % ("0.2_"+ngVersion) % "compile"
+    "org.webjars"     %  "angularjs"         % "1.4.7",
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
    )
 }
 ```
@@ -78,7 +77,13 @@ class Boot {
       // Set to true to include a script tag with the src set to the path for liftproxy.js.
       // Set to false if you want to handle that yourself by referring to the path in
       // net_liftmodules_ng.
-      includeJsScript = true
+      includeJsScript = true,
+
+      // Set to true to include angular.js from org.webjars angularjs
+      includeAngularJs = true,
+
+      // Add any additional js modules you want to load in the page from the angularjs webjar
+      additionalAngularJsModules = List("animate", "cookies", "loader", "resource", "route", "sanitize", "scenario", "touch")
     )
 
     val context:ExecutionContext = // Create context
@@ -165,11 +170,8 @@ object NgPonyService {
 This `renderIfNotAlreadyDefined` returns a `scala.xml.NodeSeq`.  Hence you will need to add script tags to your target HTML page(s) for the services as well as some plumbing from this module.
 
 ```html
-<!-- The angular library (manually) -->
+<!-- The angular library itself, if not using webjars with includeAngularJs = true -->
 <script type="text/javascript" src="/scripts/angular.js"></script>
-
-<!-- Or better yet, via lift-ng-js. (https://github.com/joescii/lift-ng-js) -->
-<script data-lift="AngularJS"></script>
 
 <!-- Prerequisite stuff the module needs -->
 <script data-lift="Angular"></script>
@@ -727,9 +729,34 @@ angular.module('ExampleApp', ['i18n'])
 
 For more details about this resource bundle object, see [j2js-i18n](https://github.com/joescii/j2js-i18n).
 
+### The Angular snippet
+As mentioned earlier in this README, you need the `Angular` snippet on each page for **lift-ng** to function.
+This snippet expands into several `script` tags for gluing Angular to Lift, including `angular.js` itself from a webjar if available on your classpath and configured in `Boot`.
+In development mode, this will cause your pages to load non-minified versions of angularjs modules.
+In all other modes, your pages will request the minified versions.
+
+```html
+<script data-lift="Angular"></script>
+```
+
+You can optionally set the `additional-angularjs-modules` parameter to override the list of angularjs modules you configured in `Boot`.
+
+```html
+<script data-lift="Angular?additional-angularjs-modules=animate,cookies,loader,route"></script>
+```
+
+You can optionally set the `min` parameter to force the minified js file to be served with `on`, `yes`, or `true`, OR to force the full js file to be served with `off`, `no`, or `false`.
+Default behavior is to serve the minified version in all modes except `RunModes.Development`.
+
+```html
+<script data-lift="Angular?min=off"></script>
+```
+
 ## Scaladocs
 
-The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.  There should not be any differences among the supported versions of Scala.  Nonetheless all are listed here for good measure.
+The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.
+There should not be any differences among the supported versions of Scala.
+Nonetheless all are listed here for good measure.
 * [Scala 2.10](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.10/api/index.html#package)
 * [Scala 2.9.2](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.2/api/index.html#package)
 * [Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
@@ -737,11 +764,14 @@ The latest version of scaladocs are hosted thanks to [cloudbees](http://www.clou
 
 ## Community/Support
 
-Need help?  Hit us up on the [Lift Google group](https://groups.google.com/forum/#!forum/liftweb).  We'd love to help you out and hear about what you're building.
+Need help?  Hit us up on the [Lift Google group](https://groups.google.com/forum/#!forum/liftweb).
+We'd love to help you out and hear about what you're building.
 
 ## Contributing
 
-As with any open source project, contributions are greatly appreciated.  If you find an issue or have a feature idea, we'd love to know about it!  Any of the following will help this effort tremendously.
+As with any open source project, contributions are greatly appreciated.
+If you find an issue or have a feature idea, we'd love to know about it!
+Any of the following will help this effort tremendously.
 
 1. Issue a Pull Request with the fix/enhancement and unit tests to validate the changes.  OR
 2. Issue a Pull Request with failing tests in the [test-project](https://github.com/joescii/lift-ng/tree/master/test-project) to show what needs to be changed OR
@@ -818,6 +848,8 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
+* *0.8.0*: [Release Notes](http://notes.implicit.ly/post/TODO/lift-ng-080) for details.
+Added [webjars](http://www.webjars.org/) integration to inject angularjs javascript files into your pages.
 * *0.7.0*: [Release Notes](http://notes.implicit.ly/post/126346929649/lift-ng-070) for details.
 **POSSIBLE BREAKING CHANGE**
 Resolved [Issue 12](https://github.com/joescii/lift-ng/issues/12): Calling `defModelToAny`, `defModelToFutureAny`, or `jsonCall` with a function that takes neither a `String` or `NgModel` will fail to compile.
