@@ -48,7 +48,7 @@ Optionally add `"org.webjars" % "angularjs"` as a dependency if you would like u
 
 ```scala
 libraryDependencies ++= {
-  val liftVersion = "2.5.1" // Also supported: "2.6" and "3.0"
+  val liftVersion = "2.5.3" // Also supported: "2.6.2" and "3.0*"
   val liftEdition = liftVersion.substring(0,3)
   Seq(
     // Other dependencies ...
