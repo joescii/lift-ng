@@ -1,6 +1,6 @@
 package net.liftmodules.ng
 
-import net.liftweb.common.Box
+import net.liftweb.common.{Full, Box}
 import net.liftweb.http.LiftRules.SplitSuffixPF
 import net.liftweb.http._
 import net.liftweb.http.rest.RestHelper
@@ -49,8 +49,10 @@ object AngularJsRest extends RestHelper {
   }
 
   serve {
-    case "net" :: "liftmodules" :: "ng" :: "angular-js" :: name :: Nil Get _ =>
-      response(name)
+    // The reason for having version is the path is to ensure proper cache behavior
+    case "net" :: "liftmodules" :: "ng" :: "angular-js" :: version :: name :: Nil Get _ =>
+      if(angularWebjarVersion == Full(version)) response(name)
+      else NotFoundResponse()
   }
 
 }
