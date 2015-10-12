@@ -33,19 +33,21 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     * @param futures true to include {{{net.liftweb.actor.LAFuture}}} support (and hence add a comet to your page), false otherwise
     * @param appSelector the CSS selector to find your app in the page
     * @param includeJsScript true to include the prerequisite liftproxy.js file, false if you plan to include it yourself.
-    * @param includeAngularJs TODO
-    * @param additionalAngularJsModules TODO
+    * @param includeAngularJs true to include angular.js and modules found in angularjs webjar.
+    * @param additionalAngularJsModules list of additional angularjs modules to include in the page.
     */
-  def init(futures:Boolean = true,
-           appSelector:String = "[ng-app]",
-           includeJsScript:Boolean = true,
-           includeAngularJs:Boolean = false,
-           additionalAngularJsModules:List[String] = List()
-           ):Unit = {
+  def init(
+    futures:Boolean = true,
+    appSelector:String = "[ng-app]",
+    includeJsScript:Boolean = true,
+    includeAngularJs:Boolean = false,
+    additionalAngularJsModules:List[String] = List()
+  ):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
       case "i18n" => AngularI18n
     }
+    
     LiftRules.addToPackages("net.liftmodules.ng")
 
     ResourceServer.allow {
@@ -215,7 +217,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     ("" +: ms).map { m =>
       val name = if(m == "") "angular" else "angular-"+m
       val id = name+"_js"
-      val src = "/net/liftmodules/ng/angular-js/"+name+(if(min) ".min" else "")+".js"
+      val src = AngularJsRest.path + name + (if(min) ".min" else "") + ".js"
       <script id={id} src={src} type="text/javascript"></script>
     }.foldLeft(NodeSeq.Empty)(_ ++ _)
   } else NodeSeq.Empty

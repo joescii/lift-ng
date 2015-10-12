@@ -41,6 +41,8 @@ object AngularJsRest extends RestHelper {
     )
   }).openOr(NotFoundResponse())
 
+  val path = "/net/liftmodules/ng/angular-js/"
+
   // Don't split the file suffix out for our assets
   private val splitter:SplitSuffixPF = {
     case parts @ ("net" :: "liftmodules" :: "ng" :: "angular-js" :: _) => (parts, "")
