@@ -888,8 +888,8 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
-* *0.8.0*: See [Release Notes](http://notes.implicit.ly/post/TODO/lift-ng-080) for details.
-Added [webjars](http://www.webjars.org/) integration to inject angularjs javascript files into your pages.
+* *0.8.0*: See [Release Notes](http://notes.implicit.ly/post/131827339549/lift-ng-080) for details.
+Added [Webjars](http://www.webjars.org/) integration to inject angularjs javascript files into your pages.
 * *0.7.0*: See [Release Notes](http://notes.implicit.ly/post/126346929649/lift-ng-070) for details.
 **POSSIBLE BREAKING CHANGE**
 Resolved [Issue 12](https://github.com/joescii/lift-ng/issues/12): Calling `defModelToAny`, `defModelToFutureAny`, or `jsonCall` with a function that takes neither a `String` or `NgModel` will fail to compile.
