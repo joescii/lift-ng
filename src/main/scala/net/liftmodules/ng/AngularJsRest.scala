@@ -1,30 +1,60 @@
 package net.liftmodules.ng
 
-import net.liftweb.common.{Full, Box}
+import net.liftweb.common.{Loggable, Full, Box}
 import net.liftweb.http.LiftRules.SplitSuffixPF
 import net.liftweb.http._
 import net.liftweb.http.rest.RestHelper
 
-object AngularJsRest extends RestHelper {
+object AngularJsRest extends RestHelper with Loggable {
   def init() {
     LiftRules.suffixSplitters.prepend(splitter)
     LiftRules.statelessDispatch.append(this)
+
+    webjar.foreach { info =>
+      logger.info("Serving angular version "+info.version)
+    }
+    if(!webjar.isDefined) logger.info("Angular webjar not found on classpath...")
   }
 
-  private val VersionRegex = """^\Qversion=\E(.*)$""".r
+  case class WebJarInfo(version:String, angularDir:String, modulesAreInSeparateJars:Boolean)
+  private [ng] lazy val webjar:Box[WebJarInfo] = {
+    val VersionRegex = """^\Qversion=\E(.*)$""".r
 
-  private [ng] lazy val angularWebjarVersion:Box[String] = for {
-    props <- LiftRules.loadResourceAsString("/META-INF/maven/org.webjars/angularjs/pom.properties")
-    version <- props.lines.collectFirst { case VersionRegex(v) => v }
-  } yield { version }
+    def webJarInfo(pkg:String, angular:String, modulesAreInSeparateJars:Boolean):Box[WebJarInfo] = for {
+      props <- LiftRules.loadResourceAsString("/META-INF/maven/"+pkg+"/"+angular+"/pom.properties")
+      version <- props.lines.collectFirst { case VersionRegex(v) => v }
+      _ <- LiftRules.loadResourceAsString("/META-INF/resources/webjars/"+angular+"/"+version+"/angular.js")
+    } yield { WebJarInfo(version, angular, modulesAreInSeparateJars) }
 
-  private [ng] lazy val angularWebjarPath:Box[String] = for {
-    version <- angularWebjarVersion
-  } yield { "/META-INF/resources/webjars/angularjs/"+version }
+    lazy val classicWebJar:Box[WebJarInfo] = webJarInfo("org.webjars",       "angularjs", false)
+    lazy val bowerWebJar1:Box[WebJarInfo]  = webJarInfo("org.webjars.bower", "angularjs", true)
+    lazy val bowerWebJar2:Box[WebJarInfo]  = webJarInfo("org.webjars.bower", "angular", true)
+    lazy val npmWebJar:Box[WebJarInfo]     = webJarInfo("org.webjars.npm",   "angular", true)
+
+    Stream(classicWebJar, bowerWebJar1, bowerWebJar2, npmWebJar).collectFirst { case Full(info) => info }
+  }
+
+  private def pathFor(assetName:String):Box[String] = for {
+    info <- webjar
+  } yield {
+    import info._
+
+    val beforeExtension = assetName.split('.').head
+
+    // Either use angular/angularjs in the path if...
+    val useAngularInPath = !modulesAreInSeparateJars ||
+      beforeExtension == "angular" ||
+      beforeExtension == "angular-csp"
+
+    val pkg = if(useAngularInPath) angularDir else beforeExtension
+    val path = "/META-INF/resources/webjars/"+pkg+"/"+version+"/"+assetName
+
+    path
+  }
 
   private def response(assetName:String):LiftResponse = (for {
-    path <- angularWebjarPath
-    asset <- LiftRules.loadResourceAsString(path + "/" + assetName)
+    path <- pathFor(assetName)
+    asset <- LiftRules.loadResourceAsString(path)
   } yield {
     val cType = assetName.split("\\.").last match {
       case "js"           => "application/javascript"
@@ -51,7 +81,7 @@ object AngularJsRest extends RestHelper {
   serve {
     // The reason for having version is the path is to ensure proper cache behavior
     case "net" :: "liftmodules" :: "ng" :: "angular-js" :: version :: name :: Nil Get _ =>
-      if(angularWebjarVersion == Full(version)) response(name)
+      if(webjar.map(_.version) == Full(version)) response(name)
       else NotFoundResponse()
   }
 

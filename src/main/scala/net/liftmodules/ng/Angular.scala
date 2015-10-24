@@ -211,9 +211,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   }
 
   private def angularModules:NodeSeq = if(includeAngularJs) {
-    val version = AngularJsRest.angularWebjarVersion.openOrThrowException(
+    val version = AngularJsRest.webjar.openOrThrowException(
       "lift-ng has been initialized with includeAngularJs==true but it appears you do not have the angularjs webjar configured in your classpath"
-    )
+    ).version
     val ms  = S.attr("additional-angularjs-modules").map(_.split(',').map(_.trim).toSeq).openOr(additionalAngularJsModules)
     val notDev = Props.mode != RunModes.Development
     val min = S.attr("min").map(bool(_, notDev)).openOr(notDev)
