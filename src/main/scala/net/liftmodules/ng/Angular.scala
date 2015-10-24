@@ -26,6 +26,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   private [ng] var includeJsScript:Boolean = true
   private [ng] var includeAngularJs:Boolean = false
   private [ng] var additionalAngularJsModules:Seq[String] = Seq()
+  private [ng] var includeAngularCspCss = false
   private [ng] def rand = "NG"+randomString(18)
 
   /**
@@ -41,7 +42,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     appSelector:String = "[ng-app]",
     includeJsScript:Boolean = true,
     includeAngularJs:Boolean = false,
-    additionalAngularJsModules:List[String] = List()
+    additionalAngularJsModules:List[String] = List(),
+    includeAngularCspCss:Boolean = false
   ):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
@@ -61,7 +63,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     AngularI18nRest.init()
 
     this.includeAngularJs = includeAngularJs
-    if(includeAngularJs) {
+    this.includeAngularCspCss = includeAngularCspCss
+    if(includeAngularJs || includeAngularCspCss) {
       this.additionalAngularJsModules = additionalAngularJsModules
       AngularJsRest.init()
     }
@@ -207,23 +210,23 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     val includeFutures = S.attr("futures").map(bool(_, futuresDefault)).openOr(futuresDefault)
     val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor"></div> else NodeSeq.Empty
 
-    angularModules ++ liftproxy ++ jsModule ++ modules ++ futureActor
+    angularCspCss ++ angularModules ++ liftproxy ++ jsModule ++ modules ++ futureActor
   }
 
   private def angularModules:NodeSeq = if(includeAngularJs) {
-    val version = AngularJsRest.webjar.openOrThrowException(
-      "lift-ng has been initialized with includeAngularJs==true but it appears you do not have the angularjs webjar configured in your classpath"
-    ).version
     val ms  = S.attr("additional-angularjs-modules").map(_.split(',').map(_.trim).toSeq).openOr(additionalAngularJsModules)
     val notDev = Props.mode != RunModes.Development
     val min = S.attr("min").map(bool(_, notDev)).openOr(notDev)
     ("" +: ms).map { m =>
       val name = if(m == "") "angular" else "angular-"+m
       val id = name+"_js"
-      val src = AngularJsRest.path + version + "/" + name + (if(min) ".min" else "") + ".js"
+      val src = AngularJsRest.path + AngularJsRest.version + "/" + name + (if(min) ".min" else "") + ".js"
       <script id={id} src={src} type="text/javascript"></script>
     }.foldLeft(NodeSeq.Empty)(_ ++ _)
   } else NodeSeq.Empty
+
+  private lazy val angularCspCss:NodeSeq = if(!includeAngularCspCss) NodeSeq.Empty else
+    <link id="angular-csp_css" href={AngularJsRest.path + AngularJsRest.version + "/angular-csp.css"} rel="stylesheet"/>
 
   /**
    * Registers the module with the RequestVar so that it may be rendered in base.html.

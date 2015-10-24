@@ -17,6 +17,9 @@ object AngularJsRest extends RestHelper with Loggable {
   }
 
   case class WebJarInfo(version:String, angularDir:String, modulesAreInSeparateJars:Boolean)
+  lazy val version = webjar.openOrThrowException(
+    "lift-ng has been initialized with includeAngularJs==true but it appears you do not have the angularjs webjar configured in your classpath"
+  ).version
   private [ng] lazy val webjar:Box[WebJarInfo] = {
     val VersionRegex = """^\Qversion=\E(.*)$""".r
 
@@ -47,7 +50,7 @@ object AngularJsRest extends RestHelper with Loggable {
       beforeExtension == "angular-csp"
 
     val pkg = if(useAngularInPath) angularDir else beforeExtension
-    val path = "/META-INF/resources/webjars/"+pkg+"/"+version+"/"+assetName
+    val path = "/META-INF/resources/webjars/"+pkg+"/"+info.version+"/"+assetName
 
     path
   }

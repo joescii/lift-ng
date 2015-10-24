@@ -13,6 +13,10 @@ class WebjarsSpecs extends BaseSpec {
     id("angular-touch_js").element
   }
 
+  "The angular csp stylesheet" should "be on the static page" in {
+    id("angular-csp_css").element
+  }
+
   "The snippets page" should "load" in {
     initialize("snippets")
   }

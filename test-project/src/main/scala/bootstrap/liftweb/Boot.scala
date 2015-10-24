@@ -95,7 +95,8 @@ class Boot {
       appSelector = ".application",
       includeJsScript = true,
       includeAngularJs = true,
-      additionalAngularJsModules = List("loader") // Not directly used; only checked in WebjarSpecs
+      additionalAngularJsModules = List("loader"), // Not directly used; only checked in WebjarSpecs
+      includeAngularCspCss = true 
     )
   }
 }
