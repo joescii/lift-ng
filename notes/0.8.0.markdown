@@ -49,3 +49,28 @@ Upgrading your angular version is as simple as updating any other library depend
 Note that the path we use for the angular assets includes the angular version to ensure proper cache behavior.
 We also do the right thing regarding minified assets.
 That is, we serve non-minified js when in development mode and minified versions in all other modes.
+
+This enhancement also supports adding `angular-csp.css` to your page.
+Just set `includeAngularCspCss` to true in `Angular.init()`:
+
+    net.liftmodules.ng.Angular.init(
+      includeAngularJs = true,
+      includeAngularCspCss = true
+    )
+
+In addition to supporting the classic webjars, both bower and npm webjars are supported.
+Note that unlike the classic webjars, the additional modules for bower and npm are packaged separately.
+For instance, if you would like to use the `animate` module, you should also include it in your dependencies in addition to adding it to `additionalAngularJsModules`:
+
+    libraryDependencies ++= {
+      val liftVersion = "2.5.3"
+      val liftEdition = liftVersion.substring(0,3)
+      val angularVersion = "1.4.7"
+      Seq(
+        // Other dependencies ...
+        "org.webjars.npm" %  "angular"           % angularVersion,
+        "org.webjars.npm" %  "angular-animate"   % angularVersion,
+        "net.liftmodules" %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
+       )
+    }
+

@@ -44,18 +44,18 @@ Otherwise, you should first [get started with Lift](http://liftweb.net/getting_s
 
 You can configure an existing Lift project to use **lift-ng** manually.
 Add `lift-ng` as a dependency in your `build.sbt` or `Build.scala` as appropriate.
-Optionally add `"org.webjars" % "angularjs"` as a dependency if you would like us to manage the delivery of your AngularJS library javascript files.
-This is the recommended approach as it allows you to update your angular version in the same place as your Scala dependencies.
-We handle adding the angular version to the asset path for proper cache behavior, and we serve the minified version of the js when you are not running in development mode.
+Optionally add angular from [webjars](http://www.webjars.org/) as a dependency if you would like us to manage the delivery of your AngularJS library javascript files.
+(See [Webjar Support](#Webjar-Support) below for more details)
 
 ```scala
 libraryDependencies ++= {
   val liftVersion = "2.5.3" // Also supported: "2.6.2" and "3.0*"
   val liftEdition = liftVersion.substring(0,3)
+  val angularVersion = "1.4.7"
   Seq(
     // Other dependencies ...
-    "org.webjars"     %  "angularjs"         % "1.4.7",
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
+    "org.webjars.bower" %  "angularjs"         % angularVersion,
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
    )
 }
 ```
@@ -85,7 +85,10 @@ class Boot {
       includeAngularJs = true,
 
       // Add any additional js modules you want to load in the page from the angularjs webjar
-      additionalAngularJsModules = List("animate", "cookies", "loader", "resource", "route", "sanitize", "scenario", "touch")
+      additionalAngularJsModules = List("animate", "cookies", "loader", "resource", "route", "sanitize", "scenario", "touch"),
+
+      // Set to true to also deliver the angular-csp.css stylesheet on the page
+      includeAngularCspCss = true
     )
 
     val context:ExecutionContext = // Create context
@@ -104,6 +107,41 @@ By default, we will use `scala.concurrent.ExecutionContext.global`.
 To specify a different `ExecutionContext`, in your `Boot.boot` invoke the `apply` method of `net.liftmodules.ng.AngularExecutionContext` with your preferred `ExecutionContext` as shown above.
 For more details about how we handle `scala.concurrent.Future[T]`, [read here](#scalaconcurrentfuture)
 
+## Webjar support
+As mentioned in the [Configuration](#Configuration), **lift-ng** allows you to smoothly utilize [webjars](http://www.webjars.org/) for delivering the angular.js assets.
+This is the recommended approach as it allows you to update your angular version in the same place as your Scala dependencies.
+We handle adding the angular version to the asset path for proper cache behavior, and we serve the minified version of the js when you are not running in development mode.
+
+All three flavors of Webjars are supported: Classic, Bower, and NPM.
+
+### Classic Webjars
+The `angularjs` Classic Webjar contains all optional angular modules such as animate, cookies, route, etc.
+Hence you only need to include one jar even if you are using optional modules.
+However, Classic Webjars are packaged and published by hand, causing you to depend on someone else's manual effort before you can utilize the next version.
+
+### Bower and NPM Webjars
+The `angular`/`angularjs` Bower and NPM Webjars do NOT contain the optional angular modules.
+You will need to add each one to your build dependencies if you want those served by **lift-ng**.
+For instance, if you would like to use the `animate` module, you should also include it in your dependencies in addition to adding it to `additionalAngularJsModules`:
+
+```scala
+libraryDependencies ++= {
+  val liftVersion = "2.5.3"
+  val liftEdition = liftVersion.substring(0,3)
+  val angularVersion = "1.4.7"
+  Seq(
+    // Other dependencies ...
+    "org.webjars.npm" %  "angular"           % angularVersion,
+    "org.webjars.npm" %  "angular-animate"   % angularVersion,
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
+   )
+}
+```
+
+The same applies for Bower Webjars.
+
+Note also that for the `org.webjars.npm` organization, the module name is `angular`.
+Angular is published as either `angular` or `angularjs` module names under the `org.webjars.bower` organization.
 
 ## Supported Versions
 
