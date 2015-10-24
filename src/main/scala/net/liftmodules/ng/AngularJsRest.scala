@@ -10,10 +10,10 @@ object AngularJsRest extends RestHelper with Loggable {
     LiftRules.suffixSplitters.prepend(splitter)
     LiftRules.statelessDispatch.append(this)
 
-    webjar.foreach { info =>
-      logger.info("Serving angular version "+info.version)
-    }
-    if(!webjar.isDefined) logger.info("Angular webjar not found on classpath...")
+    val version = AngularJsRest.webjar.openOrThrowException(
+      "lift-ng has been initialized with includeAngularJs==true but it appears you do not have the angularjs webjar configured in your classpath"
+    ).version
+    logger.info("Serving angular version "+version)
   }
 
   case class WebJarInfo(version:String, angularDir:String, modulesAreInSeparateJars:Boolean)
