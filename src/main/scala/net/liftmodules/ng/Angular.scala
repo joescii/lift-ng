@@ -200,7 +200,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     val liftproxy = if(includeJsScript) <script src={liftproxySrc}></script> else NodeSeq.Empty
     val jsModule = Script(JsRaw(
-    //net_liftmodules_ng.contextPath + '/ajax_request/' + lift_page + '/'
       "var net_liftmodules_ng=net_liftmodules_ng||{};" +
       "net_liftmodules_ng.ajax=function(){"+ajaxFn+".apply(this,arguments)};" +
       "net_liftmodules_ng.version=\"" + BuildInfo.version + "\";" +
