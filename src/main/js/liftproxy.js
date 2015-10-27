@@ -91,15 +91,18 @@ angular
       args[0] = grabData(args[0]);
       return origCall.apply(this, args);
     };
-    liftAjax.lift_ajaxQueueSort = function() {
-      liftAjax.lift_ajaxQueue.sort(function (a, b) {
-        // If both items are one of our doctored-up requests, grab our 'when' which is the original request time.
-        if(typeof a.theData === "object" && a.theData.when && typeof b.theData === "object" && b.theData.when)
-          return a.theData.when - b.theData.when;
-        else // Not our stuff, so let's not screw around with the original order logic.
-          return a.when - b.when;
-      });
-    };
+
+    if(net_liftmodules_ng.retryAjaxInOrder) {
+      liftAjax.lift_ajaxQueueSort = function() {
+        liftAjax.lift_ajaxQueue.sort(function (a, b) {
+          // If both items are one of our doctored-up requests, grab our 'when' which is the original request time.
+          if(typeof a.theData === "object" && a.theData.when && typeof b.theData === "object" && b.theData.when)
+            return a.theData.when - b.theData.when;
+          else // Not our stuff, so let's not screw around with the original order logic.
+            return a.when - b.when;
+        });
+      };
+    }
 
     var svc = {
       request: function (requestData) {

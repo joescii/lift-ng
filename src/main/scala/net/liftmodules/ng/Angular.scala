@@ -27,6 +27,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   private [ng] var includeAngularJs:Boolean = false
   private [ng] var additionalAngularJsModules:Seq[String] = Seq()
   private [ng] var includeAngularCspCss = false
+  private [ng] var retryAjaxInOrder = false
   private [ng] def rand = "NG"+randomString(18)
 
   /**
@@ -36,6 +37,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     * @param includeJsScript true to include the prerequisite liftproxy.js file, false if you plan to include it yourself.
     * @param includeAngularJs true to include angular.js and modules found in angularjs webjar.
     * @param additionalAngularJsModules list of additional angularjs modules to include in the page.
+    * @param includeAngularCspCss true to include angular-csp.css found in angularjs webjar.
+    * @param retryAjaxInOrder true to retry all ajax services in the order they are received.
     */
   def init(
     futures:Boolean = true,
@@ -43,7 +46,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     includeJsScript:Boolean = true,
     includeAngularJs:Boolean = false,
     additionalAngularJsModules:List[String] = List(),
-    includeAngularCspCss:Boolean = false
+    includeAngularCspCss:Boolean = false,
+    retryAjaxInOrder:Boolean = false
   ):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
@@ -68,6 +72,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       this.additionalAngularJsModules = additionalAngularJsModules
       AngularJsRest.init()
     }
+
+    this.retryAjaxInOrder = retryAjaxInOrder
   }
 
   private def bool(s:String, default:Boolean):Boolean = {
@@ -202,6 +208,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     val jsModule = Script(JsRaw(
       "var net_liftmodules_ng=net_liftmodules_ng||{};" +
       "net_liftmodules_ng.ajax=function(){"+ajaxFn+".apply(this,arguments)};" +
+      "net_liftmodules_ng.retryAjaxInOrder="+retryAjaxInOrder+";" +
       "net_liftmodules_ng.version=\"" + BuildInfo.version + "\";" +
       "net_liftmodules_ng.jsPath=\"" + liftproxySrc +"\";"
     ))
