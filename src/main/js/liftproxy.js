@@ -103,8 +103,7 @@ angular
           defer.reject("net.liftmodules.ng.Angular.ajaxFailure");
         })};
 
-        // TODO: Different fn for 3.0
-        liftAjax.lift_ajaxHandler(req, onSuccess, onFailure, "json");
+        net_liftmodules_ng.ajax(req, onSuccess, onFailure, "json");
 
         return defer.promise;
       }
