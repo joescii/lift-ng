@@ -91,6 +91,15 @@ angular
       args[0] = grabData(args[0]);
       return origCall.apply(this, args);
     };
+    liftAjax.lift_ajaxQueueSort = function() {
+      liftAjax.lift_ajaxQueue.sort(function (a, b) {
+        // If both items are one of our doctored-up requests, grab our 'when' which is the original request time.
+        if(typeof a.theData === "object" && a.theData.when && typeof b.theData === "object" && b.theData.when)
+          return a.theData.when - b.theData.when;
+        else // Not our stuff, so let's not screw around with the original order logic.
+          return a.when - b.when;
+      });
+    };
 
     var svc = {
       request: function (requestData) {
@@ -98,8 +107,6 @@ angular
           data: requestData.name + '=' + encodeURIComponent(JSON.stringify({data: requestData.data})),
           when: (new Date()).getTime()
         };
-        console.log(req);
-        console.log(req.when);
         var defer = $q.defer();
 
         var onSuccess = function(response) { $rootScope.$apply(function(){ // Must work under the watchful eye of angular
