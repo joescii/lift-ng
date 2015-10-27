@@ -78,9 +78,28 @@ angular
     }
   }])
   .service('liftProxy', ['$rootScope', '$q', 'plumbing', function ($rootScope, $q, plumbing) {
+    var origCall = liftAjax.lift_actualJSONCall;
+    var grabData = function(obj) {
+      if(typeof obj === "object") return obj.data;
+      else return obj;
+    };
+    liftAjax.lift_actualJSONCall = function() {
+      var args = new Array(arguments.length);
+      for(var i = 0; i < args.length; ++i) {
+        args[i] = arguments[i];
+      }
+      args[0] = grabData(args[0]);
+      return origCall.apply(this, args);
+    };
+
     var svc = {
       request: function (requestData) {
-        var req = requestData.name+'='+encodeURIComponent(JSON.stringify({data:requestData.data}));
+        var req = {
+          data: requestData.name + '=' + encodeURIComponent(JSON.stringify({data: requestData.data})),
+          when: (new Date()).getTime()
+        };
+        console.log(req);
+        console.log(req.when);
         var defer = $q.defer();
 
         var onSuccess = function(response) { $rootScope.$apply(function(){ // Must work under the watchful eye of angular
