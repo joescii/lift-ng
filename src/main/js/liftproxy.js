@@ -77,37 +77,36 @@ angular
       inject: inject
     }
   }])
-  .service('liftProxy', ['$http', '$q', 'plumbing', function ($http, $q, plumbing) {
+  .service('liftProxy', ['$rootScope', '$q', 'plumbing', function ($rootScope, $q, plumbing) {
     var svc = {
       request: function (requestData) {
         var req = requestData.name+'='+encodeURIComponent(JSON.stringify({data:requestData.data}));
+        var defer = $q.defer();
 
-        var post = function() {
-          return $http.post(net_liftmodules_ng.endpoint(), req, {
-            headers : {
-              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            }
-          });
-        };
-
-        var resolve = function(response) {
-          var data = response.data;
-
+        var onSuccess = function(response) { $rootScope.$apply(function(){ // Must work under the watchful eye of angular
           // If there is no future ID, then we have our data and we're done.
-          if(!data.futureId) {
-            var defer = $q.defer();
-            plumbing.resolve(data, defer);
-            return defer.promise;
+          if(!response.futureId) {
+            plumbing.resolve(response, defer);
           }
 
-          // Otherwise, we need to plumb out a promise
+          // Otherwise, we need to plumb out a new promise because we'll get the value later.
           else {
-            var defer = plumbing.createDefer(data.futureId);
-            return defer.promise;
+            plumbing.createDefer(response.futureId).promise.then(
+              function(data)  { defer.resolve(data)  },
+              function(error) { defer.reject(error)  },
+              function(notify){ defer.notify(notify) }
+            )
           }
-        };
+        })};
 
-        return post().then(resolve);
+        var onFailure = function() { $rootScope.$apply(function() {
+          defer.reject("net.liftmodules.ng.Angular.ajaxFailure");
+        })};
+
+        // TODO: Different fn for 3.0
+        liftAjax.lift_ajaxHandler(req, onSuccess, onFailure, "json");
+
+        return defer.promise;
       }
     };
 
