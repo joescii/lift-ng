@@ -80,6 +80,14 @@ angular
   .service("liftProxy", ["$rootScope", "$q", "plumbing", function ($rootScope, $q, plumbing) {
     net_liftmodules_ng.init();
 
+    var onCometError = function(errCount) {
+      $rootScope.$apply(function(){
+        $rootScope.$emit("net_liftmodules_ng.cometError", errCount);
+      });
+    };
+
+    net_liftmodules_ng.onCometErrorCallbacks.push(onCometError);
+
     var ajaxErrorCount = 0;
 
     var onErrorFor = function(req) { return function() { // Currying is so elegant in JS
@@ -141,6 +149,8 @@ angular
 var net_liftmodules_ng = net_liftmodules_ng || {};
 // Careful to only init once, since it's possible to have multiple angular apps in one page
 net_liftmodules_ng.isInitialized = false;
+// Using an array of callbacks to handle case of multiple angular apps
+net_liftmodules_ng.onCometErrorCallbacks = [];
 net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // Remove this condition once we can support Lift 3.x
   if(!net_liftmodules_ng.isInitialized) {
     // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
@@ -157,9 +167,9 @@ net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // 
     }};
 
     // Wrap the json call with our hooks in place
-    var origCall = liftAjax.lift_actualJSONCall;
+    var origAjax = liftAjax.lift_actualJSONCall;
     liftAjax.lift_actualJSONCall = function(req, onSuccess, onFailure) {
-      return origCall(onlyData(req), onSuccess, failureWrapper(req, onFailure));
+      return origAjax(onlyData(req), onSuccess, failureWrapper(req, onFailure));
     };
 
     // Override the sort function if we should retry ajax in order.
@@ -174,6 +184,15 @@ net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // 
         });
       };
     }
+
+    var cometErrorCount = 0;
+    var origCometOnFailure = liftComet.lift_handlerFailureFunc;
+    liftComet.lift_handlerFailureFunc = function() {
+      cometErrorCount++;
+      for(var i = 0; i<net_liftmodules_ng.onCometErrorCallbacks.length; i++)
+        net_liftmodules_ng.onCometErrorCallbacks[i](cometErrorCount);
+      origCometOnFailure.apply(this, arguments);
+    };
 
     net_liftmodules_ng.isInitialized = true;
   }
