@@ -60,6 +60,7 @@ class FuturesSpec extends BaseSpec {
   "The angular services" should "correctly load concurrently" in {
     click on "no-arg-button"
     click on "failure-button"
+    click on "exception-button"
     textField("string-input").value = "arg"
     click on "string-button"
     textField("json-input-a").value = "argA"
@@ -71,6 +72,7 @@ class FuturesSpec extends BaseSpec {
     eventually{
       id("no-arg-output").element.text should be ("FromFuture")
       id("failure-output").element.text should be ("FailureTest")
+      id("exception-output").element.text should be ("FromServerFutureException")
       id("string-output").element.text should be ("FromFuture: arg")
       id("json-output-a").element.text should be ("FromFuture argA")
       id("json-output-b").element.text should be ("FromFuture argB")
