@@ -17,19 +17,23 @@ import JsCmds._
 /** Defines snippets for testing Angular */
 object Snips extends Loggable {
   def renderPair(xhtml:NodeSeq) = renderIfNotAlreadyDefined(angular.module("SnipServices1")
-    .factory("snipServices1", jsObjFactory()
+      .factory("snipServices1", jsObjFactory()
 
-    .jsonCall("call1", {
-      logger.info("call1() received on server")
-      Full("FromServer")
+      .jsonCall("call1", {
+        logger.info("call1() received on server")
+        Full("FromServer")
 
-  }).jsonCall("call2", (str:String) => {
-      logger.info(s"call2($str) received on server.")
-      Full(s"FromServer $str")
-  }).jsonCall("callFail", {
-      logger.info("callFail() received on server")
-      Failure("FromServerFail")
-  })))
+    }).jsonCall("call2", (str:String) => {
+        logger.info(s"call2($str) received on server.")
+        Full(s"FromServer $str")
+    }).jsonCall("callFail", {
+        logger.info("callFail() received on server")
+        Failure("FromServerFail")
+    }).defAny("callException", {
+        logger.info("callFail() received on server")
+        throw new Exception("FromServerException")
+    })
+  ))
 
   def renderSingle(xhtml:NodeSeq) = renderIfNotAlreadyDefined(angular.module("SnipServices2")
     .factory("snipServices2", jsObjFactory()

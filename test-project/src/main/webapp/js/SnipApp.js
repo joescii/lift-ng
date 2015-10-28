@@ -39,6 +39,16 @@ angular.module('SnipApp', ['lift-ng', 'SnipServices1', 'SnipServices2'])
       }
     );
   };
+  $scope.clickButton1Exception = function() {
+    snipServices1.callException().then(
+      function(str) {
+        $window.alert("Something broke, and we don't know why");
+      },
+      function(err) {
+        $scope.output1Exception = err
+      }
+    );
+  };
 }])
 .controller('Test2Controller', ['$scope', '$window', 'snipServices2', function($scope, $window, snipServices2) {
   $scope.output2a = "";
