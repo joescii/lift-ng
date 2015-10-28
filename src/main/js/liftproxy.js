@@ -139,36 +139,42 @@ angular
 ]);
 
 var net_liftmodules_ng = net_liftmodules_ng || {};
+// Careful to only init once, since it's possible to have multiple angular apps in one page
+net_liftmodules_ng.isInitialized = false;
 net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // Remove this condition once we can support Lift 3.x
-  // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
-  var onlyData = function(req) {
-    // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
-    if(typeof req === "object") return req.data;
-    else return req;
-  };
-
-  var failureWrapper = function(req, onFailure) { return function() {
-    if (typeof req === "object" && typeof req.onError === "function")
-      req.onError();
-    onFailure(); // We know lift always passes a failure cb function
-  }};
-
-  // Wrap the json call with our hooks in place
-  var origCall = liftAjax.lift_actualJSONCall;
-  liftAjax.lift_actualJSONCall = function(req, onSuccess, onFailure) {
-    return origCall(onlyData(req), onSuccess, failureWrapper(req, onFailure));
-  };
-
-  // Override the sort function if we should retry ajax in order.
-  if(net_liftmodules_ng.retryAjaxInOrder) {
-    liftAjax.lift_ajaxQueueSort = function() {
-      liftAjax.lift_ajaxQueue.sort(function (a, b) {
-        // If both items are one of our doctored-up requests, grab our 'when' which is the original request time.
-        if(typeof a.theData === "object" && a.theData.when && typeof b.theData === "object" && b.theData.when)
-          return a.theData.when - b.theData.when;
-        else // Not our stuff, so let's not screw around with the original order logic.
-          return a.when - b.when;
-      });
+  if(!net_liftmodules_ng.isInitialized) {
+    // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
+    var onlyData = function(req) {
+      // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
+      if(typeof req === "object") return req.data;
+      else return req;
     };
+
+    var failureWrapper = function(req, onFailure) { return function() {
+      if (typeof req === "object" && typeof req.onError === "function")
+        req.onError();
+      onFailure(); // We know lift always passes a failure cb function
+    }};
+
+    // Wrap the json call with our hooks in place
+    var origCall = liftAjax.lift_actualJSONCall;
+    liftAjax.lift_actualJSONCall = function(req, onSuccess, onFailure) {
+      return origCall(onlyData(req), onSuccess, failureWrapper(req, onFailure));
+    };
+
+    // Override the sort function if we should retry ajax in order.
+    if(net_liftmodules_ng.retryAjaxInOrder) {
+      liftAjax.lift_ajaxQueueSort = function() {
+        liftAjax.lift_ajaxQueue.sort(function (a, b) {
+          // If both items are one of our doctored-up requests, grab our 'when' which is the original request time.
+          if(typeof a.theData === "object" && a.theData.when && typeof b.theData === "object" && b.theData.when)
+            return a.theData.when - b.theData.when;
+          else // Not our stuff, so let's not screw around with the original order logic.
+            return a.when - b.when;
+        });
+      };
+    }
+
+    net_liftmodules_ng.isInitialized = true;
   }
 }};
