@@ -80,11 +80,18 @@ angular
   .service('liftProxy', ['$rootScope', '$q', 'plumbing', function ($rootScope, $q, plumbing) {
     net_liftmodules_ng.init();
 
+    var ajaxErrorCount = 0;
+
+    var onErrorFor = function(req) { return function() { // Currying is so elegant in JS
+      $rootScope.$emit("net_liftmodules_ng.ajaxError", ++ajaxErrorCount, req);
+    }};
+
     var svc = {
       request: function (requestData) {
         var req = {
           data: requestData.name + '=' + encodeURIComponent(JSON.stringify({data: requestData.data})),
-          when: (new Date()).getTime()
+          when: (new Date()).getTime(),
+          onError: onErrorFor(requestData)
         };
         var defer = $q.defer();
 
@@ -102,10 +109,12 @@ angular
               function(notify){ defer.notify(notify) }
             )
           }
+
+          // TODO Error clear
         })};
 
         var onFailure = function() { $rootScope.$apply(function() {
-          defer.reject("net.liftmodules.ng.Angular.ajaxFailure");
+          defer.reject("net.liftmodules.ng.Angular.ajaxErrorRetryExceeded");
         })};
 
         net_liftmodules_ng.ajax(req, onSuccess, onFailure, "json");
@@ -121,18 +130,22 @@ angular
 var net_liftmodules_ng = net_liftmodules_ng || {};
 net_liftmodules_ng.init = function() {
   // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
-  var onlyData = function(obj) {
+  var onlyData = function(req) {
     // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
-    if(typeof obj === "object") return obj.data;
-    else return obj;
+    if(typeof req === "object") return req.data;
+    else return req;
   };
 
-  // Grab a reference to the original function so we can wrap it
-  var origCall = liftAjax.lift_actualJSONCall;
+  var failureWrapper = function(req, onFailure) { return function() {
+    if (typeof req === "object" && typeof req.onError === "function")
+      req.onError();
+    onFailure(); // We know lift always passes a failure cb function
+  }};
 
-  // Wrap the json call with our data grab
-  liftAjax.lift_actualJSONCall = function(data, onSuccess, onFailure) {
-    return origCall(onlyData(data), onSuccess, onFailure);
+  // Wrap the json call with our hooks in place
+  var origCall = liftAjax.lift_actualJSONCall;
+  liftAjax.lift_actualJSONCall = function(req, onSuccess, onFailure) {
+    return origCall(onlyData(req), onSuccess, failureWrapper(req, onFailure));
   };
 
   // Override the sort function if we should retry ajax in order.
