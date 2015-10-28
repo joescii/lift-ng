@@ -25,6 +25,9 @@ object FutureSnips extends Loggable {
         Schedule.schedule(() => f.satisfy(Failure("FailureTest")), 1 second)
         f
       })
+      .defFutureAny("exception", {
+        throw new Exception("FromServerFutureException")
+      })
       .future("stringArg", (arg:String) => {
         val f = new LAFuture[Box[String]]()
         Schedule.schedule(() => f.satisfy(Full("FromFuture: "+arg)), 1 second)
