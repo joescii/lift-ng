@@ -51,7 +51,7 @@ buildInfoSettings
 
 sourceGenerators in Compile <+= buildInfo
 
-buildInfoKeys := Seq[BuildInfoKey](version)
+buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, liftEdition)
 
 buildInfoPackage := "net.liftmodules.ng"
 

@@ -11,6 +11,7 @@ import Loc._
 import net.liftmodules.JQueryModule
 import net.liftweb.http.js.jquery._
 import net.liftmodules.ng.Angular
+import net.liftmodules.ng.test.BuildInfo
 import java.util.ResourceBundle
 import java.util
 import net.liftweb.util
@@ -88,8 +89,6 @@ class Boot {
   }
 
   def angular() = {
-    import net.liftmodules.ng._
-
     Angular.init(
       futures = false,
       appSelector = ".application",
@@ -97,7 +96,7 @@ class Boot {
       includeAngularJs = true,
       additionalAngularJsModules = List("loader"), // Not directly used; only checked in WebjarSpecs
       includeAngularCspCss = true,
-      retryAjaxInOrder = true
+      retryAjaxInOrder = !BuildInfo.liftVersion.startsWith("3")
     )
   }
 }

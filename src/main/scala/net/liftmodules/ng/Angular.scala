@@ -74,6 +74,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
 
     this.retryAjaxInOrder = retryAjaxInOrder
+
+    // TODO Remove limitation
+    require(
+      !retryAjaxInOrder || !BuildInfo.liftEdition.startsWith("3"),
+      "retryAjaxInOrder is not currently supported in Lift 3.x"
+    )
   }
 
   private def bool(s:String, default:Boolean):Boolean = {
