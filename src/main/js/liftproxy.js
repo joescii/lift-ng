@@ -86,13 +86,22 @@ angular
       $rootScope.$emit("net_liftmodules_ng.ajaxError", ++ajaxErrorCount, req);
     }};
 
+    var toData = function (requestData) {
+      return requestData.name + '=' + encodeURIComponent(JSON.stringify({data: requestData.data}))
+    };
+    var toEnhancedReq = function (requestData) { return {
+      data: toData(requestData),
+      when: (new Date()).getTime(),
+      onError: onErrorFor(requestData)
+    }};
+
+    var requestFor;
+    if(net_liftmodules_ng.enhancedAjax) requestFor = toEnhancedReq;
+    else requestFor = toData;
+
     var svc = {
       request: function (requestData) {
-        var req = {
-          data: requestData.name + '=' + encodeURIComponent(JSON.stringify({data: requestData.data})),
-          when: (new Date()).getTime(),
-          onError: onErrorFor(requestData)
-        };
+        var req = requestFor(requestData);
         var defer = $q.defer();
 
         var onSuccess = function(response) { $rootScope.$apply(function(){ // Must work under the watchful eye of angular
@@ -130,7 +139,7 @@ angular
 ]);
 
 var net_liftmodules_ng = net_liftmodules_ng || {};
-net_liftmodules_ng.init = function() {
+net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // Remove this condition once we can support Lift 3.x
   // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
   var onlyData = function(req) {
     // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
@@ -162,4 +171,4 @@ net_liftmodules_ng.init = function() {
       });
     };
   }
-};
+}};

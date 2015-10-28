@@ -209,6 +209,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       "var net_liftmodules_ng=net_liftmodules_ng||{};" +
       "net_liftmodules_ng.ajax=function(){"+ajaxFn+".apply(this,arguments)};" +
       "net_liftmodules_ng.retryAjaxInOrder="+retryAjaxInOrder+";" +
+      "net_liftmodules_ng.enhancedAjax="+enhancedAjax+";" +
       "net_liftmodules_ng.version=\"" + BuildInfo.version + "\";" +
       "net_liftmodules_ng.jsPath=\"" + liftproxySrc +"\";"
     ))
