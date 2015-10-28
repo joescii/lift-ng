@@ -121,7 +121,7 @@ angular
 var net_liftmodules_ng = net_liftmodules_ng || {};
 net_liftmodules_ng.init = function() {
   // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
-  var grabData = function(obj) {
+  var onlyData = function(obj) {
     // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
     if(typeof obj === "object") return obj.data;
     else return obj;
@@ -132,7 +132,7 @@ net_liftmodules_ng.init = function() {
 
   // Wrap the json call with our data grab
   liftAjax.lift_actualJSONCall = function(data, onSuccess, onFailure) {
-    return origCall(grabData(data), onSuccess, onFailure);
+    return origCall(onlyData(data), onSuccess, onFailure);
   };
 
   // Override the sort function if we should retry ajax in order.
