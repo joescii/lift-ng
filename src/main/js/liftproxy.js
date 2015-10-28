@@ -78,31 +78,7 @@ angular
     }
   }])
   .service('liftProxy', ['$rootScope', '$q', 'plumbing', function ($rootScope, $q, plumbing) {
-    var origCall = liftAjax.lift_actualJSONCall;
-    var grabData = function(obj) {
-      if(typeof obj === "object") return obj.data;
-      else return obj;
-    };
-    liftAjax.lift_actualJSONCall = function() {
-      var args = new Array(arguments.length);
-      for(var i = 0; i < args.length; ++i) {
-        args[i] = arguments[i];
-      }
-      args[0] = grabData(args[0]);
-      return origCall.apply(this, args);
-    };
-
-    if(net_liftmodules_ng.retryAjaxInOrder) {
-      liftAjax.lift_ajaxQueueSort = function() {
-        liftAjax.lift_ajaxQueue.sort(function (a, b) {
-          // If both items are one of our doctored-up requests, grab our 'when' which is the original request time.
-          if(typeof a.theData === "object" && a.theData.when && typeof b.theData === "object" && b.theData.when)
-            return a.theData.when - b.theData.when;
-          else // Not our stuff, so let's not screw around with the original order logic.
-            return a.when - b.when;
-        });
-      };
-    }
+    net_liftmodules_ng.init();
 
     var svc = {
       request: function (requestData) {
@@ -141,3 +117,34 @@ angular
     return svc;
   }
 ]);
+
+var net_liftmodules_ng = net_liftmodules_ng || {};
+net_liftmodules_ng.init = function() {
+  // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
+  var grabData = function(obj) {
+    // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
+    if(typeof obj === "object") return obj.data;
+    else return obj;
+  };
+
+  // Grab a reference to the original function so we can wrap it
+  var origCall = liftAjax.lift_actualJSONCall;
+
+  // Wrap the json call with our data grab
+  liftAjax.lift_actualJSONCall = function(data, onSuccess, onFailure) {
+    return origCall(grabData(data), onSuccess, onFailure);
+  };
+
+  // Override the sort function if we should retry ajax in order.
+  if(net_liftmodules_ng.retryAjaxInOrder) {
+    liftAjax.lift_ajaxQueueSort = function() {
+      liftAjax.lift_ajaxQueue.sort(function (a, b) {
+        // If both items are one of our doctored-up requests, grab our 'when' which is the original request time.
+        if(typeof a.theData === "object" && a.theData.when && typeof b.theData === "object" && b.theData.when)
+          return a.theData.when - b.theData.when;
+        else // Not our stuff, so let's not screw around with the original order logic.
+          return a.when - b.when;
+      });
+    };
+  }
+};
