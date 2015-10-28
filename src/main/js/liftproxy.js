@@ -1,6 +1,6 @@
 angular
-  .module('lift-ng', [])
-  .service('plumbing', [ '$q', function($q){
+  .module("lift-ng", [])
+  .service("plumbing", [ "$q", function($q){
     var defers = {};
 
     var create = function(id) {
@@ -13,7 +13,7 @@ angular
       if(data.msg) {
         q.reject(data.msg)
       } else {
-        if (typeof data.data !== 'undefined') {
+        if (typeof data.data !== "undefined") {
           inject(data.data);
           q.resolve(data.data);
         }
@@ -64,7 +64,7 @@ angular
           }
         }
         // Not a future, so check children
-        else if(typeof model[k] === 'object') {
+        else if(typeof model[k] === "object") {
           inject(model[k]);
         }
       }
@@ -77,7 +77,7 @@ angular
       inject: inject
     }
   }])
-  .service('liftProxy', ['$rootScope', '$q', 'plumbing', function ($rootScope, $q, plumbing) {
+  .service("liftProxy", ["$rootScope", "$q", "plumbing", function ($rootScope, $q, plumbing) {
     net_liftmodules_ng.init();
 
     var ajaxErrorCount = 0;
@@ -87,7 +87,7 @@ angular
     }};
 
     var toData = function (requestData) {
-      return requestData.name + '=' + encodeURIComponent(JSON.stringify({data: requestData.data}))
+      return requestData.name + "=" + encodeURIComponent(JSON.stringify({data: requestData.data}))
     };
     var toEnhancedReq = function (requestData) { return {
       data: toData(requestData),
