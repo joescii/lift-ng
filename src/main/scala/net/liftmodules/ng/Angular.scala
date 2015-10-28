@@ -376,7 +376,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: => Box[Any])
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
+      registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(Unit => promiseMapper.toPromise(func)))
 
 
     /**
@@ -664,11 +664,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def apply(success: Boolean): Promise = if (success) Resolve(None) else Reject()
   }
 
-  protected case class AjaxNoArgToJsonFunctionGenerator(jsFunc: () => Promise) extends LiftAjaxFunctionGenerator {
+  protected case class AjaxNoArgToJsonFunctionGenerator(jsFunc: Unit => Promise) extends LiftAjaxFunctionGenerator {
 
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
-    private def liftPostData = SHtmlExtensions.ajaxJsonPost((id) => promiseToJson(jsFunc()))
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost((id) => promiseToJson(tryPromise((), jsFunc)))
   }
 
   protected case class AjaxStringToJsonFunctionGenerator(stringToPromise: (String) => Promise)(implicit formats:Formats)
@@ -682,7 +682,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
-        case Some(RequestString(data)) => stringToPromise(data)
+        case Some(RequestString(data)) => tryPromise(data, stringToPromise)
         case None => Reject(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
@@ -699,7 +699,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).\\("data").extractOpt[Model] match {
-        case Some(model) => modelToPromise(model)
+        case Some(model) => tryPromise(model, modelToPromise)
         case None => Reject(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
@@ -802,6 +802,15 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private val SuccessField = "success"
     private val FutureField = "futureId"
+
+    protected def tryPromise[A](a:A, f: A => Promise):Promise =
+      try {
+        f(a)
+      } catch {
+        case e:Exception =>
+          logger.warn("Uncaught exception while processing ajax function", e)
+          Reject(e.getMessage)
+      }
 
     protected def promiseToJson(promise: Promise): JsObj = {
       promise match {
