@@ -110,7 +110,9 @@ angular
             )
           }
 
-          // TODO Error clear
+          if(ajaxErrorCount != 0)
+            $rootScope.$emit("net_liftmodules_ng.ajaxErrorClear", req);
+          ajaxErrorCount = 0;
         })};
 
         var onFailure = function() { $rootScope.$apply(function() {
