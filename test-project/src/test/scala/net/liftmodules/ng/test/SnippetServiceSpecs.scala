@@ -23,6 +23,11 @@ class SnippetServiceSpecs extends BaseSpec {
     eventually { id ("output1Fail").element.text should be ("FromServerFail")}
   }
 
+  "The angular service which throws an Exception" should "send 'FromServerException' to the client as a Failure" in {
+    click on "button1Exception"
+    eventually { id ("output1Exception").element.text should be ("FromServerException")}
+  }
+
   "The angular service with a JSON argument" should "send both text box strings to the server and populate the test " +
     "text boxes with 'FromServer client1' and 'FromServer client2'" in {
     textField("input2a").value = "client1"

@@ -389,7 +389,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: => Box[Any])
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(() => promiseMapper.toPromise(func)))
+      registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(Unit => promiseMapper.toPromise(func)))
 
 
     /**
@@ -485,7 +485,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: => LAFuture[Box[T]])
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, NoArgFutureFunctionGenerator(() => func))
+      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func))
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
@@ -677,11 +677,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def apply(success: Boolean): Promise = if (success) Resolve(None) else Reject()
   }
 
-  protected case class AjaxNoArgToJsonFunctionGenerator(jsFunc: () => Promise) extends LiftAjaxFunctionGenerator {
+  protected case class AjaxNoArgToJsonFunctionGenerator(jsFunc: Unit => Promise) extends LiftAjaxFunctionGenerator {
 
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
-    private def liftPostData = SHtmlExtensions.ajaxJsonPost((id) => promiseToJson(jsFunc()))
+    private def liftPostData = SHtmlExtensions.ajaxJsonPost((id) => promiseToJson(tryPromise((), jsFunc)))
   }
 
   protected case class AjaxStringToJsonFunctionGenerator(stringToPromise: (String) => Promise)(implicit formats:Formats)
@@ -695,7 +695,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
-        case Some(RequestString(data)) => stringToPromise(data)
+        case Some(RequestString(data)) => tryPromise(data, stringToPromise)
         case None => Reject(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
@@ -712,7 +712,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).\\("data").extractOpt[Model] match {
-        case Some(model) => modelToPromise(model)
+        case Some(model) => tryPromise(model, modelToPromise)
         case None => Reject(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
@@ -737,14 +737,14 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class NoArgFutureFunctionGenerator[T <: Any](func: () => LAFuture[Box[T]])(implicit formats:Formats) extends FutureFunctionGenerator {
+  protected case class NoArgFutureFunctionGenerator[T <: Any](func: Unit => LAFuture[Box[T]])(implicit formats:Formats) extends FutureFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
 
     val jsonToFuture:(String) => NgFuture[T] = json => {
       val id = rand
-      (Angular.plumbFuture(func(), id), id)
+      (Angular.plumbFuture(tryFuture((), func), id), id)
     }
   }
 
@@ -758,7 +758,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def jsonToFuture:(String) => NgFuture[T] = json => JsonParser.parse(json).extractOpt[RequestString] match {
       case Some(RequestString(data)) => {
         val id = rand
-        (Angular.plumbFuture(func(data), id), id)
+        (Angular.plumbFuture(tryFuture(data, func), id), id)
       }
       case _ => reject[T](json)
     }
@@ -779,7 +779,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       val fOpt = for {
         data <- dataOpt
       } yield {
-        (Angular.plumbFuture(func(data), id), id)
+        (Angular.plumbFuture(tryFuture(data, func), id), id)
       }
 
       fOpt.openOr(reject[T](json))
@@ -815,6 +815,26 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private val SuccessField = "success"
     private val FutureField = "futureId"
+
+    protected def tryPromise[A](a:A, f: A => Promise):Promise =
+      try {
+        f(a)
+      } catch {
+        case e:Exception =>
+          logger.warn("Uncaught exception while processing ajax function", e)
+          Reject(e.getMessage)
+      }
+
+    protected def tryFuture[A, T <: Any](a:A, f: A => LAFuture[Box[T]]):LAFuture[Box[T]] =
+      try {
+        f(a)
+      } catch {
+        case e:Exception =>
+          logger.warn("Uncaught exception while processing ajax function", e)
+          val future = new LAFuture[Box[T]]
+          future.satisfy(Failure(e.getMessage))
+          future
+      }
 
     protected def promiseToJson(promise: Promise): JsObj = {
       promise match {
