@@ -1,0 +1,48 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Ajax calls now use Lift's mechanism rather than angular's `$http` service allowing retries, timeouts, etc to be configurable via `LiftRules`.
+The old implementation never performed retries.
+
+Exceptions thrown by any ajax functions registered on `jsObjFactory()` are caught and the exception's `message` is returned to the client in a rejected promise.
+Previously the behavior was the default for Lift, in that the client would receive a `500` error and some garbage from angular in the rejected promise.
+
+# Enhancements for Lift 2.x
+**The remaining enhancements are NOT supported Lift 3.x at this time** due to changes made to the front end code which hides some of the hooks we need.
+I'll be working on that soon, of course. :)
+
+## retryAjaxInOrder
+Added `retryAjaxInOrder` to `init()` which when enabled guarantees your ajax requests will arrive on the server in order, even if an attempt fails.
+With this enabled, you configure Lift such that you never need to worry about messages arriving on the server out of order in the event of failures.
+This can be accomplished by setting `ajaxPostTimeout` and `ajaxRetryCount` on `LiftRules` such that their product is greater than a session timeout.
+
+### $rootScope Events
+
+We have a few `$rootScope` events to keep your application informed of the browser's ability to communicate with the server.
+Whenever we receive a non-`200` response from the backend server, we will issue a `net_liftmodules_ng.serverCommError` event on `$rootScope`.
+This event is raised on *every* failure, including retries which are otherwise transparent to the application.
+Included with the event is [1] the number of consecutive errors encountered, [2] the communication type that failed (either `"ajax"` or `"comet"`), and [3] the request object that failed (if `"ajax"`).
+This allows your client application to alert the user that communication to the server is struggling.
+
+Once a the server has been successfully contacted after a communication error, we will issue a `net_liftmodules_ng.serverCommErrorClear` event on `$rootScope`.
+Included with this event is the communication type which succeeded (either `"ajax"` or `"comet"`).
+
+Note that an http error when contacting a Lift server doesn't necessarily imply that network communication is failing.
+For instance, if a server-side ajax function raises an `Exception`, Lift will respond with a `500`.
+But with **lift-ng** in particular, any server-side ajax functions which you register with a `jsObjFactory()` are invoked in a `try`/`catch` pair to convert any exceptions into a failed Promise.
+Hence you can regard any `net_liftmodules_ng.serverCommError` events as a good indicator that something outside the control of your application is not going well.
+
+#### Example Usage
+
+    angular.module('MyServerCommAwareModule', ['lift-ng'])
+    .run(["$rootScope", "$window", function($rootScope, $window){
+      $rootScope.$on("net_liftmodules_ng.serverCommError", function(e, count, which, request) {
+        console.log("Server communication error due to "+which+". Current count: "+count);
+        if(count > 10)
+          $window.alert("Hey, things aren't looking good!");
+      });
+      $rootScope.$on("net_liftmodules_ng.serverCommErrorClear", function(e, which) {
+        console.log("Server communication errors cleared after a "+which+" success!");
+      });
+    }]);

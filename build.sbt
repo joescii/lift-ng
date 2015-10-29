@@ -4,7 +4,7 @@ organization := "net.liftmodules"
 
 homepage := Some(url("https://github.com/joescii/lift-ng"))
 
-version := "0.9.0-SNAPSHOT"
+version := "0.9.0"
 
 liftVersion <<= liftVersion ?? "2.6.2"
 

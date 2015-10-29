@@ -49,13 +49,13 @@ Optionally add angular from [webjars](http://www.webjars.org/) as a dependency i
 
 ```scala
 libraryDependencies ++= {
-  val liftVersion = "2.5.3" // Also supported: "2.6.2" and "3.0*"
+  val liftVersion = "2.6.2" // Also supported: "2.5.3" and "3.0*"
   val liftEdition = liftVersion.substring(0,3)
   val angularVersion = "1.4.7"
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.0"  % "compile"
    )
 }
 ```
@@ -88,7 +88,10 @@ class Boot {
       additionalAngularJsModules = List("animate", "cookies", "loader", "resource", "route", "sanitize", "scenario", "touch"),
 
       // Set to true to also deliver the angular-csp.css stylesheet on the page
-      includeAngularCspCss = true
+      includeAngularCspCss = true,
+
+      // Set to true to preserve the order of ajax service calls even in the event of server communication failures
+      retryAjaxInOrder = true
     )
 
     val context:ExecutionContext = // Create context
@@ -769,7 +772,41 @@ angular.module('ExampleApp', ['i18n'])
 
 For more details about this resource bundle object, see [j2js-i18n](https://github.com/joescii/j2js-i18n).
 
+### $rootScope Events
+
+**NOT SUPPORTED IN LIFT 3.x AT THIS TIME**
+
+We have a few `$rootScope` events to keep your application informed of the browser's ability to communicate with the server.
+Whenever we receive a non-`200` response from the backend server, we will issue a `net_liftmodules_ng.serverCommError` event on `$rootScope`.
+This event is raised on *every* failure, including retries which are otherwise transparent to the application.
+Included with the event is [1] the number of consecutive errors encountered, [2] the communication type that failed (either `"ajax"` or `"comet"`), and [3] the request object that failed (if `"ajax"`).
+This allows your client application to alert the user that communication to the server is struggling.
+
+Once a the server has been successfully contacted after a communication error, we will issue a `net_liftmodules_ng.serverCommErrorClear` event on `$rootScope`.
+Included with this event is the communication type which succeeded (either `"ajax"` or `"comet"`).
+
+Note that an http error when contacting a Lift server doesn't necessarily imply that network communication is failing.
+For instance, if a server-side ajax function raises an `Exception`, Lift will respond with a `500`.
+But with **lift-ng** in particular, any server-side ajax functions which you register with a `jsObjFactory()` are invoked in a `try`/`catch` pair to convert any exceptions into a failed Promise.
+Hence you can regard any `net_liftmodules_ng.serverCommError` events as a good indicator that something outside the control of your application is not going well.
+
+#### Example Usage
+```javascript
+angular.module('MyServerCommAwareModule', ['lift-ng'])
+.run(["$rootScope", "$window", function($rootScope, $window){
+  $rootScope.$on("net_liftmodules_ng.serverCommError", function(e, count, which, request) {
+    console.log("Server communication error due to "+which+". Current count: "+count);
+    if(count > 10)
+      $window.alert("Hey, things aren't looking good!");
+  });
+  $rootScope.$on("net_liftmodules_ng.serverCommErrorClear", function(e, which) {
+    console.log("Server communication errors cleared after a "+which+" success!");
+  });
+}]);
+```
+
 ### The Angular snippet
+
 As mentioned earlier in this README, you need the `Angular` snippet on each page for **lift-ng** to function.
 This snippet expands into several `script` tags for gluing Angular to Lift, including `angular.js` itself from a webjar if available on your classpath and configured in `Boot`.
 In development mode, this will cause your pages to load non-minified versions of angularjs modules.
@@ -888,6 +925,11 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
+* *0.9.0*: See [Release Notes](http://notes.implicit.ly/post/132163227499/lift-ng-090) for details.
+Ajax calls now use Lift's mechanism rather than angular's `$http` service allowing retries, timeouts, etc to be configurable via `LiftRules`.
+Added `retryAjaxInOrder` to `init()` which when enabled guarantees your ajax requests will arrive on the server in order, even if an attempt fails **NOT SUPPORTED IN LIFT 3.x AT THIS TIME**.
+Added `net_liftmodules_ng.serverCommError` and `net_liftmodules_ng.serverCommErrorClear` events on `$rootScope` **NOT SUPPORTED IN LIFT 3.x AT THIS TIME**.
+Exceptions thrown by your ajax functions are caught and the exception's `message` is returned to the client in a rejected promise.
 * *0.8.0*: See [Release Notes](http://notes.implicit.ly/post/131827339549/lift-ng-080) for details.
 Added [Webjars](http://www.webjars.org/) integration to inject angularjs javascript files into your pages.
 * *0.7.0*: See [Release Notes](http://notes.implicit.ly/post/126346929649/lift-ng-070) for details.

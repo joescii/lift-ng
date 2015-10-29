@@ -38,7 +38,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     * @param includeAngularJs true to include angular.js and modules found in angularjs webjar.
     * @param additionalAngularJsModules list of additional angularjs modules to include in the page.
     * @param includeAngularCspCss true to include angular-csp.css found in angularjs webjar.
-    * @param retryAjaxInOrder true to retry all ajax services in the order they are received.
+    * @param retryAjaxInOrder true to preserve the order of ajax service calls even in the event of server communication failures.
     */
   def init(
     futures:Boolean = true,
