@@ -1,15 +1,4 @@
 angular.module('FutureApp', ['lift-ng', 'Futures'])
-.run(["$rootScope", function($rootScope){
-  $rootScope.$on("net_liftmodules_ng.cometError", function(e, count) {
-    console.log("Comet error count: "+count);
-  });
-  $rootScope.$on("net_liftmodules_ng.ajaxError", function(e, count, request) {
-    console.log("Ajax error count: "+count);
-  });
-  $rootScope.$on("net_liftmodules_ng.ajaxErrorClear", function(e, count) {
-    console.log("Ajax errors cleared! ");
-  });
-}])
 .controller('NoArgController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 

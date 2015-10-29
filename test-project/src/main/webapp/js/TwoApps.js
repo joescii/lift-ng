@@ -1,4 +1,19 @@
+var testRun = function(appNumber) {
+  return ["$rootScope", function($rootScope){
+    $rootScope.$on("net_liftmodules_ng.cometError", function(e, count) {
+      console.log("App"+appNumber+" Comet error count: "+count);
+    });
+    $rootScope.$on("net_liftmodules_ng.ajaxError", function(e, count, request) {
+      console.log("App"+appNumber+" Ajax error count: "+count);
+    });
+    $rootScope.$on("net_liftmodules_ng.ajaxErrorClear", function(e) {
+      console.log("App"+appNumber+" Ajax errors cleared! ");
+    });
+  }];
+};
+
 angular.module('App1', ['lift-ng', 'Futures'])
+.run(testRun(1))
 .controller('Controller', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 
@@ -11,6 +26,7 @@ angular.module('App1', ['lift-ng', 'Futures'])
 ;
 
 angular.module('App2', ['Futures'])
+.run(testRun(2))
 .controller('Controller', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 
