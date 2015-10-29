@@ -1,13 +1,10 @@
 var testRun = function(appNumber) {
   return ["$rootScope", function($rootScope){
-    $rootScope.$on("net_liftmodules_ng.cometError", function(e, count) {
-      console.log("App"+appNumber+" Comet error count: "+count);
+    $rootScope.$on("net_liftmodules_ng.serverCommError", function(e, count, which, request) {
+      console.log("App"+appNumber+" Server communication error due to "+which+". Current count: "+count);
     });
-    $rootScope.$on("net_liftmodules_ng.ajaxError", function(e, count, request) {
-      console.log("App"+appNumber+" Ajax error count: "+count);
-    });
-    $rootScope.$on("net_liftmodules_ng.ajaxErrorClear", function(e) {
-      console.log("App"+appNumber+" Ajax errors cleared! ");
+    $rootScope.$on("net_liftmodules_ng.serverCommErrorClear", function(e, which) {
+      console.log("App"+appNumber+" Server communication errors cleared after a "+which+" success!");
     });
   }];
 };

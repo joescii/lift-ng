@@ -80,18 +80,26 @@ angular
   .service("liftProxy", ["$rootScope", "$q", "plumbing", function ($rootScope, $q, plumbing) {
     net_liftmodules_ng.init();
 
-    var onCometError = function(errCount) {
+    var onServerCommError = function(count, which, req) {
+      $rootScope.$emit("net_liftmodules_ng.serverCommError", count, which, req);
+    };
+
+    var onServerCommErrorClear = function(which) {
+      $rootScope.$emit("net_liftmodules_ng.serverCommErrorClear", which);
+    };
+
+    net_liftmodules_ng.onServerCommErrorClearCallbacks.push(onServerCommErrorClear);
+
+    var onCometError = function(count) {
       $rootScope.$apply(function(){
-        $rootScope.$emit("net_liftmodules_ng.cometError", errCount);
+        onServerCommError(count, "comet");
       });
     };
 
-    net_liftmodules_ng.onCometErrorCallbacks.push(onCometError);
+    net_liftmodules_ng.onServerCommErrorCallbacks.push(onCometError);
 
-    var ajaxErrorCount = 0;
-
-    var onErrorFor = function(req) { return function() { // Currying is so elegant in JS
-      $rootScope.$emit("net_liftmodules_ng.ajaxError", ++ajaxErrorCount, req);
+    var onErrorFor = function(req) { return function(count) {
+      onServerCommError(count, "ajax", req);
     }};
 
     var toData = function (requestData) {
@@ -126,10 +134,6 @@ angular
               function(notify){ defer.notify(notify) }
             )
           }
-
-          if(ajaxErrorCount != 0)
-            $rootScope.$emit("net_liftmodules_ng.ajaxErrorClear", req);
-          ajaxErrorCount = 0;
         })};
 
         var onFailure = function() { $rootScope.$apply(function() {
@@ -150,9 +154,19 @@ var net_liftmodules_ng = net_liftmodules_ng || {};
 // Careful to only init once, since it's possible to have multiple angular apps in one page
 net_liftmodules_ng.isInitialized = false;
 // Using an array of callbacks to handle case of multiple angular apps
-net_liftmodules_ng.onCometErrorCallbacks = [];
+net_liftmodules_ng.onServerCommErrorCallbacks = [];
+net_liftmodules_ng.onServerCommErrorClearCallbacks = [];
 net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // Remove this condition once we can support Lift 3.x
   if(!net_liftmodules_ng.isInitialized) {
+    var serverCommErrorCount = 0;
+    var clearServerCommError = function(which) {
+      if(serverCommErrorCount != 0) {
+        serverCommErrorCount = 0;
+        for (var i = 0; i < net_liftmodules_ng.onServerCommErrorClearCallbacks.length; i++)
+          net_liftmodules_ng.onServerCommErrorClearCallbacks[i](which);
+      }
+    };
+
     // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
     var onlyData = function(req) {
       // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
@@ -160,16 +174,26 @@ net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // 
       else return req;
     };
 
-    var failureWrapper = function(req, onFailure) { return function() {
+    var ajaxFailureWrapper = function(req, onFailure) { return function() {
+      // Note that we _could_ count all failures. However, in the unlikely event that someone is doing ajax
+      // outside of lift-ng, failures can also be regular ol' Exceptions in business code which are not any
+      // indication of our ability to communicate with the server via lift-ng.
       if (typeof req === "object" && typeof req.onError === "function")
-        req.onError();
-      onFailure(); // We know lift always passes a failure cb function
+        req.onError(++serverCommErrorCount);
+      onFailure.apply(this, arguments); // We know lift always passes a failure cb function
+    }};
+
+    var ajaxSuccessWrapper = function(onSuccess) { return function() {
+      // Although we are not counting non-lift-ng failures, we will clear any time we successfully communicate with
+      // the server for any reason.
+      clearServerCommError("ajax");
+      onSuccess.apply(this, arguments); // We know lift always passes a success cb function
     }};
 
     // Wrap the json call with our hooks in place
     var origAjax = liftAjax.lift_actualJSONCall;
     liftAjax.lift_actualJSONCall = function(req, onSuccess, onFailure) {
-      return origAjax(onlyData(req), onSuccess, failureWrapper(req, onFailure));
+      return origAjax(onlyData(req), ajaxSuccessWrapper(onSuccess), ajaxFailureWrapper(req, onFailure));
     };
 
     // Override the sort function if we should retry ajax in order.
@@ -185,13 +209,18 @@ net_liftmodules_ng.init = function() { if(net_liftmodules_ng.enhancedAjax) { // 
       };
     }
 
-    var cometErrorCount = 0;
     var origCometOnFailure = liftComet.lift_handlerFailureFunc;
     liftComet.lift_handlerFailureFunc = function() {
-      cometErrorCount++;
-      for(var i = 0; i<net_liftmodules_ng.onCometErrorCallbacks.length; i++)
-        net_liftmodules_ng.onCometErrorCallbacks[i](cometErrorCount);
+      serverCommErrorCount++;
+      for(var i = 0; i<net_liftmodules_ng.onServerCommErrorCallbacks.length; i++)
+        net_liftmodules_ng.onServerCommErrorCallbacks[i](serverCommErrorCount);
       origCometOnFailure.apply(this, arguments);
+    };
+
+    var origCometOnSuccess = liftComet.lift_handlerSuccessFunc;
+    liftComet.lift_handlerSuccessFunc = function() {
+      clearServerCommError("comet");
+      origCometOnSuccess.apply(this, arguments);
     };
 
     net_liftmodules_ng.isInitialized = true;
