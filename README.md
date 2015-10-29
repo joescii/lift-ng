@@ -792,7 +792,7 @@ Hence you can regard any `net_liftmodules_ng.serverCommError` events as a good i
 
 #### Example Usage
 ```javascript
-angular.module('MyServerCommAwareModule', ['lift-ng'])
+angular.module("MyServerCommAwareModule", ["lift-ng"])
 .run(["$rootScope", "$window", function($rootScope, $window){
   $rootScope.$on("net_liftmodules_ng.serverCommError", function(e, count, which, request) {
     console.log("Server communication error due to "+which+". Current count: "+count);
