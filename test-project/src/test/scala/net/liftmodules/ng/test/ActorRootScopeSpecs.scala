@@ -23,13 +23,13 @@ class ActorRootScopeSpecs extends BaseSpec {
   }
 
   def cometStringCheck(button:String, span:String) = {
-    click on button
+    eventually { click on button }
     eventually { id(span).element.text should be ("0") }
     eventually { id(span).element.text should be ("1") }
   }
 
   def cometJsonCheck(button:String, spanInt:String, spanChar:String) = {
-    click on button
+    eventually { click on button }
     eventually {
       id(spanInt).element.text should be ("0")
       id(spanChar).element.text should be ("a")
