@@ -168,7 +168,7 @@ angular
         }
       };
 
-      if (liftAjax) {
+      if (window.liftAjax) {
         // We've passed {data, when} to the ajax lift machinery, so we need to pull the data part back out.
         var onlyData = function (req) {
           // This check prevents us from screwing up any non-lift-ng ajax calls someone could possibly be making.
