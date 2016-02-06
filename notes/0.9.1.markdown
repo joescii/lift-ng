@@ -1,0 +1,6 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Corrects a bug where i18n modules with special characters were not properly encoded in the URL, resulting in the module not being available to the angular app.
+This is a common case as resource bundles can be organized in a subdirectory of `src/main/resources`.

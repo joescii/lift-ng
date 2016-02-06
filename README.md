@@ -49,13 +49,13 @@ Optionally add angular from [webjars](http://www.webjars.org/) as a dependency i
 
 ```scala
 libraryDependencies ++= {
-  val liftVersion = "2.6.2" // Also supported: "2.5.3" and "3.0*"
+  val liftVersion = "2.6.3" // Also supported: "2.5.4" and "3.0*"
   val liftEdition = liftVersion.substring(0,3)
   val angularVersion = "1.4.7"
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.0"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.1"  % "compile"
    )
 }
 ```
@@ -925,6 +925,8 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
+* *0.9.1*: Corrects a bug where i18n modules with special characters were not properly encoded in the URL.
+This is a common case as resource bundles can be organized in a subdirectory of `src/main/resources`
 * *0.9.0*: See [Release Notes](http://notes.implicit.ly/post/132163227499/lift-ng-090) for details.
 Ajax calls now use Lift's mechanism rather than angular's `$http` service allowing retries, timeouts, etc to be configurable via `LiftRules`.
 Added `retryAjaxInOrder` to `init()` which when enabled guarantees your ajax requests will arrive on the server in order, even if an attempt fails **NOT SUPPORTED IN LIFT 3.x AT THIS TIME**.
