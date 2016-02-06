@@ -51,7 +51,7 @@ Optionally add angular from [webjars](http://www.webjars.org/) as a dependency i
 libraryDependencies ++= {
   val liftVersion = "2.6.3" // Also supported: "2.5.4" and "3.0*"
   val liftEdition = liftVersion.substring(0,3)
-  val angularVersion = "1.4.7"
+  val angularVersion = "1.4.8"
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,

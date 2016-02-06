@@ -29,7 +29,7 @@ libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
     "net.liftweb"             %%  "lift-webkit"                       % lift                  % "compile",
     "net.liftmodules"         %%  ("lift-jquery-module_"+liftEdition) % jq                    % "compile",
     "net.liftmodules"         %%  ("ng_"+liftEdition)                 % liftng                % "compile", // https://github.com/joescii/lift-ng
-    "org.webjars"             %   "angularjs"                         % "1.4.7",
+    "org.webjars"             %   "angularjs"                         % "1.4.8",
 //    "org.webjars.bower"             %   "angularjs"                         % "1.4.7",
 //    "org.webjars.bower"             %   "angular"                         % "1.4.7",
 //    "org.webjars.bower"             %   "angular-aria"                         % "1.4.7",
