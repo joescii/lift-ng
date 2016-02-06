@@ -6,7 +6,7 @@ homepage := Some(url("https://github.com/joescii/lift-ng"))
 
 version := "0.9.1"
 
-liftVersion <<= liftVersion ?? "2.6.2"
+liftVersion <<= liftVersion ?? "2.6.3"
 
 liftEdition <<= liftVersion { _.substring(0,3) }
 

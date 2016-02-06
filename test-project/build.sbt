@@ -4,7 +4,7 @@ organization := "net.liftmodules"
 
 version := "0.9.1"
 
-liftVersion := System.getProperty("lift.version", "2.6.2")
+liftVersion := System.getProperty("lift.version", "2.6.3")
 
 liftEdition <<= liftVersion { _.substring(0,3) }
 
