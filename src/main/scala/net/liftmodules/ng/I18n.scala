@@ -1,5 +1,7 @@
 package net.liftmodules.ng
 
+import java.net.URLEncoder
+
 import net.liftweb.http._
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
@@ -26,7 +28,7 @@ object AngularI18n extends DispatchSnippet with MemoFunctions {
     val names = fromName ++ fromNames
     val src =
       "net/liftmodules/ng/i18n?"+
-        (names.map("name="+_).mkString("&"))+
+        (names.map(n => "name="+URLEncoder.encode(n, "UTF-8")).mkString("&"))+
         "&loc="+S.locale.toString+
         "&sum="+(module(names, S.locale.toString).digest)
     <script src={src}></script>
