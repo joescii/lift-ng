@@ -81,7 +81,7 @@ class Boot {
     JQueryModule.init()
 
     LiftRules.resourceNames =
-      "testBundle" ::
+      "i18n/testBundle" ::
       "nonEnglish" ::
       LiftRules.resourceNames
 
