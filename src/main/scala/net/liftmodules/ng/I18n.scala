@@ -27,7 +27,7 @@ object AngularI18n extends DispatchSnippet with MemoFunctions {
     val fromNames = S.attr("names").map(_.toString.split(',')).toList.flatten
     val names = fromName ++ fromNames
     val src =
-      "net/liftmodules/ng/i18n?"+
+      "/net/liftmodules/ng/i18n?"+
         (names.map(n => "name="+URLEncoder.encode(n, "UTF-8")).mkString("&"))+
         "&loc="+S.locale.toString+
         "&sum="+(module(names, S.locale.toString).digest)
