@@ -53,7 +53,7 @@ class Boot {
       Menu.i("Client 2 Server Optimized Binding") / "client2ServerOptimizedBind",
       Menu.i("Multiple Server 2 Client Binders") / "multipleBinders",
       Menu.i("head.js") / "head-js",
-      Menu.i("Subdir") / "subdir" / "index"
+      Menu.i("Subdir / Static") / "subdir" / "static"
     )
 
     // set the sitemap.  Note if you don't want access control for

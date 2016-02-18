@@ -1,8 +1,8 @@
 package net.liftmodules.ng.test
 
-class StaticServiceSpecs extends BaseSpec{
-  "The subdir/static services page" should "load" in {
-    initialize("static")
+class SubdirStaticServiceSpecs extends BaseSpec{
+  "The static services page" should "load" in {
+    initialize("subdir/static")
   }
 
   "The static string" should "be 'FromServer1'" in {
