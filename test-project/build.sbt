@@ -2,7 +2,7 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.9.1"
+version := "0.9.2-SNAPSHOT"
 
 liftVersion := System.getProperty("lift.version", "2.6.3")
 
