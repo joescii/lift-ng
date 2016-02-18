@@ -1,0 +1,5 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Corrects a bug where the `i18n` module would not load on pages which reside in a subdirectory of `webapp`.

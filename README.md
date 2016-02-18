@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.1"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.2"  % "compile"
    )
 }
 ```
@@ -925,6 +925,7 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
+* *0.9.2*: Corrects a bug where the `i18n` module would not load on pages which reside in a subdirectory of `webapp`.
 * *0.9.1*: Corrects a bug where i18n modules with special characters were not properly encoded in the URL.
 This is a common case as resource bundles can be organized in a subdirectory of `src/main/resources`
 * *0.9.0*: See [Release Notes](http://notes.implicit.ly/post/132163227499/lift-ng-090) for details.
