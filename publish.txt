@@ -3,7 +3,7 @@ alias pub=publishSigned
 clean 
 jasmine
 
-set liftVersion in ThisBuild :="3.0-M8"
+set liftVersion in ThisBuild :="3.0-RC3"
 set crossScalaVersions := Seq("2.11.7")
 + update
 + test
