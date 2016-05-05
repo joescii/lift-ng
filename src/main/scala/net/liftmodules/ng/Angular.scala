@@ -711,7 +711,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def liftPostData: JsExp = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
     private def jsonFunc: String => JsObj = {
-      val jsonToPromise = (json: String) => JsonParser.parse(json).\\("data").extractOpt[Model] match {
+      val jsonToPromise = (json: String) => Json.slash(JsonParser.parse(json), ("data")).extractOpt[Model] match {
         case Some(model) => tryPromise(model, modelToPromise)
         case None => Reject(invalidJson(json))
       }
@@ -772,8 +772,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
     def jsonToFuture:(String) => NgFuture[T] = json => {
-      val parsed = JsonParser.parse(json)
-      val dataOpt = (parsed \\ "data").extractOpt[Model]
+      val dataOpt = Json.slash(JsonParser.parse(json), ("data")).extractOpt[Model]
       val id = rand
 
       val fOpt = for {

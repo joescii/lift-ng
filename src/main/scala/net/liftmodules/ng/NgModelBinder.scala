@@ -99,7 +99,7 @@ trait BindingOptimizations extends BindingBase {
   private [ng] override def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}")))
   private [ng] override def jValueToState[M <: NgModel](update:JValue, current:M)(implicit mf:Manifest[M]):M = {
     import js.ToWithExtractMerged
-    val added = update \\ "add"
+    val added = Json.slash(update, "add")
     added.extractMerged(current)(mf, formats)
   }
 
