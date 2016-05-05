@@ -1,0 +1,7 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Updates for compatibility with latest Lift 3.0 release candidate (RC3 in particular).
+Lift-json call has been updated per Lift framework [PR 1766](https://github.com/lift/framework/pull/1766).
+A recompile of the plugin against Lift 3.0-RC3 also resolved some bytecode-level issues.
