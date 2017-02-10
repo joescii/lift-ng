@@ -924,7 +924,9 @@ The macro described above will rewrite `defs` into a chain of these six function
 These functions have been introduced ahead of the macro for the sake of allowing the implicit JSON `Formats` parameter to be provided (see [JSON Serialization](#json-serialization)).
 
 ## Change log
-
+* *0.9.4*: Updates for compatibility with latest Lift 3.1.0 milestone (M1 in particular).
+Lift 3.0 was updated to 3.0.1 instead of the previous release candidate.
+A recompile of the plugin against Lift 3.1.0-M1 also resolved some bytecode-level issues.
 * *0.9.3*: Updates for compatibility with latest Lift 3.0 release candidate (RC3 in particular).
 Lift-json call has been updated per Lift framework [PR 1766](https://github.com/lift/framework/pull/1766).
 A recompile of the plugin against Lift 3.0-RC3 also resolved some bytecode-level issues.

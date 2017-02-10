@@ -4,9 +4,9 @@ organization := "net.liftmodules"
 
 homepage := Some(url("https://github.com/joescii/lift-ng"))
 
-version := "0.9.3"
+version := "0.9.4"
 
-liftVersion <<= liftVersion ?? "2.6.3"
+liftVersion <<= liftVersion ?? "3.1.0-M1"
 
 liftEdition <<= liftVersion { _.substring(0,3) }
 
@@ -16,9 +16,9 @@ name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
 // E.g. "2.5" gets converted to "2-5"
 moduleName := name.value
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
-crossScalaVersions := Seq("2.11.7", "2.10.5", "2.9.2", "2.9.1")
+crossScalaVersions := Seq("2.11.8", "2.10.5", "2.9.2", "2.9.1")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 

@@ -1,0 +1,7 @@
+#liftng
+
+#scala @liftweb @angularjs
+
+Updates for compatibility with latest Lift 3.1.0 milestone (M1 in particular).
+Lift 3.0 was updated to 3.0.1 instead of the previous release candidate.
+A recompile of the plugin against Lift 3.1.0-M1 also resolved some bytecode-level issues.
