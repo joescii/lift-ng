@@ -16,9 +16,9 @@ name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
 // E.g. "2.5" gets converted to "2-5"
 moduleName := name.value
 
-scalaVersion := "2.11.8"
+crossScalaVersions := Seq("2.11.8", "2.10.5")
 
-crossScalaVersions := Seq("2.11.8", "2.10.5", "2.9.2", "2.9.1")
+scalaVersion := crossScalaVersions.value.head
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 
