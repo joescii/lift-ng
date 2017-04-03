@@ -24,10 +24,11 @@ unmanagedResourceDirectories in Test <+= (baseDirectory) { _ / "src/main/webapp"
 
 libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
   val liftEdition = lift.substring(0,3)
+  val jqEdition = if(liftEdition startsWith "3") "3.0" else liftEdition
   val jq = if(liftEdition == "2.5") "2.8" else "2.9"
   Seq(
     "net.liftweb"             %%  "lift-webkit"                       % lift                  % "compile",
-    "net.liftmodules"         %%  ("lift-jquery-module_"+liftEdition) % jq                    % "compile",
+    "net.liftmodules"         %%  ("lift-jquery-module_"+jqEdition)   % jq                    % "compile",
     "net.liftmodules"         %%  ("ng_"+liftEdition)                 % liftng                % "compile", // https://github.com/joescii/lift-ng
     "org.webjars"             %   "angularjs"                         % "1.4.8",
 //    "org.webjars.bower"             %   "angularjs"                         % "1.4.7",
