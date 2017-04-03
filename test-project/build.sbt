@@ -2,13 +2,13 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.9.3"
+version := "0.9.3-SNAPSHOT"
 
 liftVersion := System.getProperty("lift.version", "2.6.3")
 
 liftEdition <<= liftVersion { _.substring(0,3) }
 
-scalaVersion := System.getProperty("scala.version", "2.11.7")
+scalaVersion := System.getProperty("scala.version", "2.11.8")
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
