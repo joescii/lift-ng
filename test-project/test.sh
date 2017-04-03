@@ -1,5 +1,6 @@
 #!/bin/bash
 
+ARGS="-Dnet.liftmodules.ng.test.browser=chrome -Dwebdriver.chrome.driver=$HOME/tools/selenium/chromedriver"
 TASKS="clean update test"
 MULLIGANS=5
 
@@ -18,7 +19,7 @@ run_tests_rec () {
   scala=$2
   mulligans=$3
 
-  sbt -Dlift.version=$lift -Dscala.version=$scala $TASKS
+  sbt -Dlift.version=$lift -Dscala.version=$scala $ARGS $TASKS
   status=$?
 
   if [ $status -ne 0 -a $mulligans -gt 0 ]
