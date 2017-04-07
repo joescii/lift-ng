@@ -49,7 +49,7 @@ Optionally add angular from [webjars](http://www.webjars.org/) as a dependency i
 
 ```scala
 libraryDependencies ++= {
-  val liftVersion = "2.6.3" // Also supported: "2.5.4" and "3.0*"
+  val liftVersion = "3.0.1" // Also supported: "2.5.4", "2.6.3", "3.1.0-M2"
   val liftEdition = liftVersion.substring(0,3)
   val angularVersion = "1.4.8"
   Seq(
@@ -928,6 +928,7 @@ These functions have been introduced ahead of the macro for the sake of allowing
 * *0.9.3*: Updates for compatibility with latest Lift 3.0 release candidate (RC3 in particular).
 Lift-json call has been updated per Lift framework [PR 1766](https://github.com/lift/framework/pull/1766).
 A recompile of the plugin against Lift 3.0-RC3 also resolved some bytecode-level issues.
+First release compiled for Lift 3.1 (3.1.0-M2 in particular).
 * *0.9.2*: Corrects a bug where the `i18n` module would not load on pages which reside in a subdirectory of `webapp`.
 * *0.9.1*: Corrects a bug where i18n modules with special characters were not properly encoded in the URL.
 This is a common case as resource bundles can be organized in a subdirectory of `src/main/resources`
