@@ -26,7 +26,10 @@ object FutureConversions {
     lazy val la:LAFuture[Box[T]] = {
       val laf = new LAFuture[Box[T]]()
       f.foreach(t => laf.satisfy(Full(t)))
-      f.onFailure({ case t:Throwable => laf.satisfy(Failure(clean(t.getMessage), Full(t), Empty)) })
+      f.onFailure({ case t:Throwable => laf.satisfy(Failure(
+        encJs(t.getMessage).drop(1).dropRight(1), // Encode into valid JS, but strip the quotes it adds
+        Full(t), Empty
+      )) })
       laf
     }
   }
