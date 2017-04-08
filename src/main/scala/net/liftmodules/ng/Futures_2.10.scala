@@ -4,6 +4,7 @@ import net.liftweb.json._
 import scala.concurrent.{ExecutionContext, Future}
 import net.liftweb.actor.LAFuture
 import net.liftweb.common.{Empty, Failure, Full, Box}
+import net.liftweb.util.StringHelpers._
 
 object AngularExecutionContext {
   implicit var ec:ExecutionContext = ExecutionContext.global
@@ -25,7 +26,7 @@ object FutureConversions {
     lazy val la:LAFuture[Box[T]] = {
       val laf = new LAFuture[Box[T]]()
       f.foreach(t => laf.satisfy(Full(t)))
-      f.onFailure({ case t:Throwable => laf.satisfy(Failure(t.getMessage, Full(t), Empty)) })
+      f.onFailure({ case t:Throwable => laf.satisfy(Failure(clean(t.getMessage), Full(t), Empty)) })
       laf
     }
   }
