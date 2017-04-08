@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.4"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.3"  % "compile"
    )
 }
 ```
@@ -925,7 +925,7 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
-* *0.9.4*: Cleans up exception messages which are potentially obfuscated by cryptic characters, providing a convenient debugging improvement.
+* *0.9.4*: This release contains exactly the same code as *0.9.3*, thanks to midnight piloting errors.
 * *0.9.3*: Updates for compatibility with latest Lift 3.0 release candidate (RC3 in particular).
 Lift-json call has been updated per Lift framework [PR 1766](https://github.com/lift/framework/pull/1766).
 A recompile of the plugin against Lift 3.0-RC3 also resolved some bytecode-level issues.
