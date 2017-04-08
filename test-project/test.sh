@@ -22,6 +22,9 @@ run_tests_rec () {
   sbt -Dlift.version=$lift -Dscala.version=$scala $ARGS $TASKS
   status=$?
 
+  # Kill any zombie chromedrivers
+  ps -ef | grep chromedriver | awk '{print $2}' | xargs kill -9
+
   if [ $status -ne 0 -a $mulligans -gt 0 ]
   then
     mulligans=`expr $mulligans - 1`
