@@ -2,7 +2,7 @@
 
 ARGS="-Dnet.liftmodules.ng.test.browser=chrome -Dwebdriver.chrome.driver=$HOME/tools/selenium/chromedriver"
 TASKS="clean update test"
-MULLIGANS=5
+MULLIGANS=20
 
 run_tests() {
   run_tests_rec $1 $2 $MULLIGANS
