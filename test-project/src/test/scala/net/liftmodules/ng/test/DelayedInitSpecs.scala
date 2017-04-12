@@ -24,8 +24,9 @@ class DelayedInitSpecs extends BaseSpec {
     eventually { id("last-msg").element.text should be ("4") }
     eventually { id("last-msg").element.text should be ("5") }
     eventually { id("last-msg").element.text should be ("6") }
+    eventually { id("last-msg").element.text should be ("7") }
     val divs = findAll(className("early-emit-out"))
-    val ints = 0 to 6 map (_.toString)
+    val ints = 0 to 7 map (_.toString)
     divs.drop(1).map(_.text).toList should equal (ints)
   }
 }

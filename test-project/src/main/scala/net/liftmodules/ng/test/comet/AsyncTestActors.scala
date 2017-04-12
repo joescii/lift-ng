@@ -80,12 +80,10 @@ class EarlyEmitActor extends AngularActor { self =>
 
   override def lowPriority = {
     case "go" => go
-    case i:Int => println("emitting"); rootScope.emit("earlyEmit", i.toString)
+    case i:Int => println(s"emitting $i"); rootScope.emit("earlyEmit", i.toString)
   }
 
-  self ! nums.next()
-
-  def go = for(t <- 500 to 1500 by 500) {
+  def go = for(t <- 500 to 2000 by 500) {
     Schedule(() => {self ! nums.next()}, t.millis)
   }
 
