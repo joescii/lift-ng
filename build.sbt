@@ -4,7 +4,7 @@ organization := "net.liftmodules"
 
 homepage := Some(url("https://github.com/joescii/lift-ng"))
 
-version := "0.9.5"
+version := "0.9.6"
 
 liftVersion <<= liftVersion ?? "3.0.1"
 
@@ -32,7 +32,7 @@ libraryDependencies <++= (scalaVersion, liftVersion) { (scala, lift) =>
   val scalaTest2 = "org.scalatest" %% "scalatest" % "2.2.1" % "test"
   Seq(
     "net.liftweb"   %% "lift-webkit"  % lift    % "provided",
-    "com.joescii"   %  "j2js-i18n"    % "0.1"   % "compile"
+    "com.joescii"   %  "j2js-i18n"    % "0.1.1" % "compile"
   ) ++ (if(scala.startsWith("2.9")) Seq(scalaz6, scalaTest1) else Seq(scalaz7, scalaTest2))
 }
 

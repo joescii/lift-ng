@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.5"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.6"  % "compile"
    )
 }
 ```
@@ -925,6 +925,8 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
+* *0.9.6*: Indirect bug fix for [i18n-internationalization](#i18n-internationalization) by bumping *j2js-i18n* dependency.
+Quotes in parameterized strings are now correctly escaped.
 * *0.9.5*: Minor bug fix to guarantee server-side exceptions form valid JSON responses to the client.
 * *0.9.4*: This release contains exactly the same code as *0.9.3*, thanks to midnight piloting errors.
 * *0.9.3*: Updates for compatibility with latest Lift 3.0 release candidate (RC3 in particular).
