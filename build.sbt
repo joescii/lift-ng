@@ -1,3 +1,16 @@
+
+val copyJs = resourceGenerators in Compile <+= (sourceDirectory, resourceManaged in Compile, version) map { (src, rsrc, ver) =>
+  val jsSrcDir = src / "main" / "js"
+  val jsDstDir = rsrc
+  val jsSrcs = IO.listFiles(jsSrcDir).filter(_.getName.endsWith(".js"))
+  val srcRelNames = jsSrcs.map(_.getPath.substring(jsSrcDir.getPath.length+1))
+  val withVer = srcRelNames.map(n => n.substring(0, n.length-3)+"-"+ver+".js")
+  val dstRelNames = withVer.map("toserve/net/liftmodules/ng/js/" + _)
+  val jsDsts = dstRelNames.map(new File(jsDstDir, _))
+  (jsSrcs zip jsDsts) map { case (src, dst) => IO.copyFile(src, dst) }
+  jsDsts.toSeq
+}
+
 name := "ng"
 
 organization := "net.liftmodules"
@@ -6,8 +19,9 @@ homepage := Some(url("https://github.com/joescii/lift-ng"))
 
 version := "0.9.6"
 
+val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
+val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
 liftVersion <<= liftVersion ?? "3.0.1"
-
 liftEdition <<= liftVersion { _.substring(0,3) }
 
 name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
@@ -91,6 +105,13 @@ pomExtra := (
  )
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
+
+seq(com.untyped.sbtjs.Plugin.jsSettings : _*)
+(sourceDirectory in (Compile, JsKeys.js)) <<= (sourceDirectory in Compile)(_ / "js")
+(resourceManaged in (Compile, JsKeys.js)) <<= (resourceManaged in Compile)(_ / "toserve" / "net" / "liftmodules" / "ng" / "js")
+JsKeys.filenameSuffix in Compile <<= version ( "-" + _ + ".min" )
+(resourceGenerators in Compile) <+= (JsKeys.js in Compile)
+copyJs
 
 // Jasmine stuff
 seq(jasmineSettings : _*)
