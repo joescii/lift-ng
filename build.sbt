@@ -92,19 +92,6 @@ pomExtra := (
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
-seq(lsSettings :_*)
-
-(LsKeys.tags in LsKeys.lsync) := Seq("lift", "angular")
-
-(description in LsKeys.lsync) := "lift-ng is the most powerful, most secure AngularJS backend available today"
-
-(LsKeys.ghUser in LsKeys.lsync) := Some("joescii")
-
-(LsKeys.ghRepo in LsKeys.lsync) := Some("lift-ng")
-
-(LsKeys.ghBranch in LsKeys.lsync) := Some("master")
-
-
 // Jasmine stuff
 seq(jasmineSettings : _*)
 
