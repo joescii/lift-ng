@@ -11,3 +11,5 @@ project/target/
 # IntelliJ IDEA stuff
 *.iml
 .idea/
+
+*.swp
