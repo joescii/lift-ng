@@ -31,6 +31,7 @@ class Boot {
       Menu.i("Home") / "index", // the simple way to declare a menu
       Menu.i("Snippets") / "snippets",
       Menu.i("Futures") / "futures",
+      Menu.i("Error Handler") / "error-handler",
       Menu.i("Embedded Futures") / "embedded-futures",
       Menu.i("Future Race Condition") / "future-race-condition",
       Menu.i("Two Apps") / "twoApps",
