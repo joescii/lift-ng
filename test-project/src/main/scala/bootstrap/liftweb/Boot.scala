@@ -3,7 +3,6 @@ package bootstrap.liftweb
 import net.liftweb._
 import util._
 import Helpers._
-
 import common._
 import http._
 import sitemap._
@@ -14,6 +13,8 @@ import net.liftmodules.ng.Angular
 import net.liftmodules.ng.test.BuildInfo
 import java.util.ResourceBundle
 import java.util
+
+import net.liftmodules.ng.Angular.Reject
 import net.liftweb.util
 
 
@@ -91,6 +92,8 @@ class Boot {
   }
 
   def angular() = {
+    val failureHandler: Failure => Reject = ???
+
     Angular.init(
       futures = false,
       appSelector = ".application",
@@ -98,7 +101,8 @@ class Boot {
       includeAngularJs = true,
       additionalAngularJsModules = List("loader"), // Not directly used; only checked in WebjarSpecs
       includeAngularCspCss = true,
-      retryAjaxInOrder = !BuildInfo.liftVersion.startsWith("3")
+      retryAjaxInOrder = !BuildInfo.liftVersion.startsWith("3"),
+      failureHandler = failureHandler
     )
   }
 }

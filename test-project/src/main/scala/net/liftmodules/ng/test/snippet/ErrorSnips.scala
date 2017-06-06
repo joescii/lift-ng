@@ -10,6 +10,10 @@ import net.liftweb.util.Helpers._
 import scala.xml.NodeSeq
 
 object ErrorSnips {
+  case class TestException(msg: String) extends Exception
+
+  def failure(msg: String): Failure = Failure("Wrong string", Full(new TestException(msg)), Empty)
+
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("ErrorHandler").factory("errorServices", jsObjFactory()
 //      .defAny("defAny_failure", ???)
@@ -17,7 +21,7 @@ object ErrorSnips {
 //      .defModelToAny("defModelToAny_failure", ???)
       .defFutureAny("defFutureAny_failure", {
         val f = new LAFuture[Box[String]]()
-        Schedule.schedule(() => f.satisfy(Failure("FailureTest")), 1 second)
+        Schedule.schedule(() => f.satisfy(failure("defFutureAny_failure test")), 1 second)
         f
       })
 //      .defStringToFutureAny("defStringToFutureAny_failure", ???)
