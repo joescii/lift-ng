@@ -1,6 +1,10 @@
 #!/bin/bash
 
-PUBLISH=publishSigned
+if [ $# -eq 0 ]; then
+  PUBLISH=publishSigned
+else
+  PUBLISH=$1
+fi
 
 publish() {
   LIFT_VERSION="set liftVersion in ThisBuild := \"$1\""
