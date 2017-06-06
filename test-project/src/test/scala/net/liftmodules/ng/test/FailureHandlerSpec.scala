@@ -1,8 +1,8 @@
 package net.liftmodules.ng.test
 
-class ErrorHandlerSpec extends BaseSpec {
-  "The error handler page" should "load" in {
-    initialize("error-handler")
+class FailureHandlerSpec extends BaseSpec {
+  "The failure handler page" should "load" in {
+    initialize("failure-handler")
   }
 
   "The defFutureAny returning a failure" should "work" in {

@@ -15,6 +15,8 @@ import java.util.ResourceBundle
 import java.util
 
 import net.liftmodules.ng.Angular.Reject
+import net.liftmodules.ng.test.snippet.FailureSnips.TestException
+import net.liftweb.json.JsonAST.JString
 import net.liftweb.util
 
 
@@ -32,7 +34,7 @@ class Boot {
       Menu.i("Home") / "index", // the simple way to declare a menu
       Menu.i("Snippets") / "snippets",
       Menu.i("Futures") / "futures",
-      Menu.i("Error Handler") / "error-handler",
+      Menu.i("Failure Handler") / "failure-handler",
       Menu.i("Embedded Futures") / "embedded-futures",
       Menu.i("Future Race Condition") / "future-race-condition",
       Menu.i("Two Apps") / "twoApps",
@@ -92,7 +94,12 @@ class Boot {
   }
 
   def angular() = {
-    val failureHandler: Failure => Reject = ???
+    val failureHandler: Failure => Reject = f => Reject(
+      data = JString(f.exception.map {
+        case TestException(m) => m
+        case _ => f.msg // default behavior
+      }.openOr(f.msg))
+    )
 
     Angular.init(
       futures = false,

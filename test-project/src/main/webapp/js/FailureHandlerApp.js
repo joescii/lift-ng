@@ -1,5 +1,5 @@
-angular.module('ErrorHandlerApp', ['lift-ng', 'ErrorHandler'])
-.controller('MasterController', ['$scope', '$window', 'errorServices', function($scope, $window, svc) {
+angular.module('FailureHandlerApp', ['lift-ng', 'FailureHandler'])
+.controller('MasterController', ['$scope', '$window', 'failureServices', function($scope, $window, svc) {
   var successFn = function (success) {
     $window.alert("Something broke, and we don't know why");
   };

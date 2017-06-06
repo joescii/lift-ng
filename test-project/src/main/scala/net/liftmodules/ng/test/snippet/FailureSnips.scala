@@ -9,13 +9,13 @@ import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 import scala.xml.NodeSeq
 
-object ErrorSnips {
+object FailureSnips {
   case class TestException(msg: String) extends Exception
 
   def failure(msg: String): Failure = Failure("Wrong string", Full(new TestException(msg)), Empty)
 
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
-    angular.module("ErrorHandler").factory("errorServices", jsObjFactory()
+    angular.module("FailureHandler").factory("failureServices", jsObjFactory()
 //      .defAny("defAny_failure", ???)
 //      .defStringToAny("defStringToAny_failure", ???)
 //      .defModelToAny("defModelToAny_failure", ???)
