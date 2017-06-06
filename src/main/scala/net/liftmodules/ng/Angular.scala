@@ -1,17 +1,17 @@
 package net.liftmodules.ng
 
-import java.util.concurrent.{ ConcurrentMap, ConcurrentHashMap }
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
 import scala.collection.mutable
 import scala.xml.{Elem, NodeSeq}
-
 import net.liftweb.actor.LAFuture
 import net.liftweb.common._
 import net.liftweb.json.{DefaultFormats, Formats, JsonParser}
-import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer, S, RequestVar, SessionVar }
+import net.liftweb.http.{DispatchSnippet, LiftRules, RequestVar, ResourceServer, S, SessionVar}
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
+import net.liftweb.http.js.{JsCmd, JsExp, JsObj}
+import net.liftweb.json.JsonAST.{JNull, JValue}
 import net.liftweb.util.Props
 import net.liftweb.util.Props.RunModes
 import net.liftweb.util.StringHelpers._
@@ -39,15 +39,17 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     * @param additionalAngularJsModules list of additional angularjs modules to include in the page.
     * @param includeAngularCspCss true to include angular-csp.css found in angularjs webjar.
     * @param retryAjaxInOrder true to preserve the order of ajax service calls even in the event of server communication failures.
+    * @param failureHandler fn for converting a Lift Failure into a $q promise rejection on the client.
     */
   def init(
-    futures:Boolean = true,
-    appSelector:String = "[ng-app]",
-    includeJsScript:Boolean = true,
-    includeAngularJs:Boolean = false,
-    additionalAngularJsModules:List[String] = List(),
-    includeAngularCspCss:Boolean = false,
-    retryAjaxInOrder:Boolean = false
+    futures: Boolean = true,
+    appSelector: String = "[ng-app]",
+    includeJsScript: Boolean = true,
+    includeAngularJs: Boolean = false,
+    additionalAngularJsModules: List[String] = List(),
+    includeAngularCspCss: Boolean = false,
+    retryAjaxInOrder: Boolean = false,
+    failureHandler: Failure => Reject = f => Reject(f.msg)
   ):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
@@ -670,7 +672,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
   case class Resolve(data: Option[JsExp] = None, futureId: Option[String] = None) extends Promise
 
-  case class Reject(reason: String = "server error") extends Promise
+  case class Reject(reason: String = "server error", data: JValue = JNull) extends Promise
 
   object Promise {
 
@@ -841,7 +843,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
         case Resolve(None, futureId) => futureId.map(
           id => JsObj(SuccessField -> JsTrue, FutureField -> id)
         ).getOrElse(JsObj(SuccessField -> JsTrue))
-        case Reject(reason) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
+        case Reject(reason, _) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
       }
     }
 
