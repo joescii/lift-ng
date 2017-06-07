@@ -95,10 +95,9 @@ class Boot {
 
   def angular() = {
     val failureHandler: Failure => Reject = f => Reject(
-      data = JString(f.exception.map {
+      data = JString(f.exception.collect {
         case TestException(m) => m
-        case _ => f.msg // default behavior
-      }.openOr(f.msg))
+      }.openOr(f.msg)) // default behavior
     )
 
     Angular.init(
