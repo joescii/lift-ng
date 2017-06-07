@@ -1,7 +1,7 @@
 angular.module('FailureHandlerApp', ['lift-ng', 'FailureHandler'])
-.controller('MasterController', ['$scope', '$window', 'failureServices', function($scope, $window, svc) {
+.controller('MasterController', ['$scope', 'failureServices', function($scope, svc) {
   var successFn = function (success) {
-    $window.alert("Something broke, and we don't know why");
+    console.log("Something broke, and we don't know why");
   };
 
   var failureFn = function (field) {
@@ -22,5 +22,10 @@ angular.module('FailureHandlerApp', ['lift-ng', 'FailureHandler'])
   wireUp("defFutureAny_failure");
   wireUp("defStringToFutureAny_failure", "");
   wireUp("defModelToFutureAny_failure", model);
+  wireUp("defAny_exception");
+  wireUp("defStringToAny_exception", "");
+  wireUp("defFutureAny_outer_exception");
+  wireUp("defStringToFutureAny_outer_exception", "");
+  wireUp("defModelToFutureAny_outer_exception", model);
 }])
 ;

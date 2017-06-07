@@ -5,28 +5,51 @@ class FailureHandlerSpec extends BaseSpec {
     initialize("failure-handler")
   }
 
-  "The defAny returning a failure" should "work" in {
+  "defAny when returning a failure" should "work" in {
     eventually { id("any-failure").element.text should be ("defAny_failure test") }
   }
 
-  "The defStringToAny returning a failure" should "work" in {
+  "defStringToAny when returning a failure" should "work" in {
     eventually { id("string-to-any-failure").element.text should be ("defStringToAny_failure test") }
   }
 
-  "The defModelToAny returning a failure" should "work" in {
+  "defModelToAny when returning a failure" should "work" in {
     eventually { id("model-to-any-failure").element.text should be ("defModelToAny_failure test") }
   }
 
-  "The defFutureAny returning a failure" should "work" in {
+  "defFutureAny when returning a failure" should "work" in {
     eventually { id("future-any-failure").element.text should be ("defFutureAny_failure test") }
   }
 
-  "The defStringToFutureAny returning a failure" should "work" in {
+  "defStringToFutureAny when returning a failure" should "work" in {
     eventually { id("string-to-future-any-failure").element.text should be ("defStringToFutureAny_failure test") }
   }
 
-  "The defModelToFutureAny returning a failure" should "work" in {
+  "defModelToFutureAny when returning a failure" should "work" in {
     eventually { id("model-to-future-any-failure").element.text should be ("defModelToFutureAny_failure test") }
   }
 
+  "defAny when throwing an exception" should "work" in {
+    eventually { id("any-exception").element.text should be ("defAny_exception test") }
+  }
+
+  "defStringToAny when throwing an exception" should "work" in {
+    eventually { id("string-to-any-exception").element.text should be ("defStringToAny_exception test") }
+  }
+
+  "defModelToAny when throwing an exception" should "work" in {
+    eventually { id("model-to-any-exception").element.text should be ("defModelToAny_exception test") }
+  }
+
+  "defFutureAny when throwing an exception outside of the Future" should "work" in {
+    eventually { id("future-any-outside-exception").element.text should be ("defFutureAny_outer_exception test") }
+  }
+
+  "defStringToFutureAny when throwing an exception outside of the Future" should "work" in {
+    eventually { id("string-to-future-any-outside-exception").element.text should be ("defStringToFutureAny_outer_exception test") }
+  }
+
+  "defModelToFutureAny when throwing an exception outside of the Future" should "work" in {
+    eventually { id("model-to-future-any-outside-exception").element.text should be ("defModelToFutureAny_outer_exception test") }
+  }
 }
