@@ -14,19 +14,27 @@ object FailureSnips {
 
   def failure(msg: String): Failure = Failure("Wrong string", Full(new TestException(msg)), Empty)
 
+  def future(msg: String): LAFuture[Box[String]] = {
+    val f = new LAFuture[Box[String]]()
+    Schedule.schedule(() => f.satisfy(failure(msg)), 1 second)
+    f
+  }
+
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("FailureHandler").factory("failureServices", jsObjFactory()
-//      .defAny("defAny_failure", ???)
-//      .defStringToAny("defStringToAny_failure", ???)
-//      .defModelToAny("defModelToAny_failure", ???)
-      .defFutureAny("defFutureAny_failure", {
-        val f = new LAFuture[Box[String]]()
-        Schedule.schedule(() => f.satisfy(failure("defFutureAny_failure test")), 1 second)
-        f
-      })
-//      .defStringToFutureAny("defStringToFutureAny_failure", ???)
-//      .defModelToFutureAny("defModelToFutureAny_failure", ???)
-//
+
+      .defAny("defAny_failure", failure("defAny_failure test"))
+
+      .defStringToAny("defStringToAny_failure", _ => failure("defStringToAny_failure test"))
+
+      .defModelToAny("defModelToAny_failure", (_: Test2Obj) => failure("defModelToAny_failure"))
+
+      .defFutureAny("defFutureAny_failure", future("defFutureAny_failure"))
+
+      .defStringToFutureAny("defStringToFutureAny_failure", _ => future("defStringToFutureAny_failure"))
+
+      .defModelToFutureAny("defModelToFutureAny_failure", (_: Test2Obj) => future("defModelToFutureAny_failure"))
+
 //      .defAny("defAny_exception", ???)
 //      .defStringToAny("defStringToAny_exception", ???)
 //      .defModelToAny("defModelToAny_exception", ???)

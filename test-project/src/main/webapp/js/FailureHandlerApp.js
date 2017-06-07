@@ -10,17 +10,17 @@ angular.module('FailureHandlerApp', ['lift-ng', 'FailureHandler'])
     }
   };
 
-  svc.defFutureAny_failure().then(successFn).catch(failureFn("defFutureAny_failure"));
+  var wireUp = function (fn, arg) {
+    svc[fn](arg).then(successFn).catch(failureFn(fn));
+  }
 
-  $scope.click = function() {
-    svc.failure().then(
-      function (success) {
-        $window.alert("Something broke, and we don't know why");
-      },
-      function(msg){
-        $scope.output = msg;
-      }
-    );
-  };
+  var model = {str1: "", str2: ""};
+
+  wireUp("defAny_failure");
+  wireUp("defStringToAny_failure", "");
+  wireUp("defModelToAny_failure", model);
+  wireUp("defFutureAny_failure");
+  wireUp("defStringToFutureAny_failure", "");
+  wireUp("defModelToFutureAny_failure", model);
 }])
 ;

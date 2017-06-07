@@ -11,7 +11,12 @@
       <div ng-app="FailureHandlerApp" class="application">
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="MasterController">
-          <span id="future-any-failure" ng-bind="defFutureAny_failure">Hard-coded</span>
+          <div id="any-failure" ng-bind="defAny_failure">Hard-coded</div>
+          <div id="string-to-any-failure" ng-bind="defStringToAny_failure">Hard-coded</div>
+          <div id="model-to-any-failure" ng-bind="defModelToAny_failure">Hard-coded</div>
+          <div id="future-any-failure" ng-bind="defFutureAny_failure">Hard-coded</div>
+          <div id="string-to-future-any-failure" ng-bind="defStringToFutureAny_failure">Hard-coded</div>
+          <div id="model-to-future-any-failure" ng-bind="defModelToFutureAny_failure">Hard-coded</div>
         </div>
       </div>
     </div>
