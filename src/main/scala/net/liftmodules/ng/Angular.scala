@@ -11,7 +11,7 @@ import net.liftweb.http.{DispatchSnippet, LiftRules, RequestVar, ResourceServer,
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.{JsCmd, JsExp, JsObj}
-import net.liftweb.json.JsonAST.{JNull, JValue}
+import net.liftweb.json.JsonAST.{JNull, JString, JValue}
 import net.liftweb.util.Props
 import net.liftweb.util.Props.RunModes
 import net.liftweb.util.StringHelpers._
@@ -21,13 +21,14 @@ import net.liftweb.util.StringHelpers._
  */
 object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpers with Loggable {
 
-  private [ng] var futuresDefault:Boolean = true
-  private [ng] var appSelectorDefault:String = "[ng-app]"
-  private [ng] var includeJsScript:Boolean = true
-  private [ng] var includeAngularJs:Boolean = false
-  private [ng] var additionalAngularJsModules:Seq[String] = Seq()
-  private [ng] var includeAngularCspCss = false
-  private [ng] var retryAjaxInOrder = false
+  private [ng] var futuresDefault: Boolean = true
+  private [ng] var appSelectorDefault: String = "[ng-app]"
+  private [ng] var includeJsScript: Boolean = true
+  private [ng] var includeAngularJs: Boolean = false
+  private [ng] var additionalAngularJsModules: Seq[String] = Seq()
+  private [ng] var includeAngularCspCss: Boolean = false
+  private [ng] var retryAjaxInOrder: Boolean = false
+  private [ng] var failureHandler: Failure => Reject = defaultFailureHandler
   private [ng] def rand = "NG"+randomString(18)
 
   /**
@@ -49,7 +50,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     additionalAngularJsModules: List[String] = List(),
     includeAngularCspCss: Boolean = false,
     retryAjaxInOrder: Boolean = false,
-    failureHandler: Failure => Reject = f => Reject(f.msg)
+    failureHandler: Failure => Reject = defaultFailureHandler
   ):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
@@ -82,7 +83,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       !retryAjaxInOrder || !BuildInfo.liftEdition.startsWith("3"),
       "retryAjaxInOrder is not currently supported in Lift 3.x"
     )
+
+    this.failureHandler = failureHandler
   }
+
+  val defaultFailureHandler: Failure => Reject = f => Reject(JString(f.msg))
 
   private def bool(s:String, default:Boolean):Boolean = {
     val truthy = List("true", "yes", "on")
@@ -271,6 +276,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     f
   }
 
+  private [ng] def handleFailure(f: Failure): Reject = failureHandler(f)
+
   object angular {
     def module(moduleName: String) = new Module(moduleName)
   }
@@ -422,7 +429,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: String => Box[Any])
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, AjaxStringToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
+      registerFunction(functionName, AjaxStringToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise(_))))
 
 
     /**
@@ -454,7 +461,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: ModelFnBox[Model])
       (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.f.andThen(promiseMapper.toPromise)))
+      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.f.andThen(promiseMapper.toPromise(_))))
 
 
     /**
@@ -645,14 +652,17 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   object DefaultApiSuccessMapper extends PromiseMapper {
 //    private implicit val formats = DefaultFormats + new LAFutureSerializer
 
-    def toPromise(box: Box[Any])(implicit formats:Formats): Promise = {
+    override def toPromise(box: => Box[Any])(implicit formats:Formats): Promise = try {
       box match {
         case Full(jsExp: JsExp) => Resolve(Some(jsExp)) // prefer using a case class instead
         case Full(serializable: AnyRef) => Resolve(Some(JsRaw(stringify(serializable))))
         case Full(other) => Resolve(Some(JsRaw(other.toString)))
         case Full(Unit) | Empty => Resolve()
-        case Failure(msg, _, _) => Reject(msg)
+        case f: Failure => handleFailure(f)
       }
+    } catch {
+      case t: Throwable =>
+        handleFailure(throwableToFailure(t))
     }
   }
 
@@ -662,7 +672,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    */
   trait PromiseMapper {
 
-    def toPromise(box: Box[Any])(implicit formats:Formats): Promise
+    def toPromise(box: => Box[Any])(implicit formats:Formats): Promise
   }
 
   /**
@@ -670,9 +680,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    */
   sealed trait Promise
 
+  // TODO: Decide if Option[JsExp] = None or JValue = JNull is preferable
   case class Resolve(data: Option[JsExp] = None, futureId: Option[String] = None) extends Promise
 
-  case class Reject(reason: String = "server error", data: JValue = JNull) extends Promise
+  case class Reject(data: JValue = JNull) extends Promise
 
   object Promise {
 
@@ -698,7 +709,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
         case Some(RequestString(data)) => tryPromise(data, stringToPromise)
-        case None => Reject(invalidJson(json))
+        case None => handleFailure(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
     }
@@ -715,7 +726,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def jsonFunc: String => JsObj = {
       val jsonToPromise = (json: String) => Json.slash(JsonParser.parse(json), ("data")).extractOpt[Model] match {
         case Some(model) => tryPromise(model, modelToPromise)
-        case None => Reject(invalidJson(json))
+        case None => handleFailure(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
     }
@@ -734,7 +745,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     protected def reject[T <: Any](json:String):NgFuture[T] = {
       val f = new LAFuture[Box[T]]
-      f.satisfy(Failure(invalidJson(json)))
+      f.satisfy(invalidJson(json))
       (f, FutureIdNA)
     }
   }
@@ -814,42 +825,40 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     def serviceDependencies: Set[String] = Set("liftProxy")
 
-    private val SuccessField = "success"
+    private val StateField = "state"
+    private val DataField = "data"
     private val FutureField = "futureId"
 
-    protected def tryPromise[A](a:A, f: A => Promise):Promise =
+    protected def tryPromise[A](a: => A, f: A => Promise):Promise =
       try {
         f(a)
       } catch {
-        case e:Exception =>
-          logger.warn("Uncaught exception while processing ajax function", e)
-          Reject(e.getMessage)
+        case t: Throwable =>
+          handleFailure(throwableToFailure(t))
       }
 
-    protected def tryFuture[A, T <: Any](a:A, f: A => LAFuture[Box[T]]):LAFuture[Box[T]] =
+    protected def tryFuture[A, T <: Any](a: => A, f: A => LAFuture[Box[T]]):LAFuture[Box[T]] =
       try {
         f(a)
       } catch {
-        case e:Exception =>
-          logger.warn("Uncaught exception while processing ajax function", e)
+        case t: Throwable =>
           val future = new LAFuture[Box[T]]
-          future.satisfy(Failure(e.getMessage))
+          future.satisfy(throwableToFailure(t))
           future
       }
 
     protected def promiseToJson(promise: Promise): JsObj = {
       promise match {
-        case Resolve(Some(jsExp), _) => JsObj(SuccessField -> JsTrue, "data" -> jsExp)
-        case Resolve(None, futureId) => futureId.map(
-          id => JsObj(SuccessField -> JsTrue, FutureField -> id)
-        ).getOrElse(JsObj(SuccessField -> JsTrue))
-        case Reject(reason, _) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
+        case Resolve(Some(jsExp), _) => JsObj(StateField -> "resolved", DataField -> jsExp)
+        case Resolve(None, None) => JsObj(StateField -> "resolved")
+        case Resolve(None, Some(futureId)) => JsObj(StateField -> "unresolved", FutureField -> futureId)
+        case Reject(data) => JsObj(StateField -> "rejected", DataField -> data)
       }
     }
 
-    protected def invalidJson(json:String) = {
+    protected def invalidJson(json:String): Failure = {
       logger.warn("Received invalid JSON from the client => "+json)
-      "invalid json"
+      Failure("invalid json")
     }
   }
 
