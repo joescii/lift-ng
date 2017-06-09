@@ -15,25 +15,24 @@ angular
           q.reject(response.data)
           break;
         case "resolved":
-        if (typeof response.data !== "undefined") {
-          inject(response.data);
-          q.resolve(response.data);
-        }
-        else {
-          q.resolve();
-        }
+          if (typeof response.data !== "undefined") {
+            inject(response.data);
+            q.resolve(response.data);
+          }
+          else {
+            q.resolve();
+          }
       }
     };
 
     // Called by the LiftNgFutureActor when a Future is fulfilled
     var fulfill = function(response, id) {
-      var theId = id || response.id;
-      var q = defers[theId];
+      var q = defers[id];
       if(typeof q !== "undefined" && q !== null) { // We found our awaiting defer/promise
         resolve(response, q);
-        delete defers[theId];
+        delete defers[id];
       } else { // We arrived before the model which embeds us!
-        resolve(response, create(theId));
+        resolve(response, create(id));
       }
     };
 
@@ -56,7 +55,7 @@ angular
             var d = $q.defer();
             d.resolve(data);
             model[k] = d.promise;
-          } else if(state == "failed") { // The future had already FAILED at serialization time
+          } else if(state == "rejected") { // The future had already FAILED at serialization time
             var d = $q.defer();
             d.reject(data);
             model[k] = d.promise;

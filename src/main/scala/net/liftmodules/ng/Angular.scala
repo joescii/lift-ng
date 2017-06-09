@@ -268,10 +268,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String)(implicit formats:Formats) = {
+  private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String)(implicit formats: Formats) = {
     S.session map { s => f foreach { box =>
       val json = S.initIfUninitted(s)(box map stringify)
-      s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, json))
+      s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, json, formats))
     }}
     f
   }
@@ -798,15 +798,15 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class ToStringFunctionGenerator(s:String)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
+  protected case class ToStringFunctionGenerator(s:String)(implicit formats: Formats) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(s))
   }
 
-  protected case class ToJsonFunctionGenerator(obj:AnyRef)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
+  protected case class ToJsonFunctionGenerator(obj:AnyRef)(implicit formats: Formats) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(JsRaw(stringify(obj))))
   }
 
-  protected case class FromAnyFunctionGenerator(obj:Any)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
+  protected case class FromAnyFunctionGenerator(obj:Any)(implicit formats: Formats) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(JsRaw(stringify(obj))))
   }
 
@@ -824,10 +824,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def moduleDependencies: Set[String] = Set("lift-ng")
 
     def serviceDependencies: Set[String] = Set("liftProxy")
-
-    private val StateField = "state"
-    private val DataField = "data"
-    private val FutureField = "futureId"
 
     protected def tryPromise[A](a: => A, f: A => Promise):Promise =
       try {
@@ -847,15 +843,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
           future
       }
 
-    protected def promiseToJson(promise: Promise): JsObj = {
-      promise match {
-        case Resolve(Some(jsExp), _) => JsObj(StateField -> "resolved", DataField -> jsExp)
-        case Resolve(None, None) => JsObj(StateField -> "resolved")
-        case Resolve(None, Some(futureId)) => JsObj(StateField -> "unresolved", FutureField -> futureId)
-        case Reject(data) => JsObj(StateField -> "rejected", DataField -> data)
-      }
-    }
-
     protected def invalidJson(json:String): Failure = {
       logger.warn("Received invalid JSON from the client => "+json)
       Failure("invalid json")
@@ -873,7 +860,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   case class RequestData[Model <: NgModel : Manifest](data:Model)
   case class RequestString(data:String)
 
-  case class ReturnData(id:FutureId, json:Box[String])
+  case class ReturnData[T <: Any](id:FutureId, response:Box[T], formats: Formats)
 
   type FutureId = String
   val FutureIdNA:FutureId = ""
