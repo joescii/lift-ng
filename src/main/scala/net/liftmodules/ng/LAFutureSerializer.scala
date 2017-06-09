@@ -13,19 +13,18 @@ object LAFutureSerializer {
 
     val id = rand
     val flagField = JField("net.liftmodules.ng.Angular.future", JString(id))
-    val fields = flagField +:
-      (if (!future.isSatisfied) {
+    val valObj: JObject =
+      if (!future.isSatisfied) {
         plumbFuture(future, id)
-        List()
+        JObject(List(JField("state", JString("unresolved"))))
       } else {
-        future.get match {
-          case Full(data) => List(JField("data", Extraction.decompose(data)))
-          case Failure(msg, _, _) => List(JField("msg", JString(msg)))
-          case Empty => List()
-        }
-      })
+        val box = future.get
+        val promise = Angular.DefaultApiSuccessMapper.toPromise(box)
+        val json = promiseToJson(promise)
+        json
+      }
 
-    JObject(fields)
+    JObject(List(flagField)) merge valObj
   }
 
   def laFutureSerializer(formats: Formats): PartialFunction[Any, JValue] = {

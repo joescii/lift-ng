@@ -20,6 +20,7 @@ import net.liftweb.util.StringHelpers._
  * Primary lift-ng module
  */
 object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpers with Loggable {
+  val defaultFailureHandler: Failure => Reject = f => Reject(JString(f.msg))
 
   private [ng] var futuresDefault: Boolean = true
   private [ng] var appSelectorDefault: String = "[ng-app]"
@@ -86,8 +87,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     this.failureHandler = failureHandler
   }
-
-  val defaultFailureHandler: Failure => Reject = f => Reject(JString(f.msg))
 
   private def bool(s:String, default:Boolean):Boolean = {
     val truthy = List("true", "yes", "on")
