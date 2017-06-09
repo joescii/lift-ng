@@ -25,7 +25,7 @@ class LAFutureSerializerSpecs extends WordSpec with ShouldMatchers {
       back match {
         case JObject(List(JField("f", JObject(List(
           JField("net.liftmodules.ng.Angular.future", JString(id)),
-          JField("state", JString("unresolved"))
+          JField("state", JString("pending"))
         ))))) =>
         case _ => fail(back+" did not match as expected")
       }
@@ -123,7 +123,7 @@ class LAFutureSerializerSpecs extends WordSpec with ShouldMatchers {
             JField("num", JInt(int)),
             JField("f", JObject(List(
               JField("net.liftmodules.ng.Angular.future", JString(id2)),
-              JField("state", JString("unresolved"))
+              JField("state", JString("pending"))
             )))
           )))
         ))))) => int should equal (43)

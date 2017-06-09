@@ -16,7 +16,7 @@ package object ng extends Loggable {
     promise match {
       case Resolve(Some(jsExp), _) => JObject(List(JField("state", JString("resolved")), JField("data", jsExp)))
       case Resolve(None, None) => JObject(List(JField("state", JString("resolved"))))
-      case Resolve(None, Some(futureId)) => JObject(List(JField("state", JString("unresolved")), JField("futureId", JString(futureId))))
+      case Resolve(None, Some(futureId)) => JObject(List(JField("state", JString("pending")), JField("futureId", JString(futureId))))
       case Reject(data) => JObject(List(JField("state", JString("rejected")), JField("data", data)))
     }
   }

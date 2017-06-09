@@ -59,7 +59,7 @@ angular
             var d = $q.defer();
             d.reject(data);
             model[k] = d.promise;
-          } else if(state == "unresolved") { // Promise/Future pending
+          } else if(state == "pending") { // Promise/Future pending
             model[k] = create(id).promise;
           }
         }

@@ -16,7 +16,7 @@ object LAFutureSerializer {
     val valObj: JObject =
       if (!future.isSatisfied) {
         plumbFuture(future, id)
-        JObject(List(JField("state", JString("unresolved"))))
+        JObject(List(JField("state", JString("pending"))))
       } else {
         val box = future.get
         val promise = Angular.DefaultApiSuccessMapper.toPromise(box)

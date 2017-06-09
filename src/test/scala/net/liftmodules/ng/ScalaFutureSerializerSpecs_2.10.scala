@@ -26,7 +26,7 @@ class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Event
       back match {
         case JObject(List(JField("f", JObject(List(
           JField("net.liftmodules.ng.Angular.future", JString(id)),
-          JField("state", JString("unresolved"))
+          JField("state", JString("pending"))
         ))))) =>
         case _ => fail(back + " did not match as expected")
       }

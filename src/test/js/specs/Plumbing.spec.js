@@ -15,11 +15,11 @@ describe('lift-ng', function(){
       plumbing.fulfill({garbage:"in"})
     });
 
-    it('should resolve data with success==true', function(){
+    it('should resolve data with state == "resolved"', function(){
       var id = "myDefer";
       var defer = plumbing.createDefer(id);
       var data = {
-        success: true,
+        state: "resolved",
         data: "string"
       };
 
@@ -32,20 +32,19 @@ describe('lift-ng', function(){
       rootScope.$apply();
     });
 
-    it('should reject data with success==false', function(){
+    it('should reject data with state == "rejected"', function(){
       var id = "myDefer";
       var defer = plumbing.createDefer(id);
       var data = {
-        success: false,
-        data: "string",
-        msg: "failed"
+        state: "rejected",
+        data: "string"
       };
 
       plumbing.fulfill(data, id);
 
       defer.promise
         .then(function(data) { expect(data).toBeNull() })
-        .catch(function(msg) { expect(msg).toBe("failed") });
+        .catch(function(data) { expect(data).toBe("string") });
 
       rootScope.$apply();
     });
@@ -54,7 +53,7 @@ describe('lift-ng', function(){
       var id = "myDefer";
       var defer = plumbing.createDefer(id);
       var data = {
-        success: true
+        state: "resolved"
       };
 
       plumbing.fulfill(data, id);
@@ -70,7 +69,7 @@ describe('lift-ng', function(){
       var id = "myDefer";
       var defer = plumbing.createDefer(id);
       var data = {
-        success: true,
+        state: "resolved",
         data: false
       };
 
@@ -87,12 +86,12 @@ describe('lift-ng', function(){
       var model = {
         str: "a string",
         f: {
-          "net.liftmodules.ng.Angular.future": true,
-          "id": "NG1234"
+          "net.liftmodules.ng.Angular.future": "NG1234",
+          state: "pending"
         }
       };
       var data = {
-        success: true,
+        state: "resolved",
         data: "from future"
       };
 
@@ -112,13 +111,13 @@ describe('lift-ng', function(){
         obj: {
           num: 42,
           f: {
-            "net.liftmodules.ng.Angular.future": true,
-            "id": "NG1234"
+            "net.liftmodules.ng.Angular.future": "NG1234",
+            state: "pending"
           }
         }
       };
       var data = {
-        success: true,
+        state: "resolved",
         data: "from future"
       };
 
@@ -135,15 +134,15 @@ describe('lift-ng', function(){
 
     it('should inject promises in arrays', function() {
       var arr = [
-        {"net.liftmodules.ng.Angular.future": true, id: "NG1234"},
-        {"net.liftmodules.ng.Angular.future": true, id: "NG1235"}
+        {"net.liftmodules.ng.Angular.future": "NG1234", state: "pending"},
+        {"net.liftmodules.ng.Angular.future": "NG1235", state: "pending"}
       ];
       var data1 = {
-        success: true,
+        state: "resolved",
         data: "from future"
       };
       var data2 = {
-        success: true,
+        state: "resolved",
         data: "other future"
       };
 
@@ -162,16 +161,16 @@ describe('lift-ng', function(){
       var model = {
         str: "a string",
         arr: [
-          {"net.liftmodules.ng.Angular.future": true, id: "NG1234"},
-          {"net.liftmodules.ng.Angular.future": true, id: "NG1236"}
+          {"net.liftmodules.ng.Angular.future": "NG1234", state: "pending"},
+          {"net.liftmodules.ng.Angular.future": "NG1236", state: "pending"}
         ]
       };
       var data1 = {
-        success: true,
+        state: "resolved",
         data: "whatever"
       };
       var data2 = {
-        success: true,
+        state: "resolved",
         data: "blah"
       };
 
@@ -190,7 +189,8 @@ describe('lift-ng', function(){
       var model = {
         str: "a string",
         f: {
-          "net.liftmodules.ng.Angular.future": true,
+          "net.liftmodules.ng.Angular.future": "won't matter",
+          state: "resolved",
           data: "y'all"
         }
       };
@@ -207,8 +207,9 @@ describe('lift-ng', function(){
       var model = {
         str: "a string",
         f: {
-          "net.liftmodules.ng.Angular.future": true,
-          msg: "shit, y'all!"
+          "net.liftmodules.ng.Angular.future": "blah",
+          state: "rejected",
+          data: "shit, y'all!"
         }
       };
 
@@ -224,7 +225,8 @@ describe('lift-ng', function(){
       var model = {
         str: "a string",
         f: {
-          "net.liftmodules.ng.Angular.future": true
+          "net.liftmodules.ng.Angular.future": "whateve",
+          state: "resolved"
         }
       };
 
