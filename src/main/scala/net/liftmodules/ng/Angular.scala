@@ -6,12 +6,12 @@ import scala.collection.mutable
 import scala.xml.{Elem, NodeSeq}
 import net.liftweb.actor.LAFuture
 import net.liftweb.common._
-import net.liftweb.json.{DefaultFormats, Formats, JsonParser}
+import net.liftweb.json.{DefaultFormats, Extraction, Formats, JsonParser}
 import net.liftweb.http.{DispatchSnippet, LiftRules, RequestVar, ResourceServer, S, SessionVar}
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.{JsCmd, JsExp, JsObj}
-import net.liftweb.json.JsonAST.{JNull, JString, JValue}
+import net.liftweb.http.js.{JsCmd, JsExp}
+import net.liftweb.json.JsonAST.{JNull, JObject, JString, JValue}
 import net.liftweb.util.Props
 import net.liftweb.util.Props.RunModes
 import net.liftweb.util.StringHelpers._
@@ -649,14 +649,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    * Maps an api result to a Promise object that will be used to fulfill the javascript promise object.
    */
   object DefaultApiSuccessMapper extends PromiseMapper {
-//    private implicit val formats = DefaultFormats + new LAFutureSerializer
-
-    override def toPromise(box: => Box[Any])(implicit formats:Formats): Promise = try {
+    override def toPromise(box: => Box[Any])(implicit formats: Formats): Promise = try {
       box match {
-        case Full(jsExp: JsExp) => Resolve(Some(jsExp)) // prefer using a case class instead
-        case Full(serializable: AnyRef) => Resolve(Some(JsRaw(stringify(serializable))))
-        case Full(other) => Resolve(Some(JsRaw(other.toString)))
         case Full(Unit) | Empty => Resolve()
+        case Full(any: Any) => Resolve(Some(Extraction.decompose(any)(formats + new LAFutureSerializer)))
         case f: Failure => handleFailure(f)
       }
     } catch {
@@ -679,8 +675,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    */
   sealed trait Promise
 
-  // TODO: Decide if Option[JsExp] = None or JValue = JNull is preferable
-  case class Resolve(data: Option[JsExp] = None, futureId: Option[String] = None) extends Promise
+  case class Resolve(data: Option[JValue] = None, futureId: Option[String] = None) extends Promise
 
   case class Reject(data: JValue = JNull) extends Promise
 
@@ -705,7 +700,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
-    private def jsonFunc: String => JsObj = {
+    private def jsonFunc: String => JObject = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
         case Some(RequestString(data)) => tryPromise(data, stringToPromise)
         case None => handleFailure(invalidJson(json))
@@ -722,7 +717,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def liftPostData: JsExp = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
-    private def jsonFunc: String => JsObj = {
+    private def jsonFunc: String => JObject = {
       val jsonToPromise = (json: String) => Json.slash(JsonParser.parse(json), ("data")).extractOpt[Model] match {
         case Some(model) => tryPromise(model, modelToPromise)
         case None => handleFailure(invalidJson(json))
@@ -732,14 +727,14 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   }
 
   protected abstract class FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
-    protected def jsonFunc[T <: Any](jsonToFuture: (String) => NgFuture[T])(implicit formats:Formats): String => JsObj = {
-      val futureToJsObj = (f:NgFuture[T]) =>
+    protected def jsonFunc[T <: Any](jsonToFuture: (String) => NgFuture[T])(implicit formats:Formats): String => JObject = {
+      val futureToJObject = (f:NgFuture[T]) =>
         if(f._1.isSatisfied)
           promiseToJson(DefaultApiSuccessMapper.toPromise(f._1.get))
         else
           promiseToJson(Resolve(None, Some(f._2)))
 
-      jsonToFuture andThen futureToJsObj
+      jsonToFuture andThen futureToJObject
     }
 
     protected def reject[T <: Any](json:String):NgFuture[T] = {

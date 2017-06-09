@@ -1,14 +1,14 @@
 package net.liftmodules.ng
 package comet
 
-import Angular.{FutureId, Promise, Reject, Resolve, ReturnData}
+import Angular.{FutureId, ReturnData}
 import net.liftweb._
 import http._
 import common._
 import js._
 import JE._
 import JsCmds._
-import net.liftweb.json.Formats
+import net.liftweb.json.{Formats, JsonAST}
 
 import scala.xml.NodeSeq
 
@@ -17,7 +17,7 @@ class LiftNgFutureActor extends CometActor {
 
   def callback[T <: Any](id: FutureId, box: => Box[T], formats: Formats) = partialUpdate {
     val promise = Angular.DefaultApiSuccessMapper.toPromise(box)(formats)
-    val response = promiseToJson(promise).toJsCmd
+    val response = JsonAST.compactRender(promiseToJson(promise))
     val js =
       "var es=document.querySelectorAll('"+Angular.appSelectorDefault+"');"+
       "var e,i,l;" +
