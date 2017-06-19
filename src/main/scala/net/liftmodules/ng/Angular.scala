@@ -1,17 +1,17 @@
 package net.liftmodules.ng
 
-import java.util.concurrent.{ ConcurrentMap, ConcurrentHashMap }
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
 import scala.collection.mutable
 import scala.xml.{Elem, NodeSeq}
-
 import net.liftweb.actor.LAFuture
 import net.liftweb.common._
-import net.liftweb.json.{DefaultFormats, Formats, JsonParser}
-import net.liftweb.http. { LiftRules, DispatchSnippet, ResourceServer, S, RequestVar, SessionVar }
+import net.liftweb.json.{DefaultFormats, Extraction, Formats, JsonParser}
+import net.liftweb.http.{DispatchSnippet, LiftRules, RequestVar, ResourceServer, S, SessionVar}
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.{JsExp, JsCmd, JsObj}
+import net.liftweb.http.js.{JsCmd, JsExp}
+import net.liftweb.json.JsonAST.{JNull, JObject, JString, JValue}
 import net.liftweb.util.Props
 import net.liftweb.util.Props.RunModes
 import net.liftweb.util.StringHelpers._
@@ -20,14 +20,16 @@ import net.liftweb.util.StringHelpers._
  * Primary lift-ng module
  */
 object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpers with Loggable {
+  val defaultFailureHandler: Failure => Reject = f => Reject(JString(f.msg))
 
-  private [ng] var futuresDefault:Boolean = true
-  private [ng] var appSelectorDefault:String = "[ng-app]"
-  private [ng] var includeJsScript:Boolean = true
-  private [ng] var includeAngularJs:Boolean = false
-  private [ng] var additionalAngularJsModules:Seq[String] = Seq()
-  private [ng] var includeAngularCspCss = false
-  private [ng] var retryAjaxInOrder = false
+  private [ng] var futuresDefault: Boolean = true
+  private [ng] var appSelectorDefault: String = "[ng-app]"
+  private [ng] var includeJsScript: Boolean = true
+  private [ng] var includeAngularJs: Boolean = false
+  private [ng] var additionalAngularJsModules: Seq[String] = Seq()
+  private [ng] var includeAngularCspCss: Boolean = false
+  private [ng] var retryAjaxInOrder: Boolean = false
+  private [ng] var failureHandler: Failure => Reject = defaultFailureHandler
   private [ng] def rand = "NG"+randomString(18)
 
   /**
@@ -39,15 +41,17 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     * @param additionalAngularJsModules list of additional angularjs modules to include in the page.
     * @param includeAngularCspCss true to include angular-csp.css found in angularjs webjar.
     * @param retryAjaxInOrder true to preserve the order of ajax service calls even in the event of server communication failures.
+    * @param failureHandler fn for converting a Lift Failure into a $q promise rejection on the client.
     */
   def init(
-    futures:Boolean = true,
-    appSelector:String = "[ng-app]",
-    includeJsScript:Boolean = true,
-    includeAngularJs:Boolean = false,
-    additionalAngularJsModules:List[String] = List(),
-    includeAngularCspCss:Boolean = false,
-    retryAjaxInOrder:Boolean = false
+    futures: Boolean = true,
+    appSelector: String = "[ng-app]",
+    includeJsScript: Boolean = true,
+    includeAngularJs: Boolean = false,
+    additionalAngularJsModules: List[String] = List(),
+    includeAngularCspCss: Boolean = false,
+    retryAjaxInOrder: Boolean = false,
+    failureHandler: Failure => Reject = defaultFailureHandler
   ):Unit = {
     LiftRules.snippetDispatch.append {
       case "Angular" => this
@@ -80,6 +84,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       !retryAjaxInOrder || !BuildInfo.liftEdition.startsWith("3"),
       "retryAjaxInOrder is not currently supported in Lift 3.x"
     )
+
+    this.failureHandler = failureHandler
   }
 
   private def bool(s:String, default:Boolean):Boolean = {
@@ -261,13 +267,14 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String)(implicit formats:Formats) = {
+  private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String)(implicit formats: Formats) = {
     S.session map { s => f foreach { box =>
-      val json = S.initIfUninitted(s)(box map stringify)
-      s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, json))
+      s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box, formats))
     }}
     f
   }
+
+  private [ng] def handleFailure(f: Failure): Reject = failureHandler(f)
 
   object angular {
     def module(moduleName: String) = new Module(moduleName)
@@ -420,7 +427,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: String => Box[Any])
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, AjaxStringToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise)))
+      registerFunction(functionName, AjaxStringToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise(_))))
 
 
     /**
@@ -452,7 +459,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: ModelFnBox[Model])
       (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.f.andThen(promiseMapper.toPromise)))
+      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.f.andThen(promiseMapper.toPromise(_))))
 
 
     /**
@@ -641,16 +648,15 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    * Maps an api result to a Promise object that will be used to fulfill the javascript promise object.
    */
   object DefaultApiSuccessMapper extends PromiseMapper {
-//    private implicit val formats = DefaultFormats + new LAFutureSerializer
-
-    def toPromise(box: Box[Any])(implicit formats:Formats): Promise = {
+    override def toPromise(box: => Box[Any])(implicit formats: Formats): Promise = try {
       box match {
-        case Full(jsExp: JsExp) => Resolve(Some(jsExp)) // prefer using a case class instead
-        case Full(serializable: AnyRef) => Resolve(Some(JsRaw(stringify(serializable))))
-        case Full(other) => Resolve(Some(JsRaw(other.toString)))
         case Full(Unit) | Empty => Resolve()
-        case Failure(msg, _, _) => Reject(msg)
+        case Full(any: Any) => Resolve(Some(Extraction.decompose(any)(formats + new LAFutureSerializer)))
+        case f: Failure => handleFailure(f)
       }
+    } catch {
+      case t: Throwable =>
+        handleFailure(throwableToFailure(t))
     }
   }
 
@@ -660,7 +666,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    */
   trait PromiseMapper {
 
-    def toPromise(box: Box[Any])(implicit formats:Formats): Promise
+    def toPromise(box: => Box[Any])(implicit formats:Formats): Promise
   }
 
   /**
@@ -668,9 +674,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    */
   sealed trait Promise
 
-  case class Resolve(data: Option[JsExp] = None, futureId: Option[String] = None) extends Promise
+  case class Resolve(data: Option[JValue] = None, futureId: Option[String] = None) extends Promise
 
-  case class Reject(reason: String = "server error") extends Promise
+  case class Reject(data: JValue = JNull) extends Promise
 
   object Promise {
 
@@ -693,10 +699,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
-    private def jsonFunc: String => JsObj = {
+    private def jsonFunc: String => JObject = {
       val jsonToPromise = (json: String) => JsonParser.parse(json).extractOpt[RequestString] match {
         case Some(RequestString(data)) => tryPromise(data, stringToPromise)
-        case None => Reject(invalidJson(json))
+        case None => handleFailure(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
     }
@@ -710,29 +716,29 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private def liftPostData: JsExp = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
-    private def jsonFunc: String => JsObj = {
+    private def jsonFunc: String => JObject = {
       val jsonToPromise = (json: String) => Json.slash(JsonParser.parse(json), ("data")).extractOpt[Model] match {
         case Some(model) => tryPromise(model, modelToPromise)
-        case None => Reject(invalidJson(json))
+        case None => handleFailure(invalidJson(json))
       }
       jsonToPromise andThen promiseToJson
     }
   }
 
   protected abstract class FutureFunctionGenerator extends LiftAjaxFunctionGenerator {
-    protected def jsonFunc[T <: Any](jsonToFuture: (String) => NgFuture[T])(implicit formats:Formats): String => JsObj = {
-      val futureToJsObj = (f:NgFuture[T]) =>
+    protected def jsonFunc[T <: Any](jsonToFuture: (String) => NgFuture[T])(implicit formats:Formats): String => JObject = {
+      val futureToJObject = (f:NgFuture[T]) =>
         if(f._1.isSatisfied)
           promiseToJson(DefaultApiSuccessMapper.toPromise(f._1.get))
         else
           promiseToJson(Resolve(None, Some(f._2)))
 
-      jsonToFuture andThen futureToJsObj
+      jsonToFuture andThen futureToJObject
     }
 
     protected def reject[T <: Any](json:String):NgFuture[T] = {
       val f = new LAFuture[Box[T]]
-      f.satisfy(Failure(invalidJson(json)))
+      f.satisfy(invalidJson(json))
       (f, FutureIdNA)
     }
   }
@@ -785,15 +791,15 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class ToStringFunctionGenerator(s:String)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
+  protected case class ToStringFunctionGenerator(s:String)(implicit formats: Formats) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(s))
   }
 
-  protected case class ToJsonFunctionGenerator(obj:AnyRef)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
+  protected case class ToJsonFunctionGenerator(obj:AnyRef)(implicit formats: Formats) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(JsRaw(stringify(obj))))
   }
 
-  protected case class FromAnyFunctionGenerator(obj:Any)(implicit formats:Formats) extends LiftAjaxFunctionGenerator {
+  protected case class FromAnyFunctionGenerator(obj:Any)(implicit formats: Formats) extends LiftAjaxFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(JsRaw(stringify(obj))))
   }
 
@@ -812,42 +818,27 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     def serviceDependencies: Set[String] = Set("liftProxy")
 
-    private val SuccessField = "success"
-    private val FutureField = "futureId"
-
-    protected def tryPromise[A](a:A, f: A => Promise):Promise =
+    protected def tryPromise[A](a: => A, f: A => Promise):Promise =
       try {
         f(a)
       } catch {
-        case e:Exception =>
-          logger.warn("Uncaught exception while processing ajax function", e)
-          Reject(e.getMessage)
+        case t: Throwable =>
+          handleFailure(throwableToFailure(t))
       }
 
-    protected def tryFuture[A, T <: Any](a:A, f: A => LAFuture[Box[T]]):LAFuture[Box[T]] =
+    protected def tryFuture[A, T <: Any](a: => A, f: A => LAFuture[Box[T]]):LAFuture[Box[T]] =
       try {
         f(a)
       } catch {
-        case e:Exception =>
-          logger.warn("Uncaught exception while processing ajax function", e)
+        case t: Throwable =>
           val future = new LAFuture[Box[T]]
-          future.satisfy(Failure(e.getMessage))
+          future.satisfy(throwableToFailure(t))
           future
       }
 
-    protected def promiseToJson(promise: Promise): JsObj = {
-      promise match {
-        case Resolve(Some(jsExp), _) => JsObj(SuccessField -> JsTrue, "data" -> jsExp)
-        case Resolve(None, futureId) => futureId.map(
-          id => JsObj(SuccessField -> JsTrue, FutureField -> id)
-        ).getOrElse(JsObj(SuccessField -> JsTrue))
-        case Reject(reason) => JsObj(SuccessField -> JsFalse, "msg" -> reason)
-      }
-    }
-
-    protected def invalidJson(json:String) = {
+    protected def invalidJson(json:String): Failure = {
       logger.warn("Received invalid JSON from the client => "+json)
-      "invalid json"
+      Failure("invalid json")
     }
   }
 
@@ -862,7 +853,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   case class RequestData[Model <: NgModel : Manifest](data:Model)
   case class RequestString(data:String)
 
-  case class ReturnData(id:FutureId, json:Box[String])
+  case class ReturnData[T <: Any](id:FutureId, response:Box[T], formats: Formats)
 
   type FutureId = String
   val FutureIdNA:FutureId = ""

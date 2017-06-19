@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+      <script id="liftmodules-ng_js"  data-lift="Angular?futures=on"></script>
+      <script id="futureServices_js"  type="text/javascript"  data-lift="FailureSnips.services"></script>
+      <script id="futureApp_js"       src="/js/FailureHandlerApp.js"  type="text/javascript"></script>
+
+      <h2>Failure Handler tests</h2>
+      <div ng-app="FailureHandlerApp" class="application">
+        <div data-lift="embed?what=ready"></div>
+        <div ng-controller="MasterController">
+          <div id="any-failure" ng-bind="defAny_failure">Hard-coded</div>
+          <div id="string-to-any-failure" ng-bind="defStringToAny_failure">Hard-coded</div>
+          <div id="model-to-any-failure" ng-bind="defModelToAny_failure">Hard-coded</div>
+          <div id="future-any-failure" ng-bind="defFutureAny_failure">Hard-coded</div>
+          <div id="string-to-future-any-failure" ng-bind="defStringToFutureAny_failure">Hard-coded</div>
+          <div id="model-to-future-any-failure" ng-bind="defModelToFutureAny_failure">Hard-coded</div>
+          <div id="any-exception" ng-bind="defAny_exception">Hard-coded</div>
+          <div id="string-to-any-exception" ng-bind="defStringToAny_exception">Hard-coded</div>
+          <div id="model-to-any-exception" ng-bind="defModelToAny_exception">Hard-coded</div>
+          <div id="future-any-outside-exception" ng-bind="defFutureAny_outer_exception">Hard-coded</div>
+          <div id="string-to-future-any-outside-exception" ng-bind="defStringToFutureAny_outer_exception">Hard-coded</div>
+          <div id="model-to-future-any-outside-exception" ng-bind="defModelToFutureAny_outer_exception">Hard-coded</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

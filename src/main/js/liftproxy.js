@@ -9,30 +9,30 @@ angular
       return q;
     };
 
-    var resolve = function(data, q) {
-      if(data.msg) {
-        q.reject(data.msg)
-      } else {
-        if (typeof data.data !== "undefined") {
-          inject(data.data);
-          q.resolve(data.data);
-        }
-        else {
-          q.resolve();
-        }
+    var resolve = function(response, q) {
+      switch(response.state) {
+        case "rejected":
+          q.reject(response.data)
+          break;
+        case "resolved":
+          if (typeof response.data !== "undefined") {
+            inject(response.data);
+            q.resolve(response.data);
+          }
+          else {
+            q.resolve();
+          }
       }
-      return q;
     };
 
     // Called by the LiftNgFutureActor when a Future is fulfilled
-    var fulfill = function(data, id) {
-      var theId = id || data.id;
-      var q = defers[theId];
+    var fulfill = function(response, id) {
+      var q = defers[id];
       if(typeof q !== "undefined" && q !== null) { // We found our awaiting defer/promise
-        resolve(data, q);
-        delete defers[theId];
+        resolve(response, q);
+        delete defers[id];
       } else { // We arrived before the model which embeds us!
-        resolve(data, create(theId));
+        resolve(response, create(id));
       }
     };
 
@@ -44,22 +44,22 @@ angular
         }
         // It is a future which we need to inject
         else if(model[k]["net.liftmodules.ng.Angular.future"]) {
-          var id   = model[k]["net.liftmodules.ng.Angular.future"];
-          var data = model[k].data;
-          var msg  = model[k].msg;
+          var id    = model[k]["net.liftmodules.ng.Angular.future"];
+          var data  = model[k].data;
+          var state = model[k].state;
           var q = defers[id];
           if(typeof q !== "undefined" && q !== null) { // The future resolved before we arrived here
             model[k] = q.promise;
             delete defers[id];
-          } else if(data) { // The future had already RESOLVED at serialization time
+          } else if(state == "resolved") { // The future had already RESOLVED at serialization time
             var d = $q.defer();
             d.resolve(data);
             model[k] = d.promise;
-          } else if(msg) { // The future had already FAILED at serialization time
+          } else if(state == "rejected") { // The future had already FAILED at serialization time
             var d = $q.defer();
-            d.reject(msg);
+            d.reject(data);
             model[k] = d.promise;
-          } else { // Promise/Future pending
+          } else if(state == "pending") { // Promise/Future pending
             model[k] = create(id).promise;
           }
         }

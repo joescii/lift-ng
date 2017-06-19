@@ -17,7 +17,7 @@ class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Event
   import scala.concurrent.ExecutionContext.Implicits.global
 
   "A ScalaFutureSerializer" should {
-    "map unsatisfied futures to an object with a random ID" in {
+    "map unsatisfied futures to an object with a random ID and state" in {
       val p = Promise[String]()
       val test = TestScala(p.future)
       val json = write(test)
@@ -25,13 +25,14 @@ class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Event
 
       back match {
         case JObject(List(JField("f", JObject(List(
-          JField("net.liftmodules.ng.Angular.future", JString(id)))
-        )))) =>
+          JField("net.liftmodules.ng.Angular.future", JString(id)),
+          JField("state", JString("pending"))
+        ))))) =>
         case _ => fail(back + " did not match as expected")
       }
     }
 
-    "map Failure-satisfied futures to an object with a msg but no id" in {
+    "map Failure-satisfied futures to an object with an id, data, and state" in {
       val ex = new Exception("the future failed")
       val f:Future[String] = Future.failed(ex)
       val test = TestScala(f)
@@ -43,7 +44,8 @@ class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Event
         back match {
           case JObject(List(JField("f", JObject(List(
             JField("net.liftmodules.ng.Angular.future", JString(id)),
-            JField("msg", JString("the future failed"))
+            JField("state", JString("rejected")),
+            JField("data", JString("the future failed"))
           ))))) =>
           case _ => fail(back+" did not match as expected")
         }
@@ -51,7 +53,7 @@ class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Event
 
     }
 
-    "map Full[String]-satisfied futures to an object with data set but no id" in {
+    "map Full[String]-satisfied futures to an object with an id, data, and state" in {
       val f = Future("the data")
       val test = TestScala(f)
 
@@ -62,6 +64,7 @@ class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Event
         back match {
           case JObject(List(JField("f", JObject(List(
             JField("net.liftmodules.ng.Angular.future", JString(id)),
+            JField("state", JString("resolved")),
             JField("data", JString("the data"))
           ))))) =>
           case _ => fail(back+" did not match as expected")

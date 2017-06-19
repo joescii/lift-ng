@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.9.6"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.10.0"  % "compile"
    )
 }
 ```
@@ -91,7 +91,10 @@ class Boot {
       includeAngularCspCss = true,
 
       // Set to true to preserve the order of ajax service calls even in the event of server communication failures
-      retryAjaxInOrder = true
+      retryAjaxInOrder = true,
+      
+      // 
+      failureHandler = f => Reject(JString(f.msg))
     )
 
     val context:ExecutionContext = // Create context
@@ -925,6 +928,7 @@ These functions have been introduced ahead of the macro for the sake of allowing
 
 ## Change log
 
+* *0.10.0*: Adds `failureHandler: Failure => Reject` to the `init()` function. 
 * *0.9.6*: Indirect bug fix for [i18n-internationalization](#i18n-internationalization) by bumping *j2js-i18n* dependency.
 Quotes in parameterized strings are now correctly escaped.
 * *0.9.5*: Minor bug fix to guarantee server-side exceptions form valid JSON responses to the client.
