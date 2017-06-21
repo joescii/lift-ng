@@ -93,8 +93,8 @@ class Boot {
       // Set to true to preserve the order of ajax service calls even in the event of server communication failures
       retryAjaxInOrder = true,
       
-      // 
-      failureHandler = f => Reject(JString(f.msg))
+      // Set to any function mapping a net.liftweb.common.Failure into a Reject
+      failureHandler = net.liftmodules.ng.Angular.defaultFailureHandler
     )
 
     val context:ExecutionContext = // Create context
@@ -259,7 +259,19 @@ These `Box[T]` values are mapped to their respective [`$q` promises](http://docs
 
 * `Full(value)` => A resolved promise with the given value.
 * `Empty` => A resolved promise with `undefined` value.
-* `Failure(msg)` => A rejected promise with the given message value.
+* `Failure(msg)` => A rejected promise with the given message value (see [Failure Handler](#failure-handler) below for configuration)
+
+##### Failure Handler
+
+The `Angular.init` function has a parameter `failureHandler: Failure => Reject`.
+Any service which returns a `Failure` or throws an `Exception` will have the failure pass through this function.
+The returned `Reject` object is used to reject the respective Promise on the client.
+
+The default implementation of this function simply places the `Failure`'s `msg: String` into the `Reject`:
+```scala
+f: Failure => Reject(JString(f.msg))
+```
+The `Reject` case class can accept any `JValue`, allowing full control over the data used to reject Promises from lift-ng.
 
 #### JSON Serialization
 
