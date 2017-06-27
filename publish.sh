@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ $# -eq 0 ]; then
   PUBLISH=publishSigned
@@ -10,7 +10,7 @@ publish() {
   LIFT_VERSION="set liftVersion in ThisBuild := \"$1\""
   CROSS_SCALA="set crossScalaVersions := Seq($2)"
 
-  sbt "$LIFT_VERSION" "$CROSS_SCALA" "+ update" "+ test" "+ $PUBLISH"
+  sbt "$LIFT_VERSION" "$CROSS_SCALA" clean "+ update" "+ test" "+ $PUBLISH"
 }
 
 sbt clean jasmine
