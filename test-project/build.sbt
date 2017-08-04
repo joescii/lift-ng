@@ -2,14 +2,14 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.10.0"
+version := "0.10.1-SNAPSHOT"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
 liftVersion := System.getProperty("lift.version", "2.6.3")
 liftEdition <<= liftVersion { _.substring(0,3) }
 
-scalaVersion := System.getProperty("scala.version", "2.11.8")
+scalaVersion := System.getProperty("scala.version", "2.11.11")
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 

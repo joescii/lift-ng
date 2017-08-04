@@ -17,7 +17,7 @@ organization := "net.liftmodules"
 
 homepage := Some(url("https://github.com/joescii/lift-ng"))
 
-version := "0.10.0"
+version := "0.10.1-SNAPSHOT"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
@@ -30,7 +30,7 @@ name := name.value + "_" + liftEdition.value
 // E.g. "2.5" gets converted to "2-5"
 moduleName := name.value
 
-crossScalaVersions := Seq("2.11.8", "2.10.5")
+crossScalaVersions := Seq("2.11.11", "2.10.6")
 
 scalaVersion := crossScalaVersions.value.head
 
