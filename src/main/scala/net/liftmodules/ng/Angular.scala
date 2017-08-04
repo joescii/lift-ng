@@ -333,7 +333,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private[Angular] def moduleDependencies: Set[String] = Set.empty[String]
 
-    private[Angular] def toGenerator: AnonFunc
+    private[Angular] def toGenerator: JsExp
   }
 
   /**
@@ -637,9 +637,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       this
     }
 
-    private[Angular] def toGenerator: AnonFunc = {
-      val serviceDependencies = functions.values.foldLeft(Set.newBuilder[String])(_ ++= _.serviceDependencies).result()
-      AnonFunc(serviceDependencies.mkString(","), JsReturn(JsObj(functions.mapValues(_.toAnonFunc).toSeq: _*)))
+    private[Angular] def toGenerator: JsExp = {
+      val serviceDependencies = functions.values.foldLeft(Set.newBuilder[String])(_ ++= _.serviceDependencies).result().toList
+      val annotations = serviceDependencies.map(Str.apply)
+      val fn = AnonFunc(serviceDependencies.mkString(","), JsReturn(JsObj(functions.mapValues(_.toAnonFunc).toSeq: _*)))
+      JsArray(annotations :+ fn)
     }
 
   }
