@@ -9,7 +9,7 @@ val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version
 liftVersion := System.getProperty("lift.version", "2.6.3")
 liftEdition <<= liftVersion { _.substring(0,3) }
 
-scalaVersion := System.getProperty("scala.version", "2.11.8")
+scalaVersion := System.getProperty("scala.version", "2.11.11")
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
