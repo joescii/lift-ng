@@ -369,7 +369,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    * }
    * }}}
    */
-  class JsObjFactory() extends Factory with Serializable {
+  class JsObjFactory() extends Factory {
     /**
      * name -> function
      */
