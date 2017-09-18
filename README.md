@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.10.1"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.10.2"  % "compile"
    )
 }
 ```
@@ -939,6 +939,7 @@ The macro described above will rewrite `defs` into a chain of these six function
 These functions have been introduced ahead of the macro for the sake of allowing the implicit JSON `Formats` parameter to be provided (see [JSON Serialization](#json-serialization)).
 
 ## Change log
+* *0.10.2*: Updated the `JsObjFactory` implementation to cleanly serialize/deserialize with the Kryo serialization library.
 * *0.10.1*: Minor internal update to update lift-ng angular services to explicitly annotate dependencies.
 * See [Angular Strict DI](https://docs.angularjs.org/error/$injector/strictdi) for more information.
 * *0.10.0*: Adds `failureHandler: Failure => Reject` to the `init()` function. 
