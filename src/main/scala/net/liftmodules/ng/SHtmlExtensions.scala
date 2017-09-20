@@ -22,7 +22,7 @@ object SHtmlExtensions extends SHtml {
     jsonFunc: String => JObject
     ): JsExp = {
     val jsonResponseFunc: (String) => LiftResponse = jsonFunc.andThen(toJsonResponse)
-    fmapFunc(contextFuncBuilder(jsonResponseFunc))(name => JsRaw("{name:'" + name + "',data:" + jsCalcValue.toJsCmd + "}"))
+    fmapFunc(jsonResponseFunc)(name => JsRaw("{name:'" + name + "',data:" + jsCalcValue.toJsCmd + "}"))
   }
 
   /**
@@ -31,7 +31,7 @@ object SHtmlExtensions extends SHtml {
    */
   def ajaxJsonPost(jsonFunc: String => JObject): JsExp = {
     val jsonResponseFunc: (String) => LiftResponse = jsonFunc.andThen(toJsonResponse)
-    fmapFunc(contextFuncBuilder(jsonResponseFunc))(name => JsRaw("{name:'"+name+"'}"))
+    fmapFunc(jsonResponseFunc)(name => JsRaw("{name:'"+name+"'}"))
   }
 
   private val toJsonResponse = (jsonObjFunc: JObject) => JsonResponse.apply(jsonObjFunc)

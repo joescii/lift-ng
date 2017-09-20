@@ -369,15 +369,17 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    * }
    * }}}
    */
-  class JsObjFactory extends Factory {
+  class JsObjFactory() extends Factory {
     /**
      * name -> function
      */
+    @transient
     private val functions = mutable.HashMap.empty[String, AjaxFunctionGenerator]
 
     override private[Angular] def moduleDependencies =
       functions.values.foldLeft(Set.newBuilder[String])(_ ++= _.moduleDependencies).result()
 
+    @transient
     private val promiseMapper = DefaultApiSuccessMapper
 
     /**
