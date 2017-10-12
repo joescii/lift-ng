@@ -32,7 +32,7 @@ object LAFutureSerializer {
   }
 
 }
-class LAFutureSerializer[T <: NgModel : Manifest] extends Serializer[LAFuture[Box[T]]] with ScalaFutureSerializer {
+class LAFutureSerializer[T : Manifest] extends Serializer[LAFuture[Box[T]]] with ScalaFutureSerializer {
   import LAFutureSerializer._
   import AngularExecutionContext._
 
