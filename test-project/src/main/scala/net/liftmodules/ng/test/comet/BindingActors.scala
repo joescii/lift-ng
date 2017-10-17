@@ -2,13 +2,12 @@ package net.liftmodules.ng
 package test.comet
 
 import net.liftmodules.ng.test.snippet.Server2ClientBindTests._
-import net.liftmodules.ng.Angular.NgModel
 import net.liftweb.http.S
 import scala.util.Try
 import net.liftweb.util.Schedule
 import net.liftmodules.ng.test.snippet.{EmbeddedFuturesSnips, EmbeddedFutures}
 
-case class Message(msg:String) extends NgModel
+case class Message(msg:String)
 
 class CounterSessionBindActor extends SimpleNgModelBinder[Counter] ("count", Counter(0)) with BindingToClient with SessionScope
 

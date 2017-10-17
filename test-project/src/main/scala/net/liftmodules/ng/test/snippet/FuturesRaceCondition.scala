@@ -8,7 +8,7 @@ import scala.concurrent._
 case class FuturesRaceConditionModel(
   fs: List[Future[String]],
   garbage: List[String]
-) extends NgModel
+)
 
 object FuturesRaceCondition {
   def services = renderIfNotAlreadyDefined(

@@ -20,21 +20,21 @@ case class EmbeddedFutures(
   arr:      List[LAFuture[Box[String]]],
   fobj:     LAFuture[Box[EmbeddedObj]],
   np:       JValue = JNull
-) extends NgModel
+)
 
 case class EmbeddedObj(
   resolved: LAFuture[Box[String]],
   failed:   LAFuture[Box[String]],
   string:   LAFuture[Box[String]],
   obj:      LAFuture[Box[StringInt]]
-) extends NgModel
+)
 
 case class EmbeddedScalaFutures(
   resolved: Future[String],
   failed:   Future[String],
   string:   Future[String],
   obj:      Future[StringInt]
-) extends NgModel
+)
 
 object EmbeddedFuturesSnips {
   def services = renderIfNotAlreadyDefined(
