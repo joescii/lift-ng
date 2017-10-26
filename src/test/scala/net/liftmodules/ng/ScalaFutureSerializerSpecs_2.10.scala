@@ -1,17 +1,17 @@
 package net.liftmodules.ng
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, WordSpec}
 import net.liftweb.json.{JsonParser, NoTypeHints, Serialization}
 import net.liftweb.json.Serialization._
-import net.liftweb.json.JsonAST.{JString, JBool, JField, JObject}
-import scala.concurrent.{Promise, Future}
+import net.liftweb.json.JsonAST.{JBool, JField, JObject, JString}
+
+import scala.concurrent.{Future, Promise}
 import org.scalatest.concurrent.Eventually
 
 case class TestScala[T](f:Future[T])
 case class ModelScalaF(str:String, num:Int, f:Future[String])
 
-class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Eventually {
+class ScalaFutureSerializerSpecs extends WordSpec with Matchers with Eventually {
   import AngularExecutionContext._
   implicit val formats = Serialization.formats(NoTypeHints) + new LAFutureSerializer
   import scala.concurrent.ExecutionContext.Implicits.global
