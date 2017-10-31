@@ -18,7 +18,7 @@ version := "0.11.0-SNAPSHOT"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
-liftVersion <<= liftVersion ?? "3.1.0"
+liftVersion := (liftVersion ?? "3.1.0").value
 liftEdition := liftVersion.value.substring(0,3)
 
 name := name.value + "_" + liftEdition.value
@@ -101,5 +101,3 @@ jasmineTestDir += sourceDirectory { src => src /  "test" / "js" }.value
 jasmineConfFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "test.dependencies.js" }.value
 jasmineRequireJsFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require" / "require-2.0.6.js" }.value
 jasmineRequireConfFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require.conf.js" }.value
-
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
