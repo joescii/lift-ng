@@ -404,21 +404,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def defStringToAny
       (functionName: String, func: String => Box[Any])
       (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, AjaxStringToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise(_))))
-
-
-    /**
-     * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
-     *
-     * @param functionName name of the function to be made available on the service/factory
-     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
-     *             failures will be mapped to promise.reject(). See promiseMapper.
-     */
-//    @deprecated(message = "", since = "0.7.0")
-    def jsonCall
-      (functionName: String, func: String => Box[AnyRef])
-      : JsObjFactory = defStringToAny(functionName, func)
+      : JsObjFactory = defModelToAny(functionName, func)
 
     /**
      * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
@@ -452,7 +438,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def jsonCall[Model]
       (functionName: String, func: Model => Box[Any])
       (implicit mf:Manifest[Model])
-      : JsObjFactory = defModelToAny(functionName, func)
+      : JsObjFactory =
+      defModelToAny(functionName, func)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
@@ -501,20 +488,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: String => LAFuture[Box[T]])
       (implicit formats:Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, StringFutureFunctionGenerator(func))
-
-    /**
-     * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
-     *
-     * @param functionName name of the function to be made available on the service/factory
-     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
-     *             failures will be mapped to promise.reject(). See promiseMapper.
-     */
-//    @deprecated(message = "", since = "0.7.0")
-    def future[T <: Any]
-      (functionName: String, func: String => LAFuture[Box[T]])
-      : JsObjFactory =
-      defStringToFutureAny(functionName, func)
+      defModelToFutureAny(functionName, func)
 
     /**
      * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
