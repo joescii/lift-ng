@@ -50,7 +50,7 @@ Optionally add angular from [webjars](http://www.webjars.org/) as a dependency i
 ```scala
 libraryDependencies ++= {
   val liftVersion = "3.1.0" // Also supported: "2.5.4", "2.6.3", "3.0.1"
-  val liftEdition = liftVersion.value.replaceAllLiterally("-SNAPSHOT", "").split('.').take(2).mkString(".")
+  val liftEdition = liftVersion.replaceAllLiterally("-SNAPSHOT", "").split('.').take(2).mkString(".")
   val angularVersion = "1.4.8"
   Seq(
     // Other dependencies ...
