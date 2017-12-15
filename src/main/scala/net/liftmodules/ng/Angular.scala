@@ -154,7 +154,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       }
 
       def ajax(theClass:Class[_], inSession:Boolean) = {
-        def newBinder = theClass.newInstance.asInstanceOf[NgModelBinder[NgModel]]
+        def newBinder = theClass.newInstance.asInstanceOf[NgModelBinder[Any]]
 
         val binder =
           if(inSession)
@@ -200,12 +200,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  private object ToServerBinders extends SessionVar[ConcurrentMap[String, NgModelBinder[NgModel]]](new ConcurrentHashMap())
-  private def addToServerBinder(theType:String, b:NgModelBinder[NgModel]):NgModelBinder[NgModel] = {
+  private object ToServerBinders extends SessionVar[ConcurrentMap[String, NgModelBinder[Any]]](new ConcurrentHashMap())
+  private def addToServerBinder(theType:String, b:NgModelBinder[Any]):NgModelBinder[Any] = {
     ToServerBinders.get.put(theType, b)
     b
   }
-  def getToServerBinder(theType:String):Box[NgModelBinder[NgModel]] = Option(ToServerBinders.get.get(theType))
+  def getToServerBinder(theType:String):Box[NgModelBinder[Any]] = Option(ToServerBinders.get.get(theType))
 
   /**
    * Renders all the modules that have been added to the RequestVar.
@@ -353,12 +353,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   /**
    * Transparently wraps `NgModel => Box[Any]` functions appropriately for `defModelToAny`/`jsonCall`
    */
-  implicit def wrapModelFnBox[M](f: M => Box[Any]) = ModelFnBox(f)
+  implicit def wrapModelFnBox[M](f: M => Box[Any]): ModelFnBox[M] = ModelFnBox(f)
 
   /**
    * Transparently wraps `NgModel => LAFuture[Box[Any]]` functions appropriately for `defModelToFutureAny`
    */
-  implicit def wrapModelFnFuture[M, R](f: M => LAFuture[Box[R]]) = ModelFnFuture(f)
+  implicit def wrapModelFnFuture[M, R](f: M => LAFuture[Box[R]]): ModelFnFuture[M, R] = ModelFnFuture(f)
 
   /**
    * Produces a javascript object with ajax functions as keys. e.g.
@@ -457,7 +457,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def defModelToAny[Model <: NgModel]
+    def defModelToAny[Model]
       (functionName: String, func: ModelFnBox[Model])
       (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
       : JsObjFactory =
@@ -473,7 +473,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
 //    @deprecated(message = "", since = "0.7.0")
-    def jsonCall[Model <: NgModel]
+    def jsonCall[Model]
       (functionName: String, func: ModelFnBox[Model])
       (implicit mf:Manifest[Model])
       : JsObjFactory = defModelToAny(functionName, func)
@@ -553,7 +553,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def defModelToFutureAny[Model <: NgModel, T <: Any]
+    def defModelToFutureAny[Model, T <: Any]
       (functionName: String, func: ModelFnFuture[Model, T])
       (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
       : JsObjFactory =
@@ -568,7 +568,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
 //    @deprecated(message = "", since = "0.7.0")
-    def future[Model <: NgModel, T <: Any]
+    def future[Model, T <: Any]
       (functionName: String, func: Model => LAFuture[Box[T]])
       (implicit mf:Manifest[Model])
       : JsObjFactory =
@@ -712,7 +712,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class AjaxJsonToJsonFunctionGenerator[Model <: NgModel](modelToPromise: Model => Promise)(implicit mf:Manifest[Model], formats:Formats)
+  protected case class AjaxJsonToJsonFunctionGenerator[Model](modelToPromise: Model => Promise)(implicit mf:Manifest[Model], formats:Formats)
     extends LiftAjaxFunctionGenerator {
     private val ParamName = "json"
 
@@ -774,7 +774,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class JsonFutureFunctionGenerator[Model <: NgModel, T <: Any](func: Model => LAFuture[Box[T]])(implicit mf:Manifest[Model], formats:Formats) extends FutureFunctionGenerator {
+  protected case class JsonFutureFunctionGenerator[Model, T <: Any](func: Model => LAFuture[Box[T]])(implicit mf:Manifest[Model], formats:Formats) extends FutureFunctionGenerator {
     private val ParamName = "json"
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
@@ -782,7 +782,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
     def jsonToFuture:(String) => NgFuture[T] = json => {
-      val dataOpt = Json.slash(JsonParser.parse(json), ("data")).extractOpt[Model]
+      val dataOpt = Json.slash(JsonParser.parse(json), "data").extractOpt[Model]
       val id = rand
 
       val fOpt = for {
@@ -849,12 +849,14 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   /**
    * A model to be sent from angularjs as json, to lift deserialized into this class.
    */
+  @deprecated("Using this trait is no longer necessary. You can use the classes or even primitive types directly")
   trait NgModel
+
 
   // These case classes encapsulate the incoming request. We used to have an id field, which was the impetus
   // for having explicit classes. Now they're just a hold over/placeholder in case we need anything like this in
   // the future. Consider refactoring and removing these...
-  case class RequestData[Model <: NgModel : Manifest](data:Model)
+  case class RequestData[Model : Manifest](data:Model)
   case class RequestString(data:String)
 
   case class ReturnData[T <: Any](id:FutureId, response:Box[T], formats: Formats)

@@ -1,6 +1,5 @@
 package net.liftmodules.ng
 
-import Angular.NgModel
 import js.JsonDeltaFuncs._
 import net.liftweb._
 import net.liftweb.json.{DefaultFormats, Formats, JsonParser, parse}
@@ -33,7 +32,7 @@ import net.liftweb.json.JsonAST.JInt
  * @param clientSendDelay Milliseconds for the client to delay sending updates, allowing them to batch into one request. Defaults to 1 second (1000)
  * @tparam M The type of the model to be used in this actor
  */
-abstract class SimpleNgModelBinder[M <: NgModel : Manifest] (
+abstract class SimpleNgModelBinder[M <: Any : Manifest] (
   val bindTo:String,
   val initialValue:M,
   override val onClientUpdate:M=>M = { m:M => m },
@@ -59,7 +58,7 @@ private [ng] sealed trait BindingBase {
   /** Builds the client-side update variable to send to the server on client-side update */
   private [ng] def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("n")))
   /** Converts the $JValue sent from the client to the server into the respective $NgModel */
-  private [ng] def jValueToState[M <: NgModel](update:JValue, current:M)(implicit mf:Manifest[M]):M = {
+  private [ng] def jValueToState[M <: Any](update:JValue, current:M)(implicit mf:Manifest[M]):M = {
     update.extract(formats, mf)
   }
 
@@ -97,7 +96,7 @@ trait BindingOptimizations extends BindingBase {
     diff(JsVar("s('"+id+"')." + bindTo)) // Send the diff
   }
   private [ng] override def buildClientUpdateVar:JsCmd = JsCrVar("u", Call("JSON.stringify", JsVar("{add:n}")))
-  private [ng] override def jValueToState[M <: NgModel](update:JValue, current:M)(implicit mf:Manifest[M]):M = {
+  private [ng] override def jValueToState[M <: Any](update:JValue, current:M)(implicit mf:Manifest[M]):M = {
     import js.ToWithExtractMerged
     val added = Json.slash(update, "add")
     added.extractMerged(current)(mf, formats)
@@ -112,7 +111,7 @@ trait BindingOptimizations extends BindingBase {
   * for lift-json to deserialize messages from the client.
   * @tparam M The type of the model to be used in this actor
   */
-abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with BindingBase with BindingScope {
+abstract class NgModelBinder[M <: Any : Manifest] extends AngularActor with BindingBase with BindingScope {
   self:BindDirection  =>
   import Angular._
 
@@ -171,7 +170,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
     }
 
     override def receive = empty_pf
-    
+
     private def afterUpdate:AfterUpdateFn = id => {}
   }
 
@@ -247,7 +246,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
       clientId <- name
     } { comet ! FromClient(json, Full(clientId)) }
   }
-  
+
   private val lastServerVal = "net_liftmodules_ng_last_val_"
   private val queueCount = "net_liftmodules_ng_queue_count_"
 
@@ -295,7 +294,7 @@ abstract class NgModelBinder[M <: NgModel : Manifest] extends AngularActor with 
 
   private def toJValue(m: M): JValue = {
     m match {
-      case m: NgModel if m != null => parse(stringify(m)(formats))
+      case m if m != null => parse(stringify(m)(formats))
       case e => JNull
     }
   }
