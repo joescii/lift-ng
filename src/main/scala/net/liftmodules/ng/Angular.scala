@@ -360,11 +360,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
-     * This function is an enhancement over `jsonCall` in that it allows the caller to provide an implicit `Formats`
-     * for dictating the JSON serializer.
-     * <p>
-     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
-     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
@@ -376,6 +371,61 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       : JsObjFactory =
       registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(Unit => promiseMapper.toPromise(func)))
 
+    /**
+      * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
+      * \$q promise.
+      *
+      * @param functionName name of the function to be made available on the service/factory
+      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+      *             failures will be mapped to promise.reject(). See promiseMapper.
+      */
+    def defParamToAny[P]
+    (functionName: String, func: P => Box[Any])
+    (implicit mf:Manifest[P], formats:Formats = DefaultFormats)
+    : JsObjFactory =
+      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise(_))))
+
+    /**
+      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
+      *
+      * @param functionName name of the function to be made available on the service/factory
+      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+      *             failures will be mapped to promise.reject(). See promiseMapper.
+      */
+    def defFutureAny[T <: Any]
+    (functionName: String, func: => LAFuture[Box[T]])
+    (implicit formats:Formats = DefaultFormats)
+    : JsObjFactory =
+      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func))
+
+    /**
+      * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
+      * \$q promise.
+      *
+      * @param functionName name of the function to be made available on the service/factory
+      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+      *             failures will be mapped to promise.reject(). See promiseMapper.
+      */
+    def defParamToFutureAny[P, T <: Any]
+    (functionName: String, func: P => LAFuture[Box[T]])
+    (implicit mf:Manifest[P], formats:Formats = DefaultFormats)
+    : JsObjFactory =
+      registerFunction(functionName, JsonFutureFunctionGenerator(func))
+
+    /**
+      * Registers a no-arg javascript function in this service's javascript object that returns an AnyVal value.
+      * Use this to provide primitive values which are known at page load time and do not change.
+      *
+      * @param functionName name of the function to be made available on the service/factory
+      * @param value value to be returned on invocation of this function in the client.
+      */
+    //    @deprecated(message = "", since = "0.7.0")
+    def valAny
+    (functionName: String, value:Any)
+    (implicit formats:Formats = DefaultFormats)
+    : JsObjFactory =
+      registerFunction(functionName, FromAnyFunctionGenerator(value))
+
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
@@ -384,80 +434,51 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-//    @deprecated(message = "", since = "0.7.0")
+    @deprecated(message = "jsonCall has been replaced by defAny", since = "0.11.0")
     def jsonCall
     (functionName: String, func: => Box[AnyRef])
     : JsObjFactory = defAny(functionName, func)
 
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
-     * This function is an enhancement over `jsonCall` in that it allows the caller to provide an implicit `Formats`
-     * for dictating the JSON serializer.
-     * <p>
-     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
-     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
+    @deprecated(message = "defStringToAny has been replaced by defParamToAny", since = "0.11.0")
     def defStringToAny
       (functionName: String, func: String => Box[Any])
       (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory = defModelToAny(functionName, func)
+      : JsObjFactory = defParamToAny(functionName, func)
 
     /**
-     * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
-     * \$q promise.
-     * This function is an enhancement over `jsonCall` in that it allows the caller to provide an implicit `Formats`
-     * for dictating the JSON serializer.
-     * <p>
-     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
-     * the type of the argument.
-     *
-     * @param functionName name of the function to be made available on the service/factory
-     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
-     *             failures will be mapped to promise.reject(). See promiseMapper.
-     */
-    def defModelToAny[Model]
-      (functionName: String, func: Model => Box[Any])
-      (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise(_))))
-
-
-    /**
-     * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
+     * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
      * \$q promise.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-//    @deprecated(message = "", since = "0.7.0")
-    def jsonCall[Model]
-      (functionName: String, func: Model => Box[Any])
-      (implicit mf:Manifest[Model])
-      : JsObjFactory =
-      defModelToAny(functionName, func)
+    @deprecated(message = "defModelToAny has been replaced by defParamToAny", since = "0.11.0")
+    def defModelToAny[P]
+      (functionName: String, func: P => Box[Any])
+      (implicit mf:Manifest[P], formats:Formats = DefaultFormats)
+      : JsObjFactory = defParamToAny(functionName, func)
 
     /**
-     * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
-     * This function is an enhancement over `future` in that it allows the caller to provide an implicit `Formats`
-     * for dictating the JSON serializer.
-     * <p>
-     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
-     * the type of the argument.
+     * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
+     * \$q promise.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-    def defFutureAny[T <: Any]
-      (functionName: String, func: => LAFuture[Box[T]])
-      (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func))
+    @deprecated(message = "jsonCall has been replaced by defParamToAny", since = "0.11.0")
+    def jsonCall[P]
+      (functionName: String, func: P => Box[Any])
+      (implicit mf:Manifest[P])
+      : JsObjFactory = defParamToAny(functionName, func)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
@@ -466,77 +487,51 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-//    @deprecated(message = "", since = "0.7.0")
+    @deprecated(message = "future has been replaced by defFutureAny", since = "0.11.0")
     def future[T <: Any]
       (functionName: String, func: => LAFuture[Box[T]])
-      : JsObjFactory =
-      defFutureAny(functionName, func)
+      : JsObjFactory = defFutureAny(functionName, func)
 
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
-     * This function is an enhancement over `future` in that it allows the caller to provide an implicit `Formats`
-     * for dictating the JSON serializer.
-     * <p>
-     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
-     * the type of the argument.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
+    @deprecated(message = "defStringToFutureAny has been replaced by defParamToFutureAny", since = "0.11.0")
     def defStringToFutureAny[T <: Any]
       (functionName: String, func: String => LAFuture[Box[T]])
       (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      defModelToFutureAny(functionName, func)
+      : JsObjFactory = defParamToFutureAny(functionName, func)
 
     /**
-     * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
-     * \$q promise.
-     * This function is an enhancement over `future` in that it allows the caller to provide an implicit `Formats`
-     * for dictating the JSON serializer.
-     * <p>
-     * Future plan is to include a macro named `defs` which will choose the appropriate def*() function based on
-     * the type of the argument.
-     *
-     * @param functionName name of the function to be made available on the service/factory
-     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
-     *             failures will be mapped to promise.reject(). See promiseMapper.
-     */
-    def defModelToFutureAny[Model, T <: Any]
-      (functionName: String, func: Model => LAFuture[Box[T]])
-      (implicit mf:Manifest[Model], formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, JsonFutureFunctionGenerator(func))
-
-    /**
-     * Registers a javascript function in this service's javascript object that takes an NgModel object and returns a
+     * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
      * \$q promise.
      *
      * @param functionName name of the function to be made available on the service/factory
      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
      *             failures will be mapped to promise.reject(). See promiseMapper.
      */
-//    @deprecated(message = "", since = "0.7.0")
-    def future[Model, T <: Any]
-      (functionName: String, func: Model => LAFuture[Box[T]])
-      (implicit mf:Manifest[Model])
-      : JsObjFactory =
-      defModelToFutureAny(functionName, func)
+    @deprecated(message = "defModelToFutureAny has been replaced by defParamToFutureAny", since = "0.11.0")
+    def defModelToFutureAny[P, T <: Any]
+      (functionName: String, func: P => LAFuture[Box[T]])
+      (implicit mf:Manifest[P], formats:Formats = DefaultFormats)
+      : JsObjFactory = defParamToFutureAny(functionName, func)
 
-    // TODO: Rather than functions, let's put the values directly on the factory
-//    /**
-//     * Registers a no-arg javascript function in this service's javascript object that returns a String value.
-//     * Use this to provide string values which are known at page load time and do not change.
-//     *
-//     * @param functionName name of the function to be made available on the service/factory
-//     * @param value value to be returned on invocation of this function in the client.
-//     */
-//    def valAny
-//      (functionName: String, value:Any)
-//      (implicit formats:Formats = DefaultFormats)
-//      : JsObjFactory =
-//      registerFunction(functionName, FromAnyFunctionGenerator(value))
+    /**
+     * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
+     * \$q promise.
+     *
+     * @param functionName name of the function to be made available on the service/factory
+     * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+     *             failures will be mapped to promise.reject(). See promiseMapper.
+     */
+    @deprecated(message = "future has been replaced by defParamToFutureAny", since = "0.11.0")
+    def future[P, T <: Any]
+      (functionName: String, func: P => LAFuture[Box[T]])
+      (implicit mf:Manifest[P])
+      : JsObjFactory = defParamToFutureAny(functionName, func)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a String value.
@@ -545,12 +540,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-//    @deprecated(message = "", since = "0.7.0")
+    @deprecated(message = "string has been replaced by valAny", since = "0.11.0")
     def string
       (functionName: String, value:String)
       (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, FromAnyFunctionGenerator(value))
+      : JsObjFactory = valAny(functionName, value)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns an AnyVal value.
@@ -559,12 +553,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-//    @deprecated(message = "", since = "0.7.0")
+    @deprecated(message = "anyVal has been replaced by valAny", since = "0.11.0")
     def anyVal
       (functionName: String, value:AnyVal)
       (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, FromAnyFunctionGenerator(value))
+      : JsObjFactory = valAny(functionName, value)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a json object.
@@ -573,12 +566,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      * @param functionName name of the function to be made available on the service/factory
      * @param value value to be returned on invocation of this function in the client.
      */
-//    @deprecated(message = "", since = "0.7.0")
+    @deprecated(message = "json has been replaced by valAny", since = "0.11.0")
     def json
       (functionName: String, value:AnyRef)
       (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory =
-      registerFunction(functionName, FromAnyFunctionGenerator(value))
+      : JsObjFactory = valAny(functionName, value)
 
     /**
      * Adds the ajax function factory and its dependencies to the factory.
@@ -662,7 +654,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class AjaxJsonToJsonFunctionGenerator[Model](modelToPromise: Model => Promise)(implicit mf:Manifest[Model], formats:Formats)
+  protected case class AjaxJsonToJsonFunctionGenerator[P](modelToPromise: P => Promise)(implicit mf:Manifest[P], formats:Formats)
     extends LiftAjaxFunctionGenerator {
     private val ParamName = "json"
 
@@ -671,7 +663,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def liftPostData: JsExp = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc)
 
     private def jsonFunc: String => JObject = {
-      val jsonToPromise = (json: String) => Json.slash(JsonParser.parse(json), ("data")).extractOpt[Model] match {
+      val jsonToPromise = (json: String) => Json.slash(JsonParser.parse(json), ("data")).extractOpt[P] match {
         case Some(model) => tryPromise(model, modelToPromise)
         case None => handleFailure(invalidJson(json))
       }
@@ -724,7 +716,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class JsonFutureFunctionGenerator[Model, T <: Any](func: Model => LAFuture[Box[T]])(implicit mf:Manifest[Model], formats:Formats) extends FutureFunctionGenerator {
+  protected case class JsonFutureFunctionGenerator[P, T <: Any](func: P => LAFuture[Box[T]])(implicit mf:Manifest[P], formats:Formats) extends FutureFunctionGenerator {
     private val ParamName = "json"
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
@@ -732,7 +724,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
 
     def jsonToFuture:(String) => NgFuture[T] = json => {
-      val dataOpt = Json.slash(JsonParser.parse(json), "data").extractOpt[Model]
+      val dataOpt = Json.slash(JsonParser.parse(json), "data").extractOpt[P]
       val id = rand
 
       val fOpt = for {
@@ -806,7 +798,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   // These case classes encapsulate the incoming request. We used to have an id field, which was the impetus
   // for having explicit classes. Now they're just a hold over/placeholder in case we need anything like this in
   // the future. Consider refactoring and removing these...
-  case class RequestData[Model : Manifest](data:Model)
+  case class RequestData[P : Manifest](data:P)
   case class RequestString(data:String)
 
   case class ReturnData[T <: Any](id:FutureId, response:Box[T], formats: Formats)
