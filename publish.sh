@@ -15,8 +15,7 @@ publish() {
 
 sbt clean jasmine
 
-publish "3.2.0-M2" '"2.11.11"'
-publish "3.1.0" '"2.11.11"'
-publish "3.0.1" '"2.11.11"'
-publish "2.6.3" '"2.11.11", "2.10.6"'
-publish "2.5.4" '"2.10.6"'
+publish "3.2.0-RC1" '"2.11.12"'
+publish "3.1.0" '"2.11.12"'
+publish "3.0.1" '"2.11.12"'
+publish "2.6.3" '"2.11.12"'
