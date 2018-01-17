@@ -36,7 +36,6 @@ libraryDependencies := {
   Seq(
     "net.liftweb"   %% "lift-webkit"  % liftVersion.value % "provided",
     "com.joescii"   %  "j2js-i18n"    % "0.1.1"           % "compile",
-    "org.scalaz"    %% "scalaz-core"  % "7.0.6"           % "compile",
     "org.scalatest" %% "scalatest"    % "2.2.1"           % "test"
   )
 }
