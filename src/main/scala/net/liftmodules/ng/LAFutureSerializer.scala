@@ -28,7 +28,7 @@ object LAFutureSerializer {
   }
 
   def laFutureSerializer(formats: Formats): PartialFunction[Any, JValue] = {
-    case future: LAFuture[Box[_]] => laFuture2JValue(formats, future)
+    case future: LAFuture[_] => laFuture2JValue(formats, future.asInstanceOf[LAFuture[Box[Any]]])
   }
 
 }
