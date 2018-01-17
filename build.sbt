@@ -57,7 +57,7 @@ scalacOptions := {
 
 excludeFilter in unmanagedSources := {
   HiddenFileFilter || 
-    (if(scalaVersion.value.startsWith("2.9")) "*2.10*" else "*2.9*") ||
+//    (if(scalaVersion.value.startsWith("2.9")) "*2.10*" else "*2.9*") ||
     (if(liftEdition.value.startsWith("3")) "*2.x*" else "*3.x*")
 }
 

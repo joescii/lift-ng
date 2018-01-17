@@ -1,9 +1,9 @@
 package net.liftmodules.ng
 
 import Angular._
-import org.scalatest. { FlatSpec, ShouldMatchers }
+import org.scalatest. { FlatSpec, Matchers }
 
-class JsObjFactoryTypeChecks extends FlatSpec with ShouldMatchers {
+class JsObjFactoryTypeChecks extends FlatSpec with Matchers {
   case class Model(str:String) extends NgModel
   case class NonModel(str:String)
 
