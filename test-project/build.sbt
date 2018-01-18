@@ -43,18 +43,13 @@ libraryDependencies ++= {
 }
 
 (Keys.test in Test) := (Keys.test in Test) dependsOn (start in container.Configuration)
-
 (Keys.testOnly in Test) := (Keys.testOnly in Test) dependsOn (start in container.Configuration)
-
 (Keys.testQuick in Test) := (Keys.testOnly in Test) dependsOn (start in container.Configuration)
 
 parallelExecution in Test := false
 
 buildInfoSettings
-
 sourceGenerators in Compile += buildInfo
-
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, scalaVersion)
-
 buildInfoPackage := "net.liftmodules.ng.test"
 
