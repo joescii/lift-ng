@@ -1,15 +1,14 @@
 package net.liftmodules.ng
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, WordSpec}
 import net.liftweb.common._
 import net.liftweb.actor.LAFuture
-import scala.concurrent.Future
 
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class FutureConversionsSpecs extends WordSpec with ShouldMatchers {
+class FutureConversionsSpecs extends WordSpec with Matchers {
   "The Scala Future => LAFuture converter" should {
     import FutureConversions._
 

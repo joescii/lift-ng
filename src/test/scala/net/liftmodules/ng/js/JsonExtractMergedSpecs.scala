@@ -6,7 +6,7 @@ import net.liftweb.json._
 
 case class Test(a:String, b:Int)
 
-class JsonExtractMergedSpecs extends FlatSpecLike with ShouldMatchers {
+class JsonExtractMergedSpecs extends FlatSpecLike with Matchers {
   implicit val formats = DefaultFormats
 
   "This code" should "work" in {

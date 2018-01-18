@@ -12,7 +12,7 @@ import json.JsonAST._
 import org.scalatest._
 import matchers.ShouldMatchers
 
-class JsonDeltaFuncExamples extends WordSpec with ShouldMatchers {
+class JsonDeltaFuncExamples extends WordSpec with Matchers {
   "JsonDeltaFunctions (dfs)" should {
     "Same values" in {
       val dfn = JString("same") dfn JString("same")

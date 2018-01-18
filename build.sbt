@@ -21,7 +21,7 @@ version := "0.10.2"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
-liftVersion <<= liftVersion ?? "3.1.0"
+liftVersion := (liftVersion ?? "3.1.0").value
 liftEdition := liftVersion.value.substring(0,3)
 
 name := name.value + "_" + liftEdition.value
@@ -63,7 +63,7 @@ excludeFilter in unmanagedSources := {
 
 buildInfoSettings
 
-sourceGenerators in Compile <+= buildInfo
+sourceGenerators in Compile += buildInfo
 
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, liftEdition)
 
@@ -106,26 +106,24 @@ pomExtra := (
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
-seq(com.untyped.sbtjs.Plugin.jsSettings : _*)
+Seq(com.untyped.sbtjs.Plugin.jsSettings : _*)
 (sourceDirectory in (Compile, JsKeys.js)) := (sourceDirectory in Compile).value / "js"
 (resourceManaged in (Compile, JsKeys.js)) := (resourceManaged in Compile).value / "toserve" / "net" / "liftmodules" / "ng" / "js"
 (JsKeys.filenameSuffix in Compile) :=  "-" + version.value + ".min"
-(resourceGenerators in Compile) <+= (JsKeys.js in Compile)
+(resourceGenerators in Compile) += (JsKeys.js in Compile)
 copyJs
 
 // Jasmine stuff
-seq(jasmineSettings : _*)
+Seq(jasmineSettings : _*)
 
-appJsDir <+= sourceDirectory { src => src / "main" / "js" }
+appJsDir += sourceDirectory { src => src / "main" / "js" }.value
 
-appJsLibDir <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" }
+appJsLibDir += sourceDirectory { src => src / "test" / "js" / "3rdlib" }.value
 
-jasmineTestDir <+= sourceDirectory { src => src /  "test" / "js" }
+jasmineTestDir += sourceDirectory { src => src /  "test" / "js" }.value
 
-jasmineConfFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" / "test.dependencies.js" }
+jasmineConfFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "test.dependencies.js" }.value
 
-jasmineRequireJsFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require" / "require-2.0.6.js" }
+jasmineRequireJsFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require" / "require-2.0.6.js" }.value
 
-jasmineRequireConfFile <+= sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require.conf.js" }
-
-//(Keys.test in Test) <<= (Keys.test in Test) dependsOn (jasmine)
+jasmineRequireConfFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require.conf.js" }.value

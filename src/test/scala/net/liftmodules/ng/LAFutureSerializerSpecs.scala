@@ -1,7 +1,7 @@
 package net.liftmodules.ng
 
 import org.scalatest._
-import matchers.ShouldMatchers
+import org.scalatest.Matchers
 import net.liftweb.json.{JsonParser, Serialization, NoTypeHints}
 import Serialization.write
 import net.liftweb.actor.LAFuture
@@ -12,7 +12,7 @@ case class Test[T](f:LAFuture[Box[T]])
 case class Model(str:String, num:Int)
 case class ModelF(str:String, num:Int, f:LAFuture[Box[String]])
 
-class LAFutureSerializerSpecs extends WordSpec with ShouldMatchers {
+class LAFutureSerializerSpecs extends WordSpec with Matchers {
   import AngularExecutionContext._
   implicit val formats = Serialization.formats(NoTypeHints) + new LAFutureSerializer
 

@@ -28,7 +28,7 @@ object LAFutureSerializer {
   }
 
   def laFutureSerializer(formats: Formats): PartialFunction[Any, JValue] = {
-    case future: LAFuture[Box[_]] => laFuture2JValue(formats, future)
+    case future: LAFuture[Box[_]] => laFuture2JValue(formats, future)  //Throws type erasure warning (may not be a Box)
   }
 
 }
@@ -46,7 +46,7 @@ class LAFutureSerializer[T <: NgModel : Manifest] extends Serializer[LAFuture[Bo
 
   // The stuff below was copy/pasted from CustomSerializer.  Because we need to recursively call ourselves,
   // it's not possible to use CustomSerializer.
-  val Class = implicitly[Manifest[LAFuture[Box[T]]]].erasure
+  val Class = implicitly[Manifest[LAFuture[Box[T]]]].runtimeClass
 
   def deserialize(implicit format: Formats) = {
     case (TypeInfo(Class, _), json) =>
