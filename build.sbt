@@ -95,9 +95,9 @@ copyJs
 
 // Jasmine stuff
 Seq(jasmineSettings : _*)
-appJsDir += sourceDirectory { src => src / "main" / "js" }.value
-appJsLibDir += sourceDirectory { src => src / "test" / "js" / "3rdlib" }.value
-jasmineTestDir += sourceDirectory { src => src /  "test" / "js" }.value
-jasmineConfFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "test.dependencies.js" }.value
-jasmineRequireJsFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require" / "require-2.0.6.js" }.value
-jasmineRequireConfFile += sourceDirectory { src => src / "test" / "js" / "3rdlib" / "require.conf.js" }.value
+appJsDir += sourceDirectory.value / "main" / "js"
+appJsLibDir += sourceDirectory.value / "test" / "js" / "3rdlib"
+jasmineTestDir += sourceDirectory.value / "test" / "js"
+jasmineConfFile += sourceDirectory.value / "test" / "js" / "3rdlib" / "test.dependencies.js"
+jasmineRequireJsFile += sourceDirectory.value / "test" / "js" / "3rdlib" / "require" / "require-2.0.6.js"
+jasmineRequireConfFile += sourceDirectory.value / "test" / "js" / "3rdlib" / "require.conf.js"

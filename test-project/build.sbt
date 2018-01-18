@@ -21,9 +21,11 @@ resolvers ++= Seq(
 
 Seq(webSettings :_*)
 
-unmanagedResourceDirectories in Test += (baseDirectory) { _ / "src/main/webapp" }.value
+unmanagedResourceDirectories in Test += baseDirectory.value / "src/main/webapp"
 
-libraryDependencies ++= (liftVersion, version) { (lift, liftng) =>
+libraryDependencies ++= {
+  val lift = liftVersion.value
+  val liftng = version.value
   val liftEdition = lift.substring(0,3)
   val jqEdition = if(liftEdition equals "3.2") "3.1" else liftEdition
   Seq(
@@ -38,7 +40,7 @@ libraryDependencies ++= (liftVersion, version) { (lift, liftng) =>
     "org.scalatest"           %%  "scalatest"                         % "3.0.4"               % "test->*", // http://www.scalatest.org/
     "org.seleniumhq.selenium" %   "selenium-java"                     % "2.51.0"              % "test"     // http://www.seleniumhq.org/download/
   )
-}.value
+}
 
 (Keys.test in Test) := (Keys.test in Test) dependsOn (start in container.Configuration)
 
