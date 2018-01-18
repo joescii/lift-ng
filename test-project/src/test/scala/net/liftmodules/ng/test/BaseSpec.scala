@@ -11,7 +11,7 @@ import firefox.FirefoxDriver
 import chrome.ChromeDriver
 //import ie.InternetExplorerDriver
 
-trait BaseSpec extends FlatSpecLike with ShouldMatchers with Eventually with WebBrowser with BeforeAndAfterAll {
+trait BaseSpec extends FlatSpecLike with Matchers with Eventually with WebBrowser with BeforeAndAfterAll {
   override def afterAll = close()
 
   val index    = "http://localhost:8080"

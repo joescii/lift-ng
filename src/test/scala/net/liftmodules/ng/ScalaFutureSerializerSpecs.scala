@@ -13,7 +13,6 @@ case class ModelScalaF(str:String, num:Int, f:Future[String])
 class ScalaFutureSerializerSpecs extends WordSpec with Matchers with Eventually {
   import AngularExecutionContext._
   implicit val formats = Serialization.formats(NoTypeHints) + new LAFutureSerializer
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   "A ScalaFutureSerializer" should {
     "map unsatisfied futures to an object with a random ID and state" in {

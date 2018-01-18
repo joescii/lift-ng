@@ -35,8 +35,11 @@ run_tests_rec () {
   return $status
 }
 
+run_tests "3.2.0-RC1" "2.12.4"
 run_tests "3.2.0-RC1" "2.11.12"
+run_tests "3.1.0" "2.12.4"
 run_tests "3.1.0" "2.11.12"
+run_tests "3.0.1" "2.12.4"
 run_tests "3.0.1" "2.11.12"
 run_tests "2.6.3" "2.11.12"
 

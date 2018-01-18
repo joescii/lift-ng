@@ -25,11 +25,10 @@ unmanagedResourceDirectories in Test <+= (baseDirectory) { _ / "src/main/webapp"
 
 libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
   val liftEdition = lift.substring(0,3)
-  val jqEdition = if(liftEdition startsWith "3") "3.0" else liftEdition
-  val jq = if(liftEdition == "2.5") "2.8" else "2.9"
+  val jqEdition = if(liftEdition equals "3.2") "3.1" else liftEdition
   Seq(
     "net.liftweb"             %%  "lift-webkit"                       % lift                  % "compile",
-    "net.liftmodules"         %%  ("lift-jquery-module_"+jqEdition)   % jq                    % "compile",
+    "net.liftmodules"         %%  ("lift-jquery-module_"+jqEdition)   % "2.10"                % "compile",
     "net.liftmodules"         %%  ("ng_"+liftEdition)                 % liftng                % "compile", // https://github.com/joescii/lift-ng
     "org.webjars"             %   "angularjs"                         % "1.4.8",
 //    "org.webjars.bower"             %   "angularjs"                         % "1.4.7",
@@ -57,7 +56,7 @@ libraryDependencies <++= (liftVersion, version) { (lift, liftng) =>
     "org.eclipse.jetty"       %   "jetty-plus"                        % "9.2.7.v20150116"     % "container,test", // For Jetty Config
     "org.eclipse.jetty.orbit" %   "javax.servlet"                     % "3.0.0.v201112011016" % "container,test" artifacts Artifact("javax.servlet", "jar", "jar"),
     "ch.qos.logback"          %   "logback-classic"                   % "1.0.6"               % "compile",
-    "org.scalatest"           %%  "scalatest"                         % "2.2.4"               % "test->*", // http://www.scalatest.org/
+    "org.scalatest"           %%  "scalatest"                         % "3.0.4"               % "test->*", // http://www.scalatest.org/
     "org.seleniumhq.selenium" %   "selenium-java"                     % "2.51.0"              % "test"     // http://www.seleniumhq.org/download/
   )
 }

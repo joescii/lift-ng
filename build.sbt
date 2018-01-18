@@ -26,7 +26,7 @@ name := name.value + "_" + liftEdition.value
 // Necessary beginning with sbt 0.13, otherwise Lift editions get messed up.
 // E.g. "2.5" gets converted to "2-5"
 moduleName := name.value
-crossScalaVersions := Seq("2.11.12")
+crossScalaVersions := Seq("2.12.4", "2.11.12")
 scalaVersion := crossScalaVersions.value.head
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
@@ -36,7 +36,7 @@ libraryDependencies := {
   Seq(
     "net.liftweb"   %% "lift-webkit"  % liftVersion.value % "provided",
     "com.joescii"   %  "j2js-i18n"    % "0.1.1"           % "compile",
-    "org.scalatest" %% "scalatest"    % "2.2.1"           % "test"
+    "org.scalatest" %% "scalatest"    % "3.0.4"           % "test"
   )
 }
 
