@@ -421,7 +421,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       * @param functionName name of the function to be made available on the service/factory
       * @param value value to be returned on invocation of this function in the client.
       */
-    //    @deprecated(message = "", since = "0.7.0")
     def valAny
     (functionName: String, value:Any)
     (implicit formats:Formats)
