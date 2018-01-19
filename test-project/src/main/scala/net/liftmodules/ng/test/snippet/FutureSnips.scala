@@ -11,6 +11,7 @@ import util.Schedule
 import util.Helpers._
 
 import scala.xml.NodeSeq
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object FutureSnips extends Loggable {
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
@@ -52,7 +53,6 @@ object FutureSnips extends Loggable {
       .future("scalaFuture", {
         import FutureConversions._
         import scala.concurrent. { Promise => ScalaPromise, Future }
-        import scala.concurrent.ExecutionContext.Implicits.global
         import scala.util.Try
 
         val p = ScalaPromise[String]()

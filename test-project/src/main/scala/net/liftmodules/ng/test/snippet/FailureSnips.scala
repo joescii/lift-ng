@@ -3,23 +3,25 @@ package test.snippet
 
 import test.model._
 import Angular._
-
 import net.liftweb.actor.LAFuture
 import net.liftweb.common._
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 
+import scala.concurrent.Future
 import scala.xml.NodeSeq
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object FailureSnips {
   case class TestException(msg: String) extends Exception
 
   def failure(msg: String): Failure = Failure("Wrong string", Full(new TestException(msg)), Empty)
 
-  def future(msg: String): LAFuture[Box[String]] = {
-    val f = new LAFuture[Box[String]]()
-    Schedule.schedule(() => f.satisfy(failure(msg)), 1 second)
-    f
+  def future(msg: String): Future[String] = {
+    val p = scala.concurrent.Promise[String]()
+
+    Schedule.schedule(() => p.success(msg), 1 second)
+    p.future
   }
 
   def except(msg: String): Nothing = throw new TestException(msg)
@@ -32,15 +34,15 @@ object FailureSnips {
 
       .defAny("defAny_failure", failure("defAny_failure test"))
 
-      .defStringToAny("defStringToAny_failure", _ => failure("defStringToAny_failure test"))
+      .defParamToAny("defStringToAny_failure", (_: String) => failure("defStringToAny_failure test"))
 
       .defModelToAny("defModelToAny_failure", (_: Test2Obj) => failure("defModelToAny_failure test"))
 
       .defFutureAny("defFutureAny_failure", future("defFutureAny_failure test"))
 
-      .defStringToFutureAny("defStringToFutureAny_failure", _ => future("defStringToFutureAny_failure test"))
+      .defParamToFutureAny("defStringToFutureAny_failure", (_: String) => future("defStringToFutureAny_failure test"))
 
-      .defModelToFutureAny("defModelToFutureAny_failure", (_: Test2Obj) => future("defModelToFutureAny_failure test"))
+      .defParamToFutureAny("defModelToFutureAny_failure", (_: Test2Obj) => future("defModelToFutureAny_failure test"))
 
       .defAny("defAny_exception", except("defAny_exception test"))
 

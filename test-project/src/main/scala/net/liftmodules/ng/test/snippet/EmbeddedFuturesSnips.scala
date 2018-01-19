@@ -10,6 +10,7 @@ import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 import net.liftweb.http.S
 import scala.concurrent.{ Future, Promise => ScalaPromise }
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
 case class EmbeddedFutures(
@@ -40,11 +41,11 @@ object EmbeddedFuturesSnips {
   def services = renderIfNotAlreadyDefined(
     angular.module("EmbeddedFutures")
       .factory("embeddedFutureServices", jsObjFactory()
-        .future("fetch", {
+        .defFutureAny("fetch", {
           S.session.map(_.sendCometActorMessage("EmbeddedFutureActor", Empty, "go"))
           buildFuture
         })
-        .jsonCall("sfetch", { Full(buildScalaModel) })
+        .defAny("sfetch", { Full(buildScalaModel) })
       )
   )
 
@@ -91,9 +92,7 @@ object EmbeddedFuturesSnips {
   }
 
   def buildFuture = {
-    val f = new LAFuture[Box[EmbeddedFutures]]
-    f.satisfy(Full(buildModel))
-    f
+    Future.apply(buildModel)
   }
 
   def sched(f: => Unit) = {
@@ -110,8 +109,6 @@ object EmbeddedFuturesSnips {
   }
 
   def buildScalaModel = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     val resolved = Future("resolved")
     val failed = ScalaPromise[String]()
     sched( failed.failure(new Exception("failed")) )

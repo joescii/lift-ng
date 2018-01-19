@@ -16,6 +16,8 @@ import net.liftweb.util.Props
 import net.liftweb.util.Props.RunModes
 import net.liftweb.util.StringHelpers._
 
+import scala.concurrent.{ExecutionContext, Future}
+
 /**
  * Primary lift-ng module
  */
@@ -367,7 +369,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
      */
     def defAny
       (functionName: String, func: => Box[Any])
-      (implicit formats:Formats = DefaultFormats)
+      (implicit formats:Formats)
       : JsObjFactory =
       registerFunction(functionName, AjaxNoArgToJsonFunctionGenerator(Unit => promiseMapper.toPromise(func)))
 
@@ -381,7 +383,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       */
     def defParamToAny[P]
     (functionName: String, func: P => Box[Any])
-    (implicit mf:Manifest[P], formats:Formats = DefaultFormats)
+    (implicit mf:Manifest[P], formats:Formats)
     : JsObjFactory =
       registerFunction(functionName, AjaxJsonToJsonFunctionGenerator(func.andThen(promiseMapper.toPromise(_))))
 
@@ -393,10 +395,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       *             failures will be mapped to promise.reject(). See promiseMapper.
       */
     def defFutureAny[T <: Any]
-    (functionName: String, func: => LAFuture[Box[T]])
-    (implicit formats:Formats = DefaultFormats)
+    (functionName: String, func: => Future[T])
+    (implicit formats:Formats, ec: ExecutionContext)
     : JsObjFactory =
-      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func))
+      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => FutureConversions.FutureToLAFuture(func)))
 
     /**
       * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
@@ -407,10 +409,10 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       *             failures will be mapped to promise.reject(). See promiseMapper.
       */
     def defParamToFutureAny[P, T <: Any]
-    (functionName: String, func: P => LAFuture[Box[T]])
-    (implicit mf:Manifest[P], formats:Formats = DefaultFormats)
+    (functionName: String, func: P => Future[T])
+    (implicit mf:Manifest[P], formats:Formats, ec: ExecutionContext)
     : JsObjFactory =
-      registerFunction(functionName, JsonFutureFunctionGenerator(func))
+      registerFunction(functionName, JsonFutureFunctionGenerator(func.andThen(FutureConversions.FutureToLAFuture)))
 
     /**
       * Registers a no-arg javascript function in this service's javascript object that returns an AnyVal value.
@@ -422,7 +424,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     //    @deprecated(message = "", since = "0.7.0")
     def valAny
     (functionName: String, value:Any)
-    (implicit formats:Formats = DefaultFormats)
+    (implicit formats:Formats)
     : JsObjFactory =
       registerFunction(functionName, FromAnyFunctionGenerator(value))
 
@@ -437,7 +439,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     @deprecated(message = "jsonCall has been replaced by defAny", since = "0.11.0")
     def jsonCall
     (functionName: String, func: => Box[AnyRef])
-    : JsObjFactory = defAny(functionName, func)
+    : JsObjFactory = defAny(functionName, func)(DefaultFormats)
 
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
@@ -478,7 +480,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def jsonCall[P]
       (functionName: String, func: P => Box[Any])
       (implicit mf:Manifest[P])
-      : JsObjFactory = defParamToAny(functionName, func)
+      : JsObjFactory = defParamToAny(functionName, func)(mf, DefaultFormats)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
@@ -490,7 +492,22 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     @deprecated(message = "future has been replaced by defFutureAny", since = "0.11.0")
     def future[T <: Any]
       (functionName: String, func: => LAFuture[Box[T]])
-      : JsObjFactory = defFutureAny(functionName, func)
+      : JsObjFactory =
+      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func)(DefaultFormats))
+
+    /**
+      * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
+      *
+      * @param functionName name of the function to be made available on the service/factory
+      * @param func produces the result of the ajax call. Failure, Full(DefaultResponse(false)), and some other logical
+      *             failures will be mapped to promise.reject(). See promiseMapper.
+      */
+    @deprecated(message = "defFutureAny(LAFuture[Box[T]]) has been replaced by defFutureAny(Future[T])", since = "0.11.0")
+    def defFutureAny[T <: Any]
+    (functionName: String, func: => LAFuture[Box[T]])
+    (implicit formats:Formats = DefaultFormats)
+    : JsObjFactory =
+      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func))
 
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
@@ -503,7 +520,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def defStringToFutureAny[T <: Any]
       (functionName: String, func: String => LAFuture[Box[T]])
       (implicit formats:Formats = DefaultFormats)
-      : JsObjFactory = defParamToFutureAny(functionName, func)
+      : JsObjFactory =
+      registerFunction(functionName, JsonFutureFunctionGenerator(func))
 
     /**
      * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
@@ -517,7 +535,8 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def defModelToFutureAny[P, T <: Any]
       (functionName: String, func: P => LAFuture[Box[T]])
       (implicit mf:Manifest[P], formats:Formats = DefaultFormats)
-      : JsObjFactory = defParamToFutureAny(functionName, func)
+      : JsObjFactory =
+      registerFunction(functionName, JsonFutureFunctionGenerator(func))
 
     /**
      * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
@@ -531,7 +550,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def future[P, T <: Any]
       (functionName: String, func: P => LAFuture[Box[T]])
       (implicit mf:Manifest[P])
-      : JsObjFactory = defParamToFutureAny(functionName, func)
+      : JsObjFactory = defModelToFutureAny(functionName, func)
 
     /**
      * Registers a no-arg javascript function in this service's javascript object that returns a String value.
@@ -791,7 +810,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   /**
    * A model to be sent from angularjs as json, to lift deserialized into this class.
    */
-  @deprecated("Using this trait is no longer necessary. You can use the classes or even primitive types directly")
+  @deprecated("Using this trait is no longer necessary. You can use the classes or even primitive types directly", "0.11.0")
   trait NgModel
 
 
