@@ -719,22 +719,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class StringFutureFunctionGenerator[T <: Any](func: String => LAFuture[Box[T]])(implicit formats:Formats) extends FutureFunctionGenerator {
-    private val ParamName = "str"
-
-    def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
-
-    private def liftPostData = SHtmlExtensions.ajaxJsonPost(JsVar(ParamName), jsonFunc(jsonToFuture))
-
-    def jsonToFuture:(String) => NgFuture[T] = json => JsonParser.parse(json).extractOpt[RequestString] match {
-      case Some(RequestString(data)) => {
-        val id = rand
-        (Angular.plumbFuture(tryFuture(data, func), id), id)
-      }
-      case _ => reject[T](json)
-    }
-  }
-
   protected case class JsonFutureFunctionGenerator[P, T <: Any](func: P => LAFuture[Box[T]])(implicit mf:Manifest[P], formats:Formats) extends FutureFunctionGenerator {
     private val ParamName = "json"
 
