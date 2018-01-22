@@ -16,15 +16,15 @@ object AngularExecutionContext {
 }
 
 trait ScalaFutureSerializer {
-  def scalaFutureSerializer(formats: Formats)(implicit ctx: ExecutionContext): PartialFunction[Any, JValue] = {
+  def scalaFutureSerializer(formats: Formats)(implicit ec: ExecutionContext): PartialFunction[Any, JValue] = {
     case future: Future[_] => LAFutureSerializer.laFuture2JValue(formats, FutureConversions.FutureToLAFuture(future))
   }
 }
 
 object FutureConversions {
-  implicit def FutureToLAFuture[T](f: Future[T])(implicit ctx:ExecutionContext):LAFuture[Box[T]] = f.la
+  implicit def FutureToLAFuture[T](f: Future[T])(implicit ec: ExecutionContext):LAFuture[Box[T]] = f.la
 
-  implicit class ConvertToLA[T](f: Future[T])(implicit ctx:ExecutionContext) {
+  implicit class ConvertToLA[T](f: Future[T])(implicit ec: ExecutionContext) {
     lazy val la: LAFuture[Box[T]] = {
       val laf = new LAFuture[Box[T]]()
 
@@ -38,6 +38,12 @@ object FutureConversions {
 
     lazy val boxed: Future[Box[T]] =
       f.map(Box.legacyNullTest)
+      .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
+  }
+
+  implicit class EnhancedFutureOfBox[T](f: Future[Box[T]])(implicit ec: ExecutionContext) {
+    lazy val boxed: Future[Box[T]] =
+      f.map(b => Box.legacyNullTest(b).flatten)
       .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
   }
 }

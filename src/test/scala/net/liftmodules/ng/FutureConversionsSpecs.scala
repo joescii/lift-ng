@@ -64,5 +64,21 @@ class FutureConversionsSpecs extends WordSpec with Matchers with ScalaFutures {
 
       whenReady(fb)( _ shouldEqual Failure("test", Full(e), Empty) )
     }
+
+    "not double box a Future[Box[T]]" in {
+      val f:  Future[Box[String]] = Future(Full("scala"))
+      val fb: Future[Box[String]] = f.boxed
+
+      whenReady(fb)( _ shouldEqual Full("scala") )
+    }
+
+    "preserve a Future[Failure]" in {
+      val e = new Exception("test")
+      val failure = Failure("test", Full(e), Empty)
+      val f:  Future[Box[String]] = Future(failure)
+      val fb: Future[Box[String]] = f.boxed
+
+      whenReady(fb)( _ shouldEqual failure )
+    }
   }
 }
