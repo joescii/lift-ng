@@ -43,7 +43,7 @@ object FutureConversions {
 
   implicit class EnhancedFutureOfBox[T](f: Future[Box[T]])(implicit ec: ExecutionContext) {
     lazy val boxed: Future[Box[T]] =
-      f.map(b => Box.legacyNullTest(b).flatten)
+      f.map(b => if(b == null) Empty else b)
       .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
   }
 }
