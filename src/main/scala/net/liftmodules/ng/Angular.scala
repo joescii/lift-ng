@@ -271,6 +271,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
   private [ng] def plumbFuture[T <: Any](f: LAFuture[Box[T]], id:String)(implicit formats: Formats) = {
     S.session map { s => f foreach { box =>
+      // TODO: Address this deprecation warning once support for Lift 3.0.x is dropped
       s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box, formats))
     }}
     f
