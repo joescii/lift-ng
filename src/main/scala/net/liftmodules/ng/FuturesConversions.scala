@@ -1,9 +1,12 @@
 package net.liftmodules.ng
 
 import net.liftweb.json._
+
 import scala.concurrent.{ExecutionContext, Future}
 import net.liftweb.actor.LAFuture
-import net.liftweb.common.{Empty, Failure, Full, Box}
+import net.liftweb.common.{Box, Empty, Failure, Full}
+
+import scala.util.{ Success, Failure => SFailure }
 
 object AngularExecutionContext {
   implicit var ec: ExecutionContext = ExecutionContext.global
@@ -24,8 +27,12 @@ object FutureConversions {
   implicit class ConvertToLA[T](f: Future[T])(implicit ctx:ExecutionContext) {
     lazy val la: LAFuture[Box[T]] = {
       val laf = new LAFuture[Box[T]]()
-      f.foreach(t => laf.satisfy(Full(t)))
-      f.onFailure({ case t:Throwable => laf.satisfy(throwableToFailure(t)) })
+
+      f.onComplete {
+        case Success(t) => laf.satisfy(Box.legacyNullTest(t))
+        case SFailure(ex) => laf.satisfy(throwableToFailure(ex))
+      }
+
       laf
     }
 
