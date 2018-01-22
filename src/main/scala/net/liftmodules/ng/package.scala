@@ -1,9 +1,11 @@
 package net.liftmodules
 
 import net.liftmodules.ng.Angular.{Promise, Reject, Resolve}
-import net.liftweb.common.{Empty, Failure, Full, Loggable}
+import net.liftweb.common._
 import net.liftweb.json.JsonAST.{JField, JObject, JString}
 import net.liftweb.util.StringHelpers._
+
+import scala.concurrent.Future
 
 package object ng extends Loggable {
   private [ng] def throwableToFailure(t: Throwable): Failure =  {
@@ -20,4 +22,6 @@ package object ng extends Loggable {
       case Reject(data) => JObject(List(JField("state", JString("rejected")), JField("data", data)))
     }
   }
+
+  type FutureBox[T] = Future[Box[T]]
 }

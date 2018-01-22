@@ -2,11 +2,11 @@ package net.liftmodules.ng
 
 import net.liftweb.json._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import net.liftweb.actor.LAFuture
 import net.liftweb.common.{Box, Empty, Failure, Full}
 
-import scala.util.{ Success, Failure => SFailure }
+import scala.util.{Success, Failure => SFailure}
 
 object AngularExecutionContext {
   implicit var ec: ExecutionContext = ExecutionContext.global
@@ -36,14 +36,26 @@ object FutureConversions {
       laf
     }
 
-    lazy val boxed: Future[Box[T]] =
+    lazy val boxed: FutureBox[T] =
       f.map(Box.legacyNullTest)
       .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
   }
 
   implicit class EnhancedFutureOfBox[T](f: Future[Box[T]])(implicit ec: ExecutionContext) {
-    lazy val boxed: Future[Box[T]] =
+    lazy val boxed: FutureBox[T] =
       f.map(b => if(b == null) Empty else b)
       .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
+  }
+
+  implicit class EnhancedLAFuture[T](f: LAFuture[Box[T]]) {
+    lazy val asScala: FutureBox[T] = {
+      val p: Promise[Box[T]] = Promise()
+      f.onComplete {
+        case Full(b) => p.success(b)
+        case Empty => p.success(Empty)
+        case f: Failure => p.success(f)
+      }
+      p.future
+    }
   }
 }
