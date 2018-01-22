@@ -6,17 +6,21 @@ import net.liftweb.http._
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import com.joescii.j2jsi18n.JsResourceBundle
+
 import scala.xml.NodeSeq
 import net.liftweb.http.rest.RestHelper
 import java.security.MessageDigest
 import java.math.BigInteger
+
 import net.liftweb.http.js.JE
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+
 import net.liftweb.http.js.JE.Call
 import net.liftweb.http.js.JE.JsVar
 import net.liftweb.http.js.JE.JsRaw
 
-object AngularI18n extends DispatchSnippet with MemoFunctions {
+object AngularI18n extends DispatchSnippet {
   /** Implementation of dispatch to allow us to add ourselves as a snippet */
   override def dispatch = {
     case _ => { _ => render }
@@ -36,12 +40,20 @@ object AngularI18n extends DispatchSnippet with MemoFunctions {
 
   case class Module(js:JE.Call, digest:String)
 
-  val module = immutableHashMapMemo { t:(List[String], String) =>
-    val (names, loc) = t
-    val module = toModule(names)
-    val sum = digest(module.toString)
-    Module(module, sum)
-  }
+  private [this] val moduleCache: ConcurrentHashMap[(List[String], String), Module] = new ConcurrentHashMap()
+
+  def module(names: List[String], loc: String) =
+    // This technically has a race condition, but the worst thing that will happen is the same Module
+    // gets built twice.
+    if(moduleCache.containsKey((names, loc))) moduleCache.get((names, loc))
+    else {
+      val moduleJs = toModule(names)
+      val sum = digest(moduleJs.toString)
+      val module = Module(moduleJs, sum)
+
+      moduleCache.put((names, loc), module)
+      module
+    }
 
   def toModule(names:List[String]) = {
     val rsrcs = LiftRules.resourceNames.zip(S.resourceBundles).filter{ case (name, b) => names.contains(name) }.toMap

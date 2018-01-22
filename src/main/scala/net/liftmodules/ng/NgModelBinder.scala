@@ -157,7 +157,7 @@ abstract class NgModelBinder[M <: Any : Manifest] extends AngularActor with Bind
   /** Called to handle JSON from the client */
   private type JsonHandlerFn = String => Unit
 
-  private class ToServerGuts extends BindingGuts with ScalaUtils {
+  private class ToServerGuts extends BindingGuts {
     override def render = Script(buildCmd(root = false,
       renderCurrentState &
       renderThrottleCount &
@@ -169,8 +169,7 @@ abstract class NgModelBinder[M <: Any : Manifest] extends AngularActor with Bind
       fromClient(json, Empty, afterUpdate)
     }
 
-    override def receive = empty_pf
-
+    override def receive = PartialFunction.empty
     private def afterUpdate:AfterUpdateFn = id => {}
   }
 

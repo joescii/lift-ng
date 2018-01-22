@@ -1,7 +1,6 @@
 package net.liftmodules.ng
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{ WordSpec, Matchers }
 import net.liftweb.json.{JsonParser, NoTypeHints, Serialization}
 import net.liftweb.json.Serialization._
 import net.liftweb.json.JsonAST.{JString, JBool, JField, JObject}
@@ -11,10 +10,9 @@ import org.scalatest.concurrent.Eventually
 case class TestScala[T](f:Future[T])
 case class ModelScalaF(str:String, num:Int, f:Future[String])
 
-class ScalaFutureSerializerSpecs extends WordSpec with ShouldMatchers with Eventually {
+class ScalaFutureSerializerSpecs extends WordSpec with Matchers with Eventually {
   import AngularExecutionContext._
   implicit val formats = Serialization.formats(NoTypeHints) + new LAFutureSerializer
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   "A ScalaFutureSerializer" should {
     "map unsatisfied futures to an object with a random ID and state" in {
