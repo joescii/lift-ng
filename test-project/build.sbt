@@ -42,9 +42,9 @@ libraryDependencies ++= {
   )
 }
 
-(Keys.test in Test) := (Keys.test in Test) dependsOn (start in container.Configuration)
-(Keys.testOnly in Test) := (Keys.testOnly in Test) dependsOn (start in container.Configuration)
-(Keys.testQuick in Test) := (Keys.testOnly in Test) dependsOn (start in container.Configuration)
+(Keys.test in Test) := (Keys.test in Test).dependsOn (start in container.Configuration).value
+(Keys.testOnly in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
+(Keys.testQuick in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
 
 parallelExecution in Test := false
 
