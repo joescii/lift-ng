@@ -1,12 +1,11 @@
 package net.liftmodules.ng
 
-import net.liftweb.json._
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import net.liftweb.actor.LAFuture
 import net.liftweb.common.{Box, Empty, Failure, Full}
+import net.liftweb.json.{Formats, JValue}
 
-import scala.util.{ Success, Failure => SFailure }
+import scala.util.{Success, Failure => SFailure}
 
 object AngularExecutionContext {
   implicit var ec: ExecutionContext = ExecutionContext.global
@@ -45,5 +44,24 @@ object FutureConversions {
     lazy val boxed: Future[Box[T]] =
       f.map(b => if(b == null) Empty else b)
       .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
+  }
+
+  implicit class EnhancedLAFuture[T](f: LAFuture[Box[T]]) {
+    lazy val asScala: Future[T] = {
+      val p: Promise[T] = Promise()
+      f.onComplete { dblBox => // Because we are an LAFuture[Box[T]], this yields Box[Box[T]]. Unfortunately flatten doesn't work here in Lift 2.6
+        dblBox match {
+          case Full(Full(b)) => p.success(b)
+          case Full(Failure(_, Full(ex), _)) => p.failure(ex)
+
+          // I don't expect the following cases to be common, thus they are implemented without tests
+          case Full(_: Failure) | _: Failure => p.failure(new Exception("Unknown failure"))
+
+          // This one is even worse as it breaks semantics
+          case Full(Empty) | Empty => p.failure(new NullPointerException("Empty"))
+        }
+      }
+      p.future
+    }
   }
 }
