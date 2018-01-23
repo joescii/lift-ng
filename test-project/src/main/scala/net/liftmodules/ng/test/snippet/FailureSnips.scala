@@ -22,7 +22,7 @@ object FailureSnips {
   def future(msg: String): Future[String] = {
     val p = scala.concurrent.Promise[String]()
 
-    Schedule.schedule(() => p.success(msg), 1 second)
+    Schedule.schedule(() => p.failure(new Exception(msg)), 1 second)
     p.future
   }
 
@@ -54,7 +54,7 @@ object FailureSnips {
 
       .defFutureAny("defFutureAny_outer_exception", except("defFutureAny_outer_exception test").asInstanceOf[Future[Any]])
 
-      .defStringToFutureAny("defStringToFutureAny_outer_exception", _ => except("defStringToFutureAny_outer_exception test"))
+      .defStringToFutureAny("defStringToFutureAny_outer_exception", (_: String) => except("defStringToFutureAny_outer_exception test"))
 
       .defModelToFutureAny("defModelToFutureAny_outer_exception", (_: Test2Obj) => except("defModelToFutureAny_outer_exception test"))
 
