@@ -52,11 +52,11 @@ object FutureConversions {
         dblBox match {
           case Full(Full(b)) => p.success(b)
           case Full(Failure(_, Full(ex), _)) => p.failure(ex)
+          case Full(f: Failure) => p.failure(new Exception(f.msg))
+          case Failure(_, Full(ex), _) => p.failure(ex)
+          case f: Failure => p.failure(new Exception(f.msg))
 
-          // I don't expect the following cases to be common, thus they are implemented without tests
-          case Full(_: Failure) | _: Failure => p.failure(new Exception("Unknown failure"))
-
-          // This one is even worse as it breaks semantics
+          // I hope this never happens as it arguably breaks semantics
           case Full(Empty) | Empty => p.failure(new NullPointerException("Empty"))
         }
       }

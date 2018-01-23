@@ -98,12 +98,19 @@ class FutureConversionsSpecs extends WordSpec with Matchers with ScalaFutures {
       whenReady(s){ _ shouldBe "scala" }
     }
 
-    "convert a LAFuture[Failure] to failed Future[String]" in {
+    "convert a LAFuture[Failure] to failed Future[String], forwarding the exception" in {
       val ex = new Exception("the future failed")
       val l = laf[String](Failure("the future failed", Full(ex), Empty))
       val s:  Future[Throwable] = l.asScala.failed
 
       whenReady(s){ _ shouldBe ex }
+    }
+
+    "convert an LAFuture[Failure] to a failed Future[String], forwarding the Failure message" in {
+      val l = laf[String](Failure("the future failed"))
+      val s: Future[Throwable] = l.asScala.failed
+
+      whenReady(s){ _.getMessage shouldBe "the future failed" }
     }
   }
 }
