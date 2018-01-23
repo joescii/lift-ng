@@ -5,6 +5,7 @@ import test.model._
 import Angular._
 import net.liftweb.actor.LAFuture
 import net.liftweb.common._
+import net.liftweb.json.DefaultFormats
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 
@@ -13,6 +14,7 @@ import scala.xml.NodeSeq
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object FailureSnips {
+  implicit val formats = DefaultFormats
   case class TestException(msg: String) extends Exception
 
   def failure(msg: String): Failure = Failure("Wrong string", Full(new TestException(msg)), Empty)
@@ -50,7 +52,7 @@ object FailureSnips {
 
       .defModelToAny("defModelToAny_exception", (_: Test2Obj) => except("defModelToAny_exception test"))
 
-      .defFutureAny("defFutureAny_outer_exception", except("defFutureAny_outer_exception test"))
+      .defFutureAny("defFutureAny_outer_exception", except("defFutureAny_outer_exception test").asInstanceOf[Future[Any]])
 
       .defStringToFutureAny("defStringToFutureAny_outer_exception", _ => except("defStringToFutureAny_outer_exception test"))
 

@@ -1,25 +1,27 @@
 package net.liftmodules.ng
 
 import Angular._
-
+import FutureConversions._
 import net.liftweb._
 import json._
 import actor.LAFuture
 import common._
 
+import scala.concurrent.ExecutionContext
+
 object LAFutureSerializer {
-  def laFuture2JValue[T](formats: Formats, future: LAFuture[Box[T]]) = {
+  def laFuture2JValue[T](formats: Formats, future: LAFuture[Box[T]])(implicit ec: ExecutionContext) = {
     implicit val f = formats + new LAFutureSerializer
 
     val id = rand
     val flagField = JField("net.liftmodules.ng.Angular.future", JString(id))
     val valObj: JObject =
       if (!future.isSatisfied) {
-        plumbFuture(future, id)
+        plumbFuture(future.asScala, id)
         JObject(List(JField("state", JString("pending"))))
       } else {
         val box = future.get
-        val promise = Angular.DefaultApiSuccessMapper.toPromise(box)
+        val promise = Angular.DefaultApiSuccessMapper.boxToPromise(box)
         val json = promiseToJson(promise)
         json
       }
@@ -27,8 +29,8 @@ object LAFutureSerializer {
     JObject(List(flagField)) merge valObj
   }
 
-  def laFutureSerializer(formats: Formats): PartialFunction[Any, JValue] = {
-    case future: LAFuture[_] => laFuture2JValue(formats, future.asInstanceOf[LAFuture[Box[Any]]])
+  def laFutureSerializer(formats: Formats, ec: ExecutionContext): PartialFunction[Any, JValue] = {
+    case future: LAFuture[_] => laFuture2JValue(formats, future.asInstanceOf[LAFuture[Box[Any]]])(ec)
   }
 
 }
@@ -54,5 +56,5 @@ class LAFutureSerializer[T : Manifest] extends Serializer[LAFuture[Box[T]]] with
       else throw new MappingException("Can't convert " + json + " to " + Class)
   }
 
-  def serialize(implicit format: Formats) = laFutureSerializer(format) orElse scalaFutureSerializer(format)
+  def serialize(implicit format: Formats) = laFutureSerializer(format, ec) orElse scalaFutureSerializer(format)
 }

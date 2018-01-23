@@ -2,20 +2,23 @@ package net.liftmodules.ng
 package test.snippet
 
 import Angular._
+
 import scala.xml.NodeSeq
 import test.model.Test2Obj
-
 import net.liftweb._
-import net.liftweb.common.{Failure, Loggable, Empty, Full}
+import net.liftweb.common.{Empty, Failure, Full, Loggable}
 import util._
 import http._
 import js._
 import Helpers._
 import SHtml._
 import JsCmds._
+import net.liftweb.json.DefaultFormats
 
 /** Defines snippets for testing Angular */
 object Snips extends Loggable {
+  implicit val formats = DefaultFormats
+
   def renderPair(xhtml:NodeSeq) = renderIfNotAlreadyDefined(angular.module("SnipServices1")
       .factory("snipServices1", jsObjFactory()
 
