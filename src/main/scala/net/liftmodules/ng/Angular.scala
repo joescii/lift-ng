@@ -269,17 +269,12 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  private [ng] def plumbFuture[T <: Any](f: Future[T], id: String)(implicit formats: Formats, ec: ExecutionContext): FutureBox[T] = {
-    import FutureConversions._
-
-    val boxed = f.boxed
-
-    S.session map { s => boxed foreach { box =>
+  private [ng] def plumbFuture[T <: Any](f: FutureBox[T], id: String)(implicit formats: Formats, ec: ExecutionContext): FutureBox[T] = {
+    S.session map { s => f foreach { box =>
       // TODO: Address this deprecation warning once support for Lift 3.0.x is dropped
       s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box, formats))
     }}
-
-    boxed
+    f
   }
 
   private [ng] def handleFailure(f: Failure): Reject = failureHandler(f)
@@ -815,6 +810,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   }
 
   trait LiftAjaxFunctionGenerator extends AjaxFunctionGenerator {
+    import FutureConversions._
 
     def moduleDependencies: Set[String] = Set("lift-ng")
 
@@ -828,17 +824,17 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
           handleFailure(throwableToFailure(t))
       }
 
-    protected def tryFuture[A, T <: Any](a: => A, f: A => Future[T]): Future[T] =
+    protected def tryFuture[A, T <: Any](a: => A, f: A => Future[T])(implicit ec: ExecutionContext): FutureBox[T] =
       try {
-        f(a)
+        f(a).boxed
       } catch {
         case t: Throwable =>
           Future.failed(t)
       }
 
-    protected def tryLAFuture[A, T <: Any](a: => A, f: A => LAFuture[Box[T]]): Future[T] =
+    protected def tryLAFuture[A, T <: Any](a: => A, f: A => LAFuture[Box[T]]): FutureBox[T] =
       try {
-        FutureConversions.LAFutureToFuture(f(a))
+        LAFutureToFuture(f(a))
       } catch {
         case t: Throwable =>
           Future.failed(t)

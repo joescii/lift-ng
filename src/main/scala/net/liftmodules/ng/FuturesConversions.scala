@@ -46,24 +46,22 @@ object FutureConversions {
       .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
   }
 
-  def LAFutureToFuture[T](f: LAFuture[Box[T]]): Future[T] = {
-      val p: Promise[T] = Promise()
+  def LAFutureToFuture[T](f: LAFuture[Box[T]]): FutureBox[T] = {
+      val p: Promise[Box[T]] = Promise()
       f.onComplete { dblBox => // Because we are an LAFuture[Box[T]], this yields Box[Box[T]]. Unfortunately flatten doesn't work here in Lift 2.6
         dblBox match {
-          case Full(Full(b)) => p.success(b)
-          case Full(Failure(_, Full(ex), _)) => p.failure(ex)
-          case Full(f: Failure) => p.failure(new Exception(f.msg))
+          case Full(b) => p.success(b)
           case Failure(_, Full(ex), _) => p.failure(ex)
           case f: Failure => p.failure(new Exception(f.msg))
 
           // I hope this never happens as it arguably breaks semantics
-          case Full(Empty) | Empty => p.failure(new NullPointerException("Empty"))
+          case Empty => p.failure(new NullPointerException("Empty"))
         }
       }
       p.future
     }
 
   implicit class EnhancedLAFuture[T](f: LAFuture[Box[T]]) {
-    lazy val asScala: Future[T] = LAFutureToFuture(f)
+    lazy val asScala: FutureBox[T] = LAFutureToFuture(f)
   }
 }
