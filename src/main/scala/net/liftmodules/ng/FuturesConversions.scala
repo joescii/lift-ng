@@ -35,15 +35,10 @@ object FutureConversions {
       laf
     }
 
-    lazy val boxed: FutureBox[T] =
+    lazy val boxed: FutureBox[T] = {
       f.map(Box.legacyNullTest)
-      .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
-  }
-
-  implicit class EnhancedFutureOfBox[T](f: Future[Box[T]])(implicit ec: ExecutionContext) {
-    lazy val boxed: FutureBox[T] =
-      f.map(b => if(b == null) Empty else b)
-      .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
+        .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
+    }
   }
 
   def LAFutureToFuture[T](f: LAFuture[Box[T]]): FutureBox[T] = {
