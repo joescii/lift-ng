@@ -1,10 +1,9 @@
 package net.liftmodules.ng
 
-import net.liftweb.json._
-
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import net.liftweb.actor.LAFuture
 import net.liftweb.common.{Box, Empty, Failure, Full}
+import net.liftweb.json.{Formats, JValue}
 
 import scala.util.{Success, Failure => SFailure}
 
@@ -47,15 +46,22 @@ object FutureConversions {
       .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
   }
 
-  implicit class EnhancedLAFuture[T](f: LAFuture[Box[T]]) {
-    lazy val asScala: FutureBox[T] = {
+  def LAFutureToFuture[T](f: LAFuture[Box[T]]): FutureBox[T] = {
       val p: Promise[Box[T]] = Promise()
-      f.onComplete {
-        case Full(b) => p.success(b)
-        case Empty => p.success(Empty)
-        case f: Failure => p.success(f)
+      f.onComplete { dblBox => // Because we are an LAFuture[Box[T]], this yields Box[Box[T]]. Unfortunately flatten doesn't work here in Lift 2.6
+        dblBox match {
+          case Full(b) => p.success(b)
+          case Failure(_, Full(ex), _) => p.failure(ex)
+          case f: Failure => p.failure(new Exception(f.msg))
+
+          // I hope this never happens as it arguably breaks semantics
+          case Empty => p.failure(new NullPointerException("Empty"))
+        }
       }
       p.future
     }
+
+  implicit class EnhancedLAFuture[T](f: LAFuture[Box[T]]) {
+    lazy val asScala: FutureBox[T] = LAFutureToFuture(f)
   }
 }

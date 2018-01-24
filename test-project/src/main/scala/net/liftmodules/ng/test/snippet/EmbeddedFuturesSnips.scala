@@ -4,12 +4,14 @@ package test.snippet
 import Angular._
 import net.liftweb.actor.LAFuture
 import net.liftmodules.ng.test.model.StringInt
-import net.liftweb.common.{Empty, Failure, Full, Box}
-import net.liftweb.json.JsonAST.{JValue, JNull}
+import net.liftweb.common.{Box, Empty, Failure, Full}
+import net.liftweb.json.JsonAST.{JNull, JValue}
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
 import net.liftweb.http.S
-import scala.concurrent.{ Future, Promise => ScalaPromise }
+import net.liftweb.json.DefaultFormats
+
+import scala.concurrent.{Future, Promise => ScalaPromise}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
@@ -38,6 +40,9 @@ case class EmbeddedScalaFutures(
 )
 
 object EmbeddedFuturesSnips {
+  import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val formats = DefaultFormats
+
   def services = renderIfNotAlreadyDefined(
     angular.module("EmbeddedFutures")
       .factory("embeddedFutureServices", jsObjFactory()

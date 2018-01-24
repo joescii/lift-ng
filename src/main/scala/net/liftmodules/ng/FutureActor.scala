@@ -16,7 +16,7 @@ class LiftNgFutureActor extends CometActor {
   def render = NodeSeq.Empty
 
   def callback[T <: Any](id: FutureId, box: => Box[T], formats: Formats) = partialUpdate {
-    val promise = Angular.DefaultApiSuccessMapper.toPromise(box)(formats)
+    val promise = Angular.DefaultApiSuccessMapper.boxToPromise(box)(formats)
     val response = JsonAST.compactRender(promiseToJson(promise))
     val js =
       "var es=document.querySelectorAll('"+Angular.appSelectorDefault+"');"+
