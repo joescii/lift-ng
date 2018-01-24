@@ -51,11 +51,8 @@ object FutureConversions {
       f.onComplete { dblBox => // Because we are an LAFuture[Box[T]], this yields Box[Box[T]]. Unfortunately flatten doesn't work here in Lift 2.6
         dblBox match {
           case Full(b) => p.success(b)
-          case Failure(_, Full(ex), _) => p.failure(ex)
-          case f: Failure => p.failure(new Exception(f.msg))
-
-          // I hope this never happens as it arguably breaks semantics
-          case Empty => p.failure(new NullPointerException("Empty"))
+          case f: Failure => p.success(f)
+          case Empty => p.success(Empty)
         }
       }
       p.future
