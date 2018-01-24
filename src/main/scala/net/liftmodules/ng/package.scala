@@ -23,5 +23,8 @@ package object ng extends Loggable {
     }
   }
 
+  // We convert all of our futures (LAFuture or Future) to this type. Hence anywhere you see this type alias,
+  // we expect it to be a future which does not fail but instead successfully has its results (good or bad) in a Box.
+  // Note that we've done nothing here to compile-time guarantee that behavior.
   type FutureBox[T] = Future[Box[T]]
 }
