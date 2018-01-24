@@ -27,17 +27,6 @@ class FutureConversionsSpecs extends WordSpec with Matchers with ScalaFutures {
 
       laf.get(3000) shouldBe Failure("the future failed", Full(ex), Empty)
     }
-
-    "clean up invalid json-characters present in an Exception message" in {
-      val ex = new Exception(
-        """the future failed
-          |quite badly""".stripMargin
-      )
-      val sf:  Future[String] = Future.failed(ex)
-      val laf: LAFuture[Box[String]] = sf
-
-      laf.get(3000) shouldBe Failure("the future failed\\u000aquite badly", Full(ex), Empty)
-    }
   }
 
   "The Scala Future.boxed converter" should {

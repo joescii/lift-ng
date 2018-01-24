@@ -22,7 +22,10 @@ import scala.concurrent.{ExecutionContext, Future}
  * Primary lift-ng module
  */
 object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpers with Loggable {
-  val defaultFailureHandler: Failure => Reject = f => Reject(JString(f.msg))
+  val defaultFailureHandler: Failure => Reject = { f =>
+    val msg = encJs(f.msg).drop(1).dropRight(1) // Encode into valid JS, but strip the quotes it adds
+    Reject(JString(msg))
+  }
 
   private [ng] var futuresDefault: Boolean = true
   private [ng] var appSelectorDefault: String = "[ng-app]"
@@ -623,7 +626,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       t match {
         case Success(Unit) => Resolve()
         case Success(any: Any) => resolve(any, formats)
-        case f: scala.util.Failure[Any] => handleFailure(Failure(f.exception.getMessage, Full(f.exception), Empty))
+        case f: scala.util.Failure[Any] => handleFailure(throwableToFailure(f.exception))
       }
     } catch {
       case t: Throwable =>
