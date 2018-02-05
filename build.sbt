@@ -18,7 +18,7 @@ version := "0.11.0"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
-liftVersion := (liftVersion ?? "3.1.0").value
+liftVersion := (liftVersion ?? "3.2.0").value
 liftEdition := liftVersion.value.substring(0,3)
 
 name := name.value + "_" + liftEdition.value
