@@ -49,13 +49,13 @@ Optionally add angular from [webjars](http://www.webjars.org/) as a dependency i
 
 ```scala
 libraryDependencies ++= {
-  val liftVersion = "3.1.0" // Also supported: "2.5.4", "2.6.3", "3.0.1"
+  val liftVersion = "3.2.0" // Also supported: "2.6.3", "3.0.1", "3.1.0"
   val liftEdition = liftVersion.replaceAllLiterally("-SNAPSHOT", "").split('.').take(2).mkString(".")
   val angularVersion = "1.4.8"
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.10.2"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.11.0"  % "compile"
    )
 }
 ```
@@ -183,7 +183,7 @@ angular.module('lift.pony', [])
 ```scala
 angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
-    .jsonCall("getBestPony", (arg) => {
+    .defParamToAny("getBestPony", (arg) => {
       // Return the best pony (server-side)
       Full(BestPony)
     })
@@ -200,7 +200,7 @@ object NgPonyService {
   def render = renderIfNotAlreadyDefined(
     angular.module("lift.pony")
       .factory("ponyService", jsObjFactory()
-        .jsonCall("getBestPony", (arg) => {
+        .defParamToAny("getBestPony", (arg) => {
           // Return the best pony (server-side)
           try {
             Full(BestPony)
@@ -277,20 +277,8 @@ The `Reject` case class can accept any `JValue`, allowing full control over the 
 
 **lift-ng** uses [Lift JSON](https://github.com/lift/framework/tree/master/core/json) for JSON serialization.
 This JSON serialization is configurable via the implicit [`Formats`](http://liftweb.net/api/26/api/#net.liftweb.json.Formats) trait.
-Originally, **lift-ng** always used the [`DefaultFormats`](http://liftweb.net/api/26/api/#net.liftweb.json.DefaultFormats) which limited the library's flexibility.
-Now **lift-ng** uses `DefaultFormats` if no other implicit `Formats` can be found.
 
-However, this does NOT apply to the old `JsObjFactory` methods `jsonCall` or `future`.
-Because these two were over-loaded with multiple signatures, it is not legal in Scala to provide a default value.
-In order to avoid a breaking change, we chose not to add an implicit `Formats` parameter to `jsonCall` and `future`.
-
-There are now six methods available for handling the three overrides of each `jsonCall` and `future`: `defAny`, `defStringToAny`, `defModelToAny`, `defFutureAny`, `defStringToFutureAny`, and `defModelToFutureAny`.
-These six have the exact same signature as their respective `jsonCall`/`future` methods, except they accept an implicit `Formats`.
-If you need to provide a `Formats`, replace your calls to these new functions.
-
-Regarding these names, please see [New interface for `JsObjFactory`](#new-interface-for-jsobjfactory) below.
-
-#### No arguments, string arguments, or case class arguments
+#### Service call parameters
 
 Just like with Lift's `SHtml.ajaxInvoke`, you can make a service which takes no arguments.
 Hence we could have defined our `ponyService.getBestPony` like the following:
@@ -298,7 +286,7 @@ Hence we could have defined our `ponyService.getBestPony` like the following:
 ```scala
 angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
-    .jsonCall("getBestPony", {
+    .defAny("getBestPony", {
       // Return the best pony (server-side)
       try {
         Full(BestPony)
@@ -309,12 +297,12 @@ angular.module("lift.pony")
   )
 ```
 
-Or we can accept a `String`...
+Or we can accept a built-in data type like `String`...
 
 ```scala
 angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
-    .jsonCall("getPonyByName", (name:String) => {
+    .defParamToAny("getPonyByName", (name: String) => {
       // Return the matching pony
       try {
         Full(BestPony)
@@ -326,15 +314,14 @@ angular.module("lift.pony")
 ```
 
 Finally, perhaps most importantly, we expect a case class to be sent to the server.
-Note that the case class must extend `NgModel` for this to work.
 (Read more about models [here](#model-objects))
 
 ```scala
-case class Pony (name:String, img:URL) extends NgModel
+case class Pony(name: String, img: URL)
 
 angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
-    .jsonCall("setBestPony", (pony:Pony) => {
+    .defParamToAny("setBestPony", (pony: Pony) => {
       // Nothing to return
       Empty
     })
@@ -347,16 +334,16 @@ All of the above functions can be part of the same service...
 ```scala
 angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
-    .jsonCall("getBestPony", {
+    .defAny("getBestPony", {
       // Return the best pony (server-side)
       Full(BestPony)
     })
 
-    .jsonCall("getPonyByName", (name:String) => {
+    .defParamToAny("getPonyByName", (name: String) => {
       // Return the matching pony
       Full(MyPony)
 
-    .jsonCall("setBestPony", (pony:Pony) => {
+    .defParamToAny("setBestPony", (pony: Pony) => {
       // Nothing to return
       Empty
     })
@@ -367,12 +354,12 @@ angular.module("lift.pony")
 All of the examples thus far have assumed the value can be calculated quickly without expensive blocking or asynchronous calls.
 Since it is quite common to perform expensive operations or call APIs which return a `Future[T]`, it is important that **lift-ng** likewise supports returning a future.
 
-The same signatures for `jsonCall` are supported for futures:
+The same signatures as above are supported for futures:
 
 ```scala
 angular.module("lift.pony")
   .factory("ponyService", jsObjFactory()
-    .future("getBestPony", {
+    .defFutureAny("getBestPony", {
       // Create the future
       val f = new LAFuture[Box[Pony]]()
       // Do something to get the result
@@ -381,11 +368,11 @@ angular.module("lift.pony")
       f
     })
 
-    .future("getPonyByName", (name:String) => {
+    .defParamToFutureAny("getPonyByName", (name: String) => {
       // Return a future containing the matching pony
       futurePonyGetter(name)
 
-    .future("setBestPony", (pony:Pony) => {
+    .defParamToFutureAny("setBestPony", (pony: Pony) => {
       // Nothing to return
       val f = new LAFuture[Box[Pony]]()
       f.satisfy(Empty)
@@ -394,8 +381,7 @@ angular.module("lift.pony")
   )
 ```
 
-In addition to supporting `net.liftweb.actor.LAFuture`, we also provide support for `scala.concurrent.Future` via conversions.
-See [this section](#scalaconcurrentfuture) for details
+In addition to supporting `scala.concurrent.Future`, we also provide support for `net.liftweb.actor.LAFuture` via conversions.
 
 Because the underlying Lift library does not currently support returning futures for AJAX calls (as of 2.5.1/2.6), we had to circumvent this limitation by utilizing comet.
 As a result, if you want to utilize futures in your angular app, we must be able to locate your app in the DOM.
@@ -514,14 +500,14 @@ Currently we support `$emit`, `$broadcast`, and assignment of arbitrary fields o
 ```scala
 class CometExample extends AngularActor {
   override def lowPriority = {
-    case ("emit", msg:String) => rootScope.emit("emit-message", msg)
-    case ("emit", obj:AnyRef) => rootScope.emit("emit-object",  obj)
+    case ("emit", msg: String) => rootScope.emit("emit-message", msg)
+    case ("emit", obj: AnyRef) => rootScope.emit("emit-object",  obj)
     
-    case ("broadcast", msg:String) => scope.broadcast("emit-message", msg)
-    case ("broadcast", obj:AnyRef) => scope.broadcast("emit-object",  obj)
+    case ("broadcast", msg: String) => scope.broadcast("emit-message", msg)
+    case ("broadcast", obj: AnyRef) => scope.broadcast("emit-object",  obj)
 
-    case ("assign", msg:String) => rootScope.assign("my.str.field", msg)
-    case ("assign", obj:AnyRef) => scope.assign("my.obj.field", obj)
+    case ("assign", msg: String) => rootScope.assign("my.str.field", msg)
+    case ("assign", obj: AnyRef) => scope.assign("my.obj.field", obj)
   }
 }
 ```
@@ -661,12 +647,9 @@ This allows us to (1) compare to any model changes provided and transmit only th
 
 ### Model objects
 Any case class can be used as a model in **lift-ng**.
-However, models which are sent to the server from the client must mix in the `NgModel` trait.
-While models serialized to the client don't need this flag trait, but it is a good practice to include it to avoid errors as your application changes over time.
-Note that objects contained in an `NgModel` instance also do not need this flag trait either.
 
 #### Embedded Futures
-In addition to data fields which serialize naturally to their equivalent JSON representation, any model can contain fields that are futures of type `net.liftweb.actor.LAFuture[Box[T]]` for an arbitrary `T <: Any`.
+In addition to data fields which serialize naturally to their equivalent JSON representation, any model can contain fields that are futures of type `scala.concurrent.Future[T]` for an arbitrary `T <: Any`.
 Such fields will be mapped to the client representation of the model as a promise from the [`$q` angular service](http://docs.angularjs.org/api/ng.$q).
 The future will be plumbed to the client-side promise automatically, regardless of where the future appears in the model object graph.
 
@@ -674,9 +657,9 @@ For instance, given this Scala case class model:
 
 ```scala
 case class MyModel (
-  fastValue:String,
-  slowValue:LAFuture[Box[String]]
-) extends NgModel
+  fastValue: String,
+  slowValue: Future[String]
+)
 ```
 
 You will receive the following object on the client:
@@ -691,53 +674,13 @@ myModel.slowValue.then(function(value){
 });
 ```
 
-Once the `LAFuture` is satisfied, the result will be pushed up via comet to resolve/reject the promise according to the `Box` value.
-The `Box` value is mapped with the same logic as with client-initiated service calls.
-See [Mapping Box to Promise](#mapping-box-to-promise).
+Once the `Future` is satisfied, the result will be pushed up via comet to resolve/reject the promise according to the success or failure of the `Future`.
 
 Embedded futures work for responses to [client-initiated service calls](#client-initiated-service-calls), [server-initiated events](#server-initiated-events), and [client-server model binding](#client-server-model-binding).
-The only call which does not support embedded futures is [non-AJAX service calls](#non-ajax) via `jsObjFactory().json` where the intent is to provide values known at page load time.
+The only call which does not support embedded futures is [non-AJAX service calls](#non-ajax) via `jsObjFactory().valAny` where the intent is to provide values known at page load time.
 
-In addition to Lift's `LAFuture`, Scala's `scala.concurrent.Future` can also be embedded.
-The conversion details are documented [below](#scalaconcurrentfuture).
+In addition to Scala's `scala.concurrent.Future`, Lift's `LAFuture` can also be embedded.
 
-
-### scala.concurrent.Future
-As of Scala 2.10, the language library includes support for futures via the `scala.concurrent.Future`.
-Builds of **lift-ng** for Scala 2.10+ provide support for this implementation of `Future` as well.
-The object `net.liftmodules.ng.FutureConversions` provides two implicit conversions.
-One will convert a `Future[T]` into an `LAFuture[Box[T]]` implicitly.
-The other decorates `Future[T]` with a function named `la` to force the conversion as needed.
-See below for a full example.
-
-```scala
-import net.liftweb.util.Schedule
-import net.liftweb.util.Helpers._
-import net.liftmodules.ng.FutureConversions._
-import scala.concurrent. { Promise, Future }
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Try
-
-// Create a Scala Promise first.
-val p = Promise[String]()
-
-// Satisfy the promise with a String a second from now.
-Schedule.schedule(() => p.complete(Try("ScalaFuture")), 1 second)
-
-// Implicit conversion to LAFuture
-val laf1:LAFuture[Box[String]] = p.future
-
-// Slightly less implicit conversion to LAFuture
-val laf2 = p.future.la
-```
-
-The mapping of `Future[T]` to `LAFuture[Box[T]]` works as follows:
-
-* A satisfied `Future[T]` with value `t` will be mapped to an `LAFuture[Box[T]]` satisfied with `Full(t)`.
-* A failed `Future[T]` with exception `e` will be mapped to an `LAFuture[Box[T]]` satisfied with `Failure(e.getMessage, Full(e), None)`
-
-The `Box[T]` is then wired up to a [`$q` promise](http://docs.angularjs.org/api/ng.$q) on the client [as outlined here](#mapping-box-to-promise).
-The net result is a completed `Future[T]` maps to a resolved promise, and a failed `Future[T]` maps to a rejected promise.
 
 ### i18n Internationalization
 If your app doesn't require sophisticated internationalization capabilities (i.e., Java resource bundles will suffice), then you can inject your resource bundles as a service into your app.
