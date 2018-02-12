@@ -3,7 +3,6 @@ package test.snippet
 
 import test.model._
 import Angular._
-import net.liftweb.actor.LAFuture
 import net.liftweb.common._
 import net.liftweb.json.DefaultFormats
 import net.liftweb.util.Schedule
@@ -36,27 +35,20 @@ object FailureSnips {
 
       .defAny("defAny_failure", failure("defAny_failure test"))
 
-      .defParamToAny("defStringToAny_failure", (_: String) => failure("defStringToAny_failure test"))
-
-      .defModelToAny("defModelToAny_failure", (_: Test2Obj) => failure("defModelToAny_failure test"))
+      .defParamToAny("defParamToAny_failure", (_: Test2Obj) => failure("defParamToAny_failure test"))
 
       .defFutureAny("defFutureAny_failure", future("defFutureAny_failure test"))
 
-      .defParamToFutureAny("defStringToFutureAny_failure", (_: String) => future("defStringToFutureAny_failure test"))
-
-      .defParamToFutureAny("defModelToFutureAny_failure", (_: Test2Obj) => future("defModelToFutureAny_failure test"))
+      .defParamToFutureAny("defParamToFutureAny_failure", (_: Test2Obj) => future("defParamToFutureAny_failure test"))
 
       .defAny("defAny_exception", except("defAny_exception test"))
 
-      .defStringToAny("defStringToAny_exception", _ => except("defStringToAny_exception test"))
-
-      .defModelToAny("defModelToAny_exception", (_: Test2Obj) => except("defModelToAny_exception test"))
+      .defParamToAny("defParamToAny_exception", (_: Test2Obj) => except("defParamToAny_exception test"))
 
       .defFutureAny("defFutureAny_outer_exception", except("defFutureAny_outer_exception test").asInstanceOf[Future[Any]])
 
-      .defStringToFutureAny("defStringToFutureAny_outer_exception", (_: String) => except("defStringToFutureAny_outer_exception test"))
+      .defParamToFutureAny("defParamToFutureAny_outer_exception", (_: Test2Obj) => except("defParamToFutureAny_outer_exception test"))
 
-      .defModelToFutureAny("defModelToFutureAny_outer_exception", (_: Test2Obj) => except("defModelToFutureAny_outer_exception test"))
 
 //      .defFutureAny("defFutureAny_inner_exception", ???)
 //      .defStringToFutureAny("defStringToFutureAny_inner_exception", ???)

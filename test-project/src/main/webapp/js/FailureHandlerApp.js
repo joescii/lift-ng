@@ -17,16 +17,12 @@ angular.module('FailureHandlerApp', ['lift-ng', 'FailureHandler'])
   var model = {str1: "", str2: ""};
 
   wireUp("defAny_failure");
-  wireUp("defStringToAny_failure", "");
-  wireUp("defModelToAny_failure", model);
+  wireUp("defParamToAny_failure", model);
   wireUp("defFutureAny_failure");
-  wireUp("defStringToFutureAny_failure", "");
-  wireUp("defModelToFutureAny_failure", model);
+  wireUp("defParamToFutureAny_failure", model);
   wireUp("defAny_exception");
-  wireUp("defStringToAny_exception", "");
-  wireUp("defModelToAny_exception", model);
+  wireUp("defParamToAny_exception", model);
   wireUp("defFutureAny_outer_exception");
-  wireUp("defStringToFutureAny_outer_exception", "");
-  wireUp("defModelToFutureAny_outer_exception", model);
+  wireUp("defParamToFutureAny_outer_exception", model);
 }])
 ;
