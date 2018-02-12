@@ -24,5 +24,7 @@ angular.module('FailureHandlerApp', ['lift-ng', 'FailureHandler'])
   wireUp("defParamToAny_exception", model);
   wireUp("defFutureAny_outer_exception");
   wireUp("defParamToFutureAny_outer_exception", model);
+  wireUp("defFutureAny_inner_exception");
+  wireUp("defParamToFutureAny_inner_exception", model);
 }])
 ;

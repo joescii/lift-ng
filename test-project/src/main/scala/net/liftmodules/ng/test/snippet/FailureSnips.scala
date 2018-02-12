@@ -27,8 +27,7 @@ object FailureSnips {
 
   def except(msg: String): Nothing = throw new TestException(msg)
 
-  // TODO after dropping pre-2.10 support...
-//  def exceptedFuture(msg: String): Future[String] = Future(except(msg))
+  def exceptedFuture(msg: String): Future[String] = Future(except(msg))
 
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("FailureHandler").factory("failureServices", jsObjFactory()
@@ -49,10 +48,9 @@ object FailureSnips {
 
       .defParamToFutureAny("defParamToFutureAny_outer_exception", (_: Test2Obj) => except("defParamToFutureAny_outer_exception test"))
 
+      .defFutureAny("defFutureAny_inner_exception", exceptedFuture("defFutureAny_inner_exception test"))
 
-//      .defFutureAny("defFutureAny_inner_exception", ???)
-//      .defStringToFutureAny("defStringToFutureAny_inner_exception", ???)
-//      .defModelToFutureAny("defModelToFutureAny_inner_exception", ???)
+      .defParamToFutureAny("defParamToFutureAny_inner_exception", (_: Test2Obj) => exceptedFuture("defParamToFutureAny_inner_exception test"))
     )
   )
 }

@@ -36,4 +36,12 @@ class FailureHandlerSpec extends BaseSpec {
   "defParamToFutureAny when throwing an exception outside of the Future" should "work" in {
     eventually { id("param-to-future-any-outside-exception").element.text should be ("defParamToFutureAny_outer_exception test") }
   }
+
+  "defFutureAny when throwing an exception inside of the Future" should "work" in {
+    eventually { id("future-any-inside-exception").element.text should be ("defFutureAny_inner_exception test") }
+  }
+
+  "defParamToFutureAny when throwing an exception inside of the Future" should "work" in {
+    eventually { id("param-to-future-any-inside-exception").element.text should be ("defParamToFutureAny_inner_exception test") }
+  }
 }
