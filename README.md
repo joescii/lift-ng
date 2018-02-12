@@ -139,7 +139,7 @@ libraryDependencies ++= {
     // Other dependencies ...
     "org.webjars.npm" %  "angular"           % angularVersion,
     "org.webjars.npm" %  "angular-animate"   % angularVersion,
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.8.0"  % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.11.0"  % "compile"
    )
 }
 ```
@@ -467,14 +467,14 @@ This way your business logic is decoupled from **lift-ng** and easily testable.
 #### Non-AJAX
 Sometimes the value you want to provide in a service is known at page load time and should not require a round trip back to the server.
 Typical examples of this are configuration settings, session values, etc.
-To provide a value at page load time, just use `JsonObjFactory`'s `string`, `anyVal`, or `json` methods.
+To provide a value at page load time, just use `JsonObjFactory`'s `anyVal` method.
 
 ```scala
 angular.module("StaticServices")
   .factory("staticService", jsObjFactory()
-    .string("string", "FromServer1")
+    .anyVal("string", "FromServer1")
     .anyVal("integer", 42)
-    .json("obj", StringInt("FromServer2", 88))
+    .anyVal("obj", StringInt("FromServer2", 88))
 
   )
 ```
@@ -882,6 +882,21 @@ The macro described above will rewrite `defs` into a chain of these six function
 These functions have been introduced ahead of the macro for the sake of allowing the implicit JSON `Formats` parameter to be provided (see [JSON Serialization](#json-serialization)).
 
 ## Change log
+* *0.11.0*: This a maintenance release to modernize Scala/Lift version support and to drop a lot of legacy artifacts in the lift-ng API, particularly for the `JsObjFactory`.
+Added Lift 3.2.0 and Scala 2.12.x suuport.
+Dropped support for Lift 2.5.x and Scala 2.10.x.
+Dropped dependency on scalaz.
+** BREAKING CHANGES **
+`JsObjFactory` now has five (5) non-deprecated methods: `defAny`, `defParamToAny`, `defFutureAny`, `defParamToFutureAny`, and `valAny`.
+The most significant change for existing applications is `defAny` and `defFutureAny` no longer have a default value for the json `Formats` object, so you will nee to provide one (such as `DefaultFormats`).
+** Use `scala.concurrent.Future` instead of `net.liftweb.actor.LAFuture` **
+Due to the drop of Scala 2.10.x support, all cross-compiled versions of lift-ng can utilize `scala.concurrent.Future`.
+Every lift-ng app I'm aware of uses `scala.util.Future` and converts them to `net.liftweb.actor.LAFuture`.
+Hence we decided the lift-ng APIs should now expect `scala.concurrent.Future` instead of `net.liftweb.actor.LAFuture`.
+Existing conversions will still work, but for performance reasons it is best if you change any existing code that converts a scala `Future` into an `LAFuture` to just use the `Future` directly.
+** `NgModel` is now deprecated **
+In order to receive JSON from the client as a case class, it is no longer a requirement to extend the `NgModel` trait.
+Leaving `NgModel` does no harm beyond compiler warnings.
 * *0.10.2*: Updated the `JsObjFactory` implementation to cleanly serialize/deserialize with the Kryo serialization library.
 * *0.10.1*: Minor internal update to update lift-ng angular services to explicitly annotate dependencies.
 * See [Angular Strict DI](https://docs.angularjs.org/error/$injector/strictdi) for more information.
