@@ -22,14 +22,14 @@ object Snips extends Loggable {
   def renderPair(xhtml:NodeSeq) = renderIfNotAlreadyDefined(angular.module("SnipServices1")
       .factory("snipServices1", jsObjFactory()
 
-      .jsonCall("call1", {
+      .defAny("call1", {
         logger.info("call1() received on server")
         Full("FromServer")
 
-    }).jsonCall("call2", (str:String) => {
+    }).defParamToAny("call2", (str:String) => {
         logger.info(s"call2($str) received on server.")
         Full(s"FromServer $str")
-    }).jsonCall("callFail", {
+    }).defAny("callFail", {
         logger.info("callFail() received on server")
         Failure("FromServerFail")
     }).defAny("callException", {
@@ -41,7 +41,7 @@ object Snips extends Loggable {
   def renderSingle(xhtml:NodeSeq) = renderIfNotAlreadyDefined(angular.module("SnipServices2")
     .factory("snipServices2", jsObjFactory()
 
-    .jsonCall("call", (obj:Test2Obj) => {
+    .defParamToAny("call", (obj:Test2Obj) => {
       import obj._
       logger.info(s"call($obj) received on server.")
       Full(Test2Obj(s"FromServer $str1", s"FromServer $str2"))
