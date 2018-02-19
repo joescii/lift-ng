@@ -5,7 +5,6 @@ import Angular._
 import test.model.Test2Obj
 import net.liftweb._
 import common._
-import actor.LAFuture
 import net.liftweb.json.DefaultFormats
 import util.Schedule
 import util.Helpers._
@@ -45,15 +44,6 @@ object FutureSnips extends Loggable {
       })
       .defFutureAny("satisfied", {
         Future { Empty }
-      })
-      .future("scalaFuture", {
-        import FutureConversions._
-        import scala.concurrent. { Promise => ScalaPromise, Future }
-        import scala.util.Try
-
-        val p = ScalaPromise[String]()
-        Schedule.schedule(() => p.complete(Try("ScalaFuture")), 1 second)
-        p.future.la
       })
     )
   )
