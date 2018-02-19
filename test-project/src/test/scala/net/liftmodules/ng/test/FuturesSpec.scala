@@ -10,11 +10,6 @@ class FuturesSpec extends BaseSpec {
     eventually{id("no-arg-output").element.text should be ("FromFuture")}
   }
 
-  "The angular service with no arguments which fails" should "send the failure message 'FailureTest' up to the client" in {
-    click on "failure-button"
-    eventually{id("failure-output").element.text should be ("FailureTest")}
-  }
-
   "The angular service with no arguments which throws an exception" should "send the failure message 'FromServerFutureException' up to the client" in {
     click on "exception-button"
     eventually{id("exception-output").element.text should be ("FromServerFutureException")}
@@ -59,7 +54,6 @@ class FuturesSpec extends BaseSpec {
 
   "The angular services" should "correctly load concurrently" in {
     click on "no-arg-button"
-    click on "failure-button"
     click on "exception-button"
     textField("string-input").value = "arg"
     click on "string-button"
@@ -71,7 +65,6 @@ class FuturesSpec extends BaseSpec {
     click on "scala-future-button"
     eventually{
       id("no-arg-output").element.text should be ("FromFuture")
-      id("failure-output").element.text should be ("FailureTest")
       id("exception-output").element.text should be ("FromServerFutureException")
       id("string-output").element.text should be ("FromFuture: arg")
       id("json-output-a").element.text should be ("FromFuture argA")

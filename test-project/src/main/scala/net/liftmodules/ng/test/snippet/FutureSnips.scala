@@ -12,46 +12,39 @@ import util.Helpers._
 
 import scala.xml.NodeSeq
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ Future, Promise => SPromise }
 
 object FutureSnips extends Loggable {
   implicit val formats = DefaultFormats
 
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
     angular.module("Futures").factory("futureServices", jsObjFactory()
-      .future("noArg", {
-        val f = new LAFuture[Box[String]]()
-        Schedule.schedule(() => f.satisfy(Full("FromFuture")), 1 second)
-        f
-      })
-      .future("failure", {
-        val f = new LAFuture[Box[String]]()
-        Schedule.schedule(() => f.satisfy(Failure("FailureTest")), 1 second)
-        f
+      .defFutureAny("noArg", {
+        val p = SPromise[String]()
+        Schedule.schedule(() => p.success("FromFuture"), 1 second)
+        p.future
       })
       .defFutureAny("exception", {
         throw new Exception("FromServerFutureException")
       }.asInstanceOf[Future[Any]])
-      .future("stringArg", (arg:String) => {
-        val f = new LAFuture[Box[String]]()
-        Schedule.schedule(() => f.satisfy(Full("FromFuture: "+arg)), 1 second)
-        f
+      .defParamToFutureAny("stringArg", (arg: String) => {
+        val p = SPromise[String]()
+        Schedule.schedule(() => p.success("FromFuture: "+arg), 1 second)
+        p.future
       })
-      .future("jsonArg", (obj:Test2Obj) => {
+      .defParamToFutureAny("jsonArg", (obj: Test2Obj) => {
         import obj._
-        val f = new LAFuture[Box[Test2Obj]]()
-        Schedule.schedule(() => f.satisfy(Full(Test2Obj(s"FromFuture $str1", s"FromFuture $str2"))), 1 second)
-        f
+        val p = SPromise[Test2Obj]()
+        Schedule.schedule(() => p.success(Test2Obj(s"FromFuture $str1", s"FromFuture $str2")), 1 second)
+        p.future
       })
-      .future("empty", {
-        val f = new LAFuture[Box[String]]
-        Schedule.schedule(() => f.satisfy(Empty), 1 second)
-        f
+      .defFutureAny("empty", {
+        val p = SPromise[Box[String]]()
+        Schedule.schedule(() => p.success(Empty), 1 second)
+        p.future
       })
-      .future("satisfied", {
-        val f = new LAFuture[Box[Nothing]]
-        f.satisfy(Empty)
-        f
+      .defFutureAny("satisfied", {
+        Future { Empty }
       })
       .future("scalaFuture", {
         import FutureConversions._
