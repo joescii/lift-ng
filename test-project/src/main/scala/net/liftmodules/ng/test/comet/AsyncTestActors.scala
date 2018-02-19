@@ -31,7 +31,7 @@ abstract class AsyncTestActor extends AngularActor with Loggable {
   }
 
   // Set a short lifespan so this kills off in a reasonable amount of time.
-  override def lifespan = Full(10)
+  override def lifespan = Full(TimeSpan(10))
 }
 
 class RootScopeBroadcastStringActor extends AsyncTestActor {
@@ -85,7 +85,7 @@ class EarlyEmitActor extends AngularActor { self =>
   }
 
   def go = for(t <- 500 to 2000 by 500) {
-    Schedule(() => {self ! nums.next()}, t.millis)
+    Schedule(() => {self ! nums.next()}, TimeSpan(t))
   }
 
   go

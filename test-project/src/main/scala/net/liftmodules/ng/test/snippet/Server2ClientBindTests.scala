@@ -3,8 +3,9 @@ package test.snippet
 
 import Angular._
 import net.liftweb.common.Empty
-import net.liftweb.http.{SessionVar, S}
+import net.liftweb.http.{S, SessionVar}
 import net.liftweb.util.Schedule
+import net.liftweb.util.TimeHelpers.TimeSpan
 
 object Server2ClientBindTests {
   case class ListWrap(l:List[String] = List.empty[String]) {
@@ -29,7 +30,7 @@ object Server2ClientBindTests {
         count += 1
       }
       schedule
-    }, 1000)
+    }, TimeSpan(1000).millis)
 
     schedule
 

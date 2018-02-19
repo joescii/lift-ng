@@ -3,9 +3,11 @@ package test.comet
 
 import net.liftmodules.ng.test.snippet.Server2ClientBindTests._
 import net.liftweb.http.S
+
 import scala.util.Try
 import net.liftweb.util.Schedule
-import net.liftmodules.ng.test.snippet.{EmbeddedFuturesSnips, EmbeddedFutures}
+import net.liftmodules.ng.test.snippet.{EmbeddedFutures, EmbeddedFuturesSnips}
+import net.liftweb.util.TimeHelpers.TimeSpan
 
 case class Message(msg:String)
 
@@ -44,7 +46,7 @@ class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Cou
     this ! Counter(count)
     count += 1
     schedule
-  }, 1000)
+  }, TimeSpan(1000).millis)
 
   schedule
 
