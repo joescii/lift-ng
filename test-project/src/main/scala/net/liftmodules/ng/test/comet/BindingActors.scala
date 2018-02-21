@@ -7,7 +7,7 @@ import net.liftweb.http.S
 import scala.util.Try
 import net.liftweb.util.Schedule
 import net.liftmodules.ng.test.snippet.{EmbeddedFutures, EmbeddedFuturesSnips}
-import net.liftweb.util.TimeHelpers.TimeSpan
+import net.liftweb.util.Helpers.TimeSpan
 
 case class Message(msg:String)
 
@@ -46,7 +46,7 @@ class CounterRequestBindActor extends SimpleNgModelBinder[Counter] ("count", Cou
     this ! Counter(count)
     count += 1
     schedule
-  }, TimeSpan(1000).millis)
+  }, TimeSpan(1000))
 
   schedule
 

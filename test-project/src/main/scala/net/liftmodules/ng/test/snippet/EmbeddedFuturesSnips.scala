@@ -101,7 +101,7 @@ object EmbeddedFuturesSnips {
   }
 
   def sched(f: => Unit) = {
-    def delay = TimeSpan((Math.random() * 3000).toInt).millis
+    def delay = TimeSpan((Math.random() * 3000).toInt)
     Schedule(() => { f }, delay)
   }
 
