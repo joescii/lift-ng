@@ -4,6 +4,7 @@ package test.snippet
 import Angular._
 import net.liftweb.common.Empty
 import net.liftweb.http.{S, SessionVar}
+import net.liftweb.json.DefaultFormats
 import net.liftweb.util.Schedule
 import net.liftweb.util.TimeHelpers.TimeSpan
 
@@ -19,6 +20,7 @@ object Server2ClientBindTests {
   def standard = render("ArrayStandardBindActor")
 
   def render(cometName:String) = {
+    implicit val formats = DefaultFormats
     var counting = false
     var count = 0
 
@@ -35,12 +37,12 @@ object Server2ClientBindTests {
     schedule
 
     renderIfNotAlreadyDefined(angular.module("S2cBindServices").factory("counterService", jsObjFactory()
-      .jsonCall("toggle", {
+      .defAny("toggle", {
         counting = !counting
         Empty
       })
     ).factory("arrSvc", jsObjFactory()
-      .jsonCall("next", {
+      .defAny("next", {
         array.update(_ :+ (new java.util.Date().toString))
         session.findComet(cometName, Empty).foreach( _ ! array.is )
         Empty
