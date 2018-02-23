@@ -237,9 +237,18 @@ angular
     }
   }};
 
+  var logError = function() {
+    if (typeof lift !== 'undefined' && lift) {
+      lift.logError.apply(this, arguments); // Lift 3.x
+    }
+    else {
+      liftAjax.lift_logError.apply(this, arguments); // Lift 2.x
+    }
+  }
+
   net_liftmodules_ng.processComet = function(s, r, d) {
       var es=document.querySelectorAll(s);
-      if(es.length === 0){console.warn(s + " not found, Angular promises are not going to be processed!")}
+      if(es.length === 0){logError(s + " not found, Angular promises are not going to be processed!")}
       var e,i,l;
       i=0;
       for(l=es.length;i<l;i++){
