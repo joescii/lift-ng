@@ -18,14 +18,7 @@ class LiftNgFutureActor extends CometActor {
   def callback[T <: Any](id: FutureId, box: => Box[T], formats: Formats) = partialUpdate {
     val promise = Angular.DefaultApiSuccessMapper.boxToPromise(box)(formats)
     val response = JsonAST.compactRender(promiseToJson(promise))
-    val js =
-      "var es=document.querySelectorAll('"+Angular.appSelectorDefault+"');"+
-      "var e,i,l;" +
-      "i=0;" +
-      "for(l=es.length;i<l;i++){" +
-        "e=angular.element(es[i]);" +
-        "e.scope().$apply(function(){e.injector().get('plumbing').fulfill("+response+",'"+id+"')});" +
-      "}"
+    val js = s"""net_liftmodules_ng.processComet("${Angular.appSelectorDefault}",$response,"$id");"""
     JsRaw(js)
   }
 

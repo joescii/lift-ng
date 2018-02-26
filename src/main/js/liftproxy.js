@@ -237,5 +237,25 @@ angular
     }
   }};
 
+  var logError = function() {
+    if (typeof lift !== 'undefined' && lift) {
+      lift.logError.apply(this, arguments); // Lift 3.x
+    }
+    else {
+      liftAjax.lift_logError.apply(this, arguments); // Lift 2.x
+    }
+  }
+
+  net_liftmodules_ng.processComet = function(s, r, d) {
+      var es=document.querySelectorAll(s);
+      if(es.length === 0){logError(s + " not found, Angular promises are not going to be processed!")}
+      var e,i,l;
+      i=0;
+      for(l=es.length;i<l;i++){
+        e=angular.element(es[i]);
+        e.scope().$apply(function(){e.injector().get('plumbing').fulfill(r, d)});
+      }
+  };
+
   window.net_liftmodules_ng = net_liftmodules_ng;
 }).call(this);
