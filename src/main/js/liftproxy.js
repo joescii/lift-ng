@@ -147,8 +147,17 @@ angular
     };
 
     return svc;
-  }
-]);
+  }])
+  .directive('exposeScope', function() {
+    return {
+      restrict: 'A',
+      scope: false,
+      link: function postLink(scope, elem) {
+        elem.data('$scope', scope);
+      }
+    };
+  })
+;
 
 (function(){
   var net_liftmodules_ng = window.net_liftmodules_ng || {};

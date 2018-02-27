@@ -14,24 +14,25 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
   private val interval = Props.getInt("net.liftmodules.ng.AngularActor.retryInterval", 100)
 
   /** Variable assignment for \$scope */
-  private val varScope = JsCrVar("e", AnonFunc("id",
+  private val varElement = JsCrVar("e", AnonFunc("id",
     JsRaw(
       "if(typeof angular==='undefined'||typeof angular.element==='undefined')return void 0;else " +
         "return angular.element(document.querySelector('#'+id))"
     )
-  )) & JsCrVar("s", AnonFunc("id",
+  ))
+  private val varScope = JsCrVar("s", AnonFunc("id",
     JsRaw(
       "if(typeof e(id)==='undefined')return void 0;else " +
         "return e(id).scope()"
     )
   ))
   /** Variable assignment for \$rootScope */
-  private val varRoot  = JsCrVar("r", AnonFunc("id", JsReturn(JsRaw("(typeof s(id)==='undefined')?void 0:s(id).$root"))))
+  private val varRoot  = JsCrVar("r", AnonFunc("id", JsReturn(JsRaw("(typeof e(id)==='undefined')?void 0:e(id).injector().get('$rootScope')"))))
 
   /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
   protected def buildCmd(root:Boolean, f:JsCmd):JsCmd = {
     val scopeFn = if(root) "r('"+id+"')" else "s('"+id+"')"
-    val vars = varScope & (if(root) varRoot else Noop)
+    val vars = varElement & (if(root) varRoot else varScope)
     val ready = JsCrVar("t", AnonFunc(JsReturn(JsRaw("typeof " + scopeFn + "!=='undefined'"))))
     val fn = JsCrVar("f", AnonFunc(Call(scopeFn+".$apply", AnonFunc(f))))
     val dequeue = "var d=function(){" +
