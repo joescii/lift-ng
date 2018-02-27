@@ -27,7 +27,13 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
     )
   ))
   /** Variable assignment for \$rootScope */
-  private val varRoot  = JsCrVar("r", AnonFunc("id", JsReturn(JsRaw("(typeof e(id)==='undefined')?void 0:e(id).injector().get('$rootScope')"))))
+  private val varRoot  = JsCrVar("r", AnonFunc("id",
+    JsRaw(
+      "if(typeof e(id)==='undefined')return void 0;" +
+      "else if(typeof e(id).injector()==='undefined')return void 0;" +
+      "else return e(id).injector().get('$rootScope')"
+    )
+  ))
 
   /** Sends any of our commands with all of the early-arrival retry mechanism packaged up */
   protected def buildCmd(root:Boolean, f:JsCmd):JsCmd = {
