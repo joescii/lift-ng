@@ -1,4 +1,7 @@
 angular.module('ActorRootScopeApp', ['lift-ng'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .controller('RootScopeBroadcastStringController', ['$scope', function($scope) {
   $scope.rootScopeBroadcastStringOut = "Not running";
   $scope.$on('rootScopeBroadcastString', function(e, msg) {

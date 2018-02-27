@@ -1,4 +1,7 @@
 angular.module('ActorScopeApp', ['lift-ng'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .controller('ParentController', ['$scope', function($scope) {
   $scope.parentMsg = "Waiting...";
   $scope.$on('scope-msg', function(e, msg) {

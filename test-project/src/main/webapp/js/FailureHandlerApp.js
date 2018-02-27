@@ -1,4 +1,7 @@
 angular.module('FailureHandlerApp', ['lift-ng', 'FailureHandler'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .controller('MasterController', ['$scope', 'failureServices', function($scope, svc) {
   var successFn = function (success) {
     console.log("Something broke, and we don't know why");

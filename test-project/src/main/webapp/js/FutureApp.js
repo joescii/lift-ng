@@ -1,4 +1,7 @@
 angular.module('FutureApp', ['lift-ng', 'Futures'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .controller('NoArgController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 

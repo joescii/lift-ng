@@ -1,4 +1,7 @@
 angular.module('SnipApp', ['lift-ng', 'SnipServices1', 'SnipServices2'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .controller('Test1Controller', ['$scope', '$window', 'snipServices1', function($scope, $window, snipServices1) {
   $scope.output1 = "";
   $scope.clickButton1a = function() {
