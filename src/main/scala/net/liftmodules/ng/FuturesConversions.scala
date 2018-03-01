@@ -36,8 +36,10 @@ object FutureConversions {
     }
 
     lazy val boxed: FutureBox[T] = {
-      f.map(Box.legacyNullTest)
-        .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
+      f.map { t =>
+        if(t.isInstanceOf[Box[_]]) t.asInstanceOf[Box[T]]
+        else Box.legacyNullTest(t)
+      }.recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
     }
   }
 
