@@ -73,4 +73,13 @@ angular.module('FutureApp', ['lift-ng', 'Futures'])
     });
   };
 }])
+.controller('BoxedController', ['$scope', 'futureServices', function($scope, svc) {
+  $scope.output = "";
+
+  $scope.click = function() {
+    svc.boxed().then(function(str){
+      $scope.output = str;
+    });
+  };
+}])
 ;

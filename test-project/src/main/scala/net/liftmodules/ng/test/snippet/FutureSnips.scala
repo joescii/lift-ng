@@ -45,6 +45,11 @@ object FutureSnips extends Loggable {
       .defFutureAny("satisfied", {
         Future { Empty }
       })
+      .defFutureAny("boxed", {
+        val p = SPromise[Box[String]]()
+        Schedule.schedule(() => p.success(Full("Boxed")), 1 second)
+        p.future
+      })
     )
   )
 }
