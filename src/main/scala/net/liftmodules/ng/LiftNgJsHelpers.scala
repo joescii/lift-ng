@@ -22,8 +22,9 @@ private [ng] trait LiftNgJsHelpers extends Loggable {
   ))
   private val varScope = JsCrVar("s", AnonFunc("id",
     JsRaw(
-      "if(typeof e(id)==='undefined')return void 0;else " +
-        "return e(id).scope()"
+      "if(typeof e(id)==='undefined')return void 0;" +
+      "else if(typeof e(id).injector()==='undefined')return void 0;" +
+      "else return e(id).injector().get('scopeStore')[id];"
     )
   ))
   /** Variable assignment for \$rootScope */
