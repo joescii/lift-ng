@@ -20,5 +20,6 @@
     <logger name="bootstrap.liftweb" level="info" />
     <root level="warn">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
 </configuration>
