@@ -90,6 +90,10 @@ class Boot {
       "nonEnglish" ::
       LiftRules.resourceNames
 
+    LiftSession.onEndServicing = List((s: LiftSession, _: Req, _: Box[LiftResponse]) =>
+      net.liftmodules.ng.test.lib.LiftSessionSerialization.roundTrip(s)
+    )
+
     angular()
   }
 
