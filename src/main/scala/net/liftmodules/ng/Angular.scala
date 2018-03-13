@@ -400,9 +400,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       */
     def defFutureAny[T <: Any]
     (functionName: String, func: => Future[T])
-    (implicit formats: Formats, ec: ExecutionContext)
+    (implicit formats: Formats, ec: ExecutionContextProvider)
     : JsObjFactory =
-      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func))
+      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func)(formats, ec.ec))
 
     /**
       * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a

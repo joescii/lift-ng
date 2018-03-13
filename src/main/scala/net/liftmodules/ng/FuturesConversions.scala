@@ -7,13 +7,6 @@ import net.liftweb.json.{Formats, JValue}
 
 import scala.util.{Success, Failure => SFailure}
 
-object AngularExecutionContext {
-  implicit var ec: ExecutionContext = ExecutionContext.global
-  def apply(ec: ExecutionContext) {
-    this.ec = ec
-  }
-}
-
 trait ScalaFutureSerializer {
   def scalaFutureSerializer(formats: Formats)(implicit ec: ExecutionContext): PartialFunction[Any, JValue] = {
     case future: Future[_] => LAFutureSerializer.laFuture2JValue(formats, FutureConversions.FutureToLAFuture(future))
