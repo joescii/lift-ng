@@ -19,7 +19,7 @@ resolvers ++= Seq(
   "releases"  at "https://oss.sonatype.org/content/repositories/releases"
 )
 
-Seq(webSettings :_*)
+enablePlugins(JettyPlugin)
 
 unmanagedResourceDirectories in Test += baseDirectory.value / "src/main/webapp"
 
@@ -51,9 +51,9 @@ excludeFilter in unmanagedSources := {
     (if(clusteringSupported(liftEdition.value, scalaBinaryVersion.value)) "SerializationNoop.scala" else "SerializationKryo.scala")
 }
 
-(Keys.test in Test) := (Keys.test in Test).dependsOn (start in container.Configuration).value
-(Keys.testOnly in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
-(Keys.testQuick in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
+(Keys.test in Test) := (Keys.test in Test).dependsOn (ContainerPlugin.start in Jetty).value
+(Keys.testOnly in Test) := (Keys.testOnly in Test).dependsOn (ContainerPlugin.start in Jetty).evaluated
+(Keys.testQuick in Test) := (Keys.testOnly in Test).dependsOn (ContainerPlugin.start in Jetty).evaluated
 
 parallelExecution in Test := false
 
