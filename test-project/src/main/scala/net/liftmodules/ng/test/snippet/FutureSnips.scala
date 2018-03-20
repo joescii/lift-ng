@@ -2,7 +2,6 @@ package net.liftmodules.ng
 package test.snippet
 
 import Angular._
-import ExecutionContextProvider._
 import test.model.Test2Obj
 import net.liftweb._
 import common._
@@ -11,11 +10,14 @@ import util.Schedule
 import util.Helpers._
 
 import scala.xml.NodeSeq
-import scala.concurrent.{ Future, Promise => SPromise }
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future, Promise => SPromise}
+
+object SerializableExecutionContextProvider extends ExecutionContextProvider {
+  override def ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+}
 
 object FutureSnips extends Loggable {
-  implicit val ecp = scala.concurrent.ExecutionContext.Implicits.global.asProvider
+  implicit val ecp = SerializableExecutionContextProvider
   implicit val formats = DefaultFormats
 
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(
@@ -45,7 +47,7 @@ object FutureSnips extends Loggable {
         p.future
       })
       .defFutureAny("satisfied", {
-        Future { Empty }
+        Future { Empty } (scala.concurrent.ExecutionContext.Implicits.global)
       })
     )
   )

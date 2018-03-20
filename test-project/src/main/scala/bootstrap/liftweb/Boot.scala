@@ -90,7 +90,7 @@ class Boot {
       "nonEnglish" ::
       LiftRules.resourceNames
 
-    net.liftmodules.ng.test.lib.LiftSessionSerialization.init()t sta
+    net.liftmodules.ng.test.lib.LiftSessionSerialization.init()
 
     angular()
   }
