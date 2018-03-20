@@ -7,20 +7,15 @@ import net.liftweb.json.{Formats, JValue}
 
 import scala.util.{Success, Failure => SFailure}
 
-object AngularExecutionContext {
-  implicit var ec: ExecutionContext = ExecutionContext.global
-  def apply(ec: ExecutionContext) {
-    this.ec = ec
-  }
-}
+import ExecutionContextProvider._
 
 trait ScalaFutureSerializer {
-  def scalaFutureSerializer(formats: Formats)(implicit ec: ExecutionContext): PartialFunction[Any, JValue] = {
-    case future: Future[_] => LAFutureSerializer.laFuture2JValue(formats, FutureConversions.FutureToLAFuture(future))
+  def scalaFutureSerializer(formats: Formats)(implicit ec: ExecutionContextProvider): PartialFunction[Any, JValue] = {
+    case future: Future[_] => LAFutureSerializer.laFuture2JValue(formats, FutureConversions.FutureToLAFuture(future)(ec.ec))
   }
 }
 
-object FutureConversions {
+object FutureConversions { conversions =>
   implicit def FutureToLAFuture[T](f: Future[T])(implicit ec: ExecutionContext):LAFuture[Box[T]] = f.la
 
   implicit class ConvertToLA[T](f: Future[T])(implicit ec: ExecutionContext) {
@@ -35,11 +30,13 @@ object FutureConversions {
       laf
     }
 
-    lazy val boxed: FutureBox[T] = {
-      f.map(Box.legacyNullTest)
-        .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
-    }
+    lazy val boxed: FutureBox[T] = conversions.boxed(f)(ec.asProvider)
   }
+
+  def boxed[T](f: Future[T])(implicit ecp: ExecutionContextProvider): FutureBox[T] =
+    f.map(Box.legacyNullTest)(ecp.ec)
+      .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) } (ecp.ec)
+
 
   def LAFutureToFuture[T](f: LAFuture[Box[T]]): FutureBox[T] = {
       val p: Promise[Box[T]] = Promise()
