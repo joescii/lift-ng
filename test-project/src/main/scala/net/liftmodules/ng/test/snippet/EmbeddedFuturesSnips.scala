@@ -2,6 +2,7 @@ package net.liftmodules.ng
 package test.snippet
 
 import Angular._
+import ExecutionContextProvider._
 import net.liftweb.actor.LAFuture
 import net.liftmodules.ng.test.model.StringInt
 import net.liftweb.common.{Box, Empty, Failure, Full}
@@ -40,7 +41,7 @@ case class EmbeddedScalaFutures(
 )
 
 object EmbeddedFuturesSnips {
-  import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val ecp = scala.concurrent.ExecutionContext.Implicits.global.asProvider
   implicit val formats = DefaultFormats
 
   def services = renderIfNotAlreadyDefined(
