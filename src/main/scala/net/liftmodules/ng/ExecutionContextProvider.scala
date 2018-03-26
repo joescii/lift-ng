@@ -9,7 +9,7 @@ object AngularExecutionContext { self =>
     this.ec = ec
   }
 
-  val provider: ExecutionContextProvider = new ExecutionContextProvider {
+  implicit val provider: ExecutionContextProvider = new ExecutionContextProvider {
     override def ec: ExecutionContext = self.ec
   }
 }
