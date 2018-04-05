@@ -2,20 +2,18 @@ package net.liftmodules.ng
 package test.snippet
 
 import Angular._
-import ExecutionContextProvider._
 import test.model.Test2Obj
 import net.liftweb._
 import common._
 import net.liftweb.json.DefaultFormats
 import util.Schedule
 import util.Helpers._
+import AngularExecutionContext._
 
 import scala.xml.NodeSeq
 import scala.concurrent.{ Future, Promise => SPromise }
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object FutureSnips extends Loggable {
-  implicit val ecp = scala.concurrent.ExecutionContext.Implicits.global.asProvider
   implicit val formats = DefaultFormats
 
   def services(xhtml:NodeSeq) = renderIfNotAlreadyDefined(

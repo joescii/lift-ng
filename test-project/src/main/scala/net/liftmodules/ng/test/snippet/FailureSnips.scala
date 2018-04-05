@@ -3,18 +3,16 @@ package test.snippet
 
 import test.model._
 import Angular._
-import ExecutionContextProvider._
 import net.liftweb.common._
 import net.liftweb.json.DefaultFormats
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
+import AngularExecutionContext._
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object FailureSnips {
-  implicit val ecp = scala.concurrent.ExecutionContext.Implicits.global.asProvider
   implicit val formats = DefaultFormats
   case class TestException(msg: String) extends Exception
 

@@ -2,7 +2,6 @@ package net.liftmodules.ng
 package test.snippet
 
 import Angular._
-import ExecutionContextProvider._
 import net.liftweb.actor.LAFuture
 import net.liftmodules.ng.test.model.StringInt
 import net.liftweb.common.{Box, Empty, Failure, Full}
@@ -12,8 +11,9 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.S
 import net.liftweb.json.DefaultFormats
 
+import AngularExecutionContext._
+
 import scala.concurrent.{Future, Promise => ScalaPromise}
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
 case class EmbeddedFutures(
@@ -41,7 +41,6 @@ case class EmbeddedScalaFutures(
 )
 
 object EmbeddedFuturesSnips {
-  implicit val ecp = scala.concurrent.ExecutionContext.Implicits.global.asProvider
   implicit val formats = DefaultFormats
 
   def services = renderIfNotAlreadyDefined(
