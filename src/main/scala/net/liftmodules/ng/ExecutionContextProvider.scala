@@ -2,15 +2,17 @@ package net.liftmodules.ng
 
 import scala.concurrent.ExecutionContext
 
-object AngularExecutionContext { self =>
-  implicit var ec: ExecutionContext = ExecutionContext.global
+object AngularExecutionContext {
+  private var _ec: ExecutionContext = ExecutionContext.global
 
   def apply(ec: ExecutionContext) {
-    this.ec = ec
+    this._ec = ec
   }
 
+  implicit def ec: ExecutionContext = _ec
+
   implicit val provider: ExecutionContextProvider = new ExecutionContextProvider {
-    override def ec: ExecutionContext = self.ec
+    override def ec: ExecutionContext = _ec
   }
 }
 
