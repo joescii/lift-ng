@@ -88,7 +88,7 @@ licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"
 
 Seq(yuiSettings: _*)
 unmanagedResourceDirectories in (Compile, YuiCompressorKeys.jsResources) += { (sourceDirectory in Compile).value / "js" }
-resourceManaged in (Compile, YuiCompressorKeys.jsCompressor) := resourceManaged.value / "toserve" / "net" / "liftmodules" / "ng" / "js"
+resourceManaged in (Compile, YuiCompressorKeys.jsCompressor) := (resourceManaged in Compile).value / "toserve" / "net" / "liftmodules" / "ng" / "js"
 YuiCompressorKeys.minSuffix :=  "-" + version.value + ".min"
 
 copyJs
