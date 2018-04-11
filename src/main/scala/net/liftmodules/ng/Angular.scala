@@ -69,17 +69,6 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       case "net" :: "liftmodules" :: "ng" :: "js" :: _ => true
     }
 
-    LiftRules.responseTransformers.append { res =>
-      import net.liftweb.util.Helpers._
-
-      res match {
-        case r: XhtmlResponse =>
-          val body = (s"$appSelector [expose-scope]" #> "").apply(r.out).headOption.getOrElse(r.out)
-          r.copy(out = body)
-        case _ => res
-      }
-    }
-
     futuresDefault = futures
     this.appSelector = appSelector
     this.includeJsScript = includeJsScript
