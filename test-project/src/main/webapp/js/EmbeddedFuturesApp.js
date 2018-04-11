@@ -1,4 +1,7 @@
 angular.module('EmbeddedFuturesApp', ['lift-ng', 'EmbeddedFutures'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .controller('EmbeddedFuturesController', ['$scope', 'embeddedFutureServices', function($scope, service) {
   $scope.obj = {};
   $scope.event = {};
