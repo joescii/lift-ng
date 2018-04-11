@@ -7,7 +7,7 @@
       <script id="headJsApp_js"       src="js/HeadJsApp.js"              type="text/javascript"></script>
 
       <h2>head.js support tests</h2>
-      <div ng-app="HeadJsApp" class="application">
+      <div ng-app="HeadJsApp" class="application" expose-scope>
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="TestController">
           <div id="version" ng-bind="version">version</div>

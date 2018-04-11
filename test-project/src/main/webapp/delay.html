@@ -5,7 +5,7 @@
   <div id="main" class="lift:surround?with=default;at=content">
     <h2>Snippet tests</h2>
 
-    <div ng-controller="EarlyEmitController">
+    <div ng-controller="EarlyEmitController" expose-scope>
       <div data-lift="comet?type=EarlyEmitActor"></div>
       <div><input type="button" value="Go" id="button-go" data-lift="Snips.renderCometDelayButton"/></div>
       Last message: <span id="last-msg">{{earlyEmitOut[earlyEmitOut.length - 1]}}</span>

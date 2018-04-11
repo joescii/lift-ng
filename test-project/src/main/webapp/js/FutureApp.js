@@ -1,6 +1,7 @@
 angular.module('FutureApp', ['lift-ng', 'Futures'])
 .config(['$compileProvider', function ($compileProvider) {
-  $compileProvider.debugInfoEnabled(false);
+  // Explicitly leaving debug on for at least one of our tests...
+  $compileProvider.debugInfoEnabled(true);
 }])
 .controller('NoArgController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
