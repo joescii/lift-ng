@@ -86,11 +86,11 @@ pomExtra := (
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
-Seq(com.untyped.sbtjs.Plugin.jsSettings : _*)
-(sourceDirectory in (Compile, JsKeys.js)) := (sourceDirectory in Compile).value / "js"
-(resourceManaged in (Compile, JsKeys.js)) := (resourceManaged in Compile).value / "toserve" / "net" / "liftmodules" / "ng" / "js"
-(JsKeys.filenameSuffix in Compile) :=  "-" + version.value + ".min"
-(resourceGenerators in Compile) += (JsKeys.js in Compile)
+Seq(yuiSettings: _*)
+unmanagedResourceDirectories in (Compile, YuiCompressorKeys.jsResources) += { (sourceDirectory in Compile).value / "js" }
+resourceManaged in (Compile, YuiCompressorKeys.jsCompressor) := resourceManaged.value / "toserve" / "net" / "liftmodules" / "ng" / "js"
+YuiCompressorKeys.minSuffix :=  "-" + version.value + ".min"
+
 copyJs
 
 // Jasmine stuff
