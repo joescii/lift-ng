@@ -11,8 +11,9 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.S
 import net.liftweb.json.DefaultFormats
 
+import AngularExecutionContext._
+
 import scala.concurrent.{Future, Promise => ScalaPromise}
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
 case class EmbeddedFutures(
@@ -40,7 +41,6 @@ case class EmbeddedScalaFutures(
 )
 
 object EmbeddedFuturesSnips {
-  import scala.concurrent.ExecutionContext.Implicits.global
   implicit val formats = DefaultFormats
 
   def services = renderIfNotAlreadyDefined(

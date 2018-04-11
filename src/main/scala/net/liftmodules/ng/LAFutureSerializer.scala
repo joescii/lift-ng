@@ -10,7 +10,7 @@ import common._
 import scala.concurrent.ExecutionContext
 
 object LAFutureSerializer {
-  def laFuture2JValue[T](formats: Formats, future: LAFuture[Box[T]])(implicit ec: ExecutionContext) = {
+  def laFuture2JValue[T](formats: Formats, future: LAFuture[Box[T]])(implicit ec: ExecutionContextProvider) = {
     implicit val f = formats + new LAFutureSerializer
 
     val id = rand
@@ -29,7 +29,7 @@ object LAFutureSerializer {
     JObject(List(flagField)) merge valObj
   }
 
-  def laFutureSerializer(formats: Formats, ec: ExecutionContext): PartialFunction[Any, JValue] = {
+  def laFutureSerializer(formats: Formats, ec: ExecutionContextProvider): PartialFunction[Any, JValue] = {
     case future: LAFuture[_] => laFuture2JValue(formats, future.asInstanceOf[LAFuture[Box[Any]]])(ec)
   }
 
@@ -56,5 +56,5 @@ class LAFutureSerializer[T : Manifest] extends Serializer[LAFuture[Box[T]]] with
       else throw new MappingException("Can't convert " + json + " to " + Class)
   }
 
-  def serialize(implicit format: Formats) = laFutureSerializer(format, ec) orElse scalaFutureSerializer(format)
+  def serialize(implicit format: Formats) = laFutureSerializer(format, provider) orElse scalaFutureSerializer(format)(provider)
 }

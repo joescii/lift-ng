@@ -9,7 +9,7 @@ import util._
 import Helpers._
 import java.util.concurrent.ScheduledFuture
 import net.liftmodules.ng.test.snippet.EmbeddedFuturesSnips
-import scala.concurrent.ExecutionContext.Implicits.global
+import AngularExecutionContext._
 
 abstract class AsyncTestActor extends AngularActor with Loggable {
   self =>

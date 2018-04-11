@@ -272,11 +272,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  private [ng] def plumbFuture[T <: Any](f: FutureBox[T], id: String)(implicit formats: Formats, ec: ExecutionContext): FutureBox[T] = {
-    S.session map { s => f foreach { box =>
+  private [ng] def plumbFuture[T <: Any](f: FutureBox[T], id: String)(implicit formats: Formats, ec: ExecutionContextProvider): FutureBox[T] = {
+    S.session map { s => f.foreach{ box =>
       // TODO: Address this deprecation warning once support for Lift 3.0.x is dropped
       s.sendCometActorMessage("LiftNgFutureActor", Empty, ReturnData(id, box, formats))
-    }}
+    }(ec.ec)}
     f
   }
 
@@ -400,9 +400,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       */
     def defFutureAny[T <: Any]
     (functionName: String, func: => Future[T])
-    (implicit formats: Formats, ec: ExecutionContext)
+    (implicit formats: Formats, ec: ExecutionContextProvider)
     : JsObjFactory =
-      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func))
+      registerFunction(functionName, NoArgFutureFunctionGenerator(Unit => func)(formats, ec))
 
     /**
       * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
@@ -414,7 +414,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       */
     def defParamToFutureAny[P, T <: Any]
     (functionName: String, func: P => Future[T])
-    (implicit mf: Manifest[P], formats: Formats, ec: ExecutionContext)
+    (implicit mf: Manifest[P], formats: Formats, ec: ExecutionContextProvider)
     : JsObjFactory =
       registerFunction(functionName, JsonFutureFunctionGenerator(func))
 
@@ -496,7 +496,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     def future[T <: Any]
       (functionName: String, func: => LAFuture[Box[T]])
       : JsObjFactory =
-      registerFunction(functionName, NoArgLAFutureFunctionGenerator(Unit => func)(DefaultFormats, AngularExecutionContext.ec))
+      registerFunction(functionName, NoArgLAFutureFunctionGenerator(Unit => func)(DefaultFormats, AngularExecutionContext.provider))
 
     /**
       * Registers a no-arg javascript function in this service's javascript object that returns a \$q promise.
@@ -510,7 +510,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     (functionName: String, func: => LAFuture[Box[T]])
     (implicit formats: Formats = DefaultFormats)
     : JsObjFactory =
-      registerFunction(functionName, NoArgLAFutureFunctionGenerator(Unit => func)(formats, AngularExecutionContext.ec))
+      registerFunction(functionName, NoArgLAFutureFunctionGenerator(Unit => func)(formats, AngularExecutionContext.provider))
 
     /**
      * Registers a javascript function in this service's javascript object that takes a String and returns a \$q promise.
@@ -524,7 +524,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: String => LAFuture[Box[T]])
       (implicit formats: Formats = DefaultFormats)
       : JsObjFactory = {
-        implicit val ec = AngularExecutionContext.ec
+        implicit val ecp = AngularExecutionContext.provider
         registerFunction(functionName, JsonLAFutureFunctionGenerator(func))
       }
 
@@ -541,7 +541,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       (functionName: String, func: P => LAFuture[Box[T]])
       (implicit mf: Manifest[P], formats: Formats = DefaultFormats)
       : JsObjFactory =
-      registerFunction(functionName, JsonLAFutureFunctionGenerator(func)(mf, formats, AngularExecutionContext.ec))
+      registerFunction(functionName, JsonLAFutureFunctionGenerator(func)(mf, formats, AngularExecutionContext.provider))
 
     /**
      * Registers a javascript function in this service's javascript object that takes an arbitrary parameter object and returns a
@@ -727,7 +727,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class NoArgLAFutureFunctionGenerator[T <: Any](func: Unit => LAFuture[Box[T]])(implicit formats: Formats, ec: ExecutionContext) extends FutureFunctionGenerator {
+  protected case class NoArgLAFutureFunctionGenerator[T <: Any](func: Unit => LAFuture[Box[T]])(implicit formats: Formats, ec: ExecutionContextProvider) extends FutureFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
@@ -738,7 +738,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class JsonLAFutureFunctionGenerator[P, T <: Any](func: P => LAFuture[Box[T]])(implicit mf: Manifest[P], formats: Formats, ec: ExecutionContext) extends FutureFunctionGenerator {
+  protected case class JsonLAFutureFunctionGenerator[P, T <: Any](func: P => LAFuture[Box[T]])(implicit mf: Manifest[P], formats: Formats, ec: ExecutionContextProvider) extends FutureFunctionGenerator {
     private val ParamName = "json"
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
@@ -759,7 +759,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class NoArgFutureFunctionGenerator[T <: Any](func: Unit => Future[T])(implicit formats: Formats, ec: ExecutionContext) extends FutureFunctionGenerator {
+  protected case class NoArgFutureFunctionGenerator[T <: Any](func: Unit => Future[T])(implicit formats: Formats, ec: ExecutionContextProvider) extends FutureFunctionGenerator {
     def toAnonFunc = AnonFunc(JsReturn(Call("liftProxy.request", liftPostData)))
 
     private def liftPostData = SHtmlExtensions.ajaxJsonPost(jsonFunc(jsonToFuture))
@@ -770,7 +770,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
   }
 
-  protected case class JsonFutureFunctionGenerator[P, T <: Any](func: P => Future[T])(implicit mf: Manifest[P], formats: Formats, ec: ExecutionContext) extends FutureFunctionGenerator {
+  protected case class JsonFutureFunctionGenerator[P, T <: Any](func: P => Future[T])(implicit mf: Manifest[P], formats: Formats, ec: ExecutionContextProvider) extends FutureFunctionGenerator {
     private val ParamName = "json"
 
     def toAnonFunc = AnonFunc(ParamName, JsReturn(Call("liftProxy.request", liftPostData)))
@@ -827,9 +827,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
           handleFailure(throwableToFailure(t))
       }
 
-    protected def tryFuture[A, T <: Any](a: => A, f: A => Future[T])(implicit ec: ExecutionContext): FutureBox[T] =
+    protected def tryFuture[A, T <: Any](a: => A, f: A => Future[T])(implicit ec: ExecutionContextProvider): FutureBox[T] =
       try {
-        f(a).boxed
+        boxed(f(a))
       } catch {
         case t: Throwable =>
           Future.failed(t)
