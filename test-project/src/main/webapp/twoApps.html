@@ -8,14 +8,14 @@
       <script id="twoApps_js"         src="/js/TwoApps.js"  type="text/javascript"></script>
 
       <h2>Multiple app tests</h2>
-      <div id="app1" class="application">
+      <div id="app1" class="application" expose-scope>
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="Controller">
           <input id="button1" type="button" value="No Arg" ng-click="click()"/>
           <span id="output1" ng-bind="output">Hard-coded</span>
         </div>
       </div>
-      <div id="app2" class="application">
+      <div id="app2" class="application" expose-scope>
         <div ng-controller="Controller">
           <input id="button2" type="button" value="No Arg" ng-click="click()"/>
           <span id="output2" ng-bind="output">Hard-coded</span>

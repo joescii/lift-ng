@@ -7,7 +7,7 @@ import scala.xml.{Elem, NodeSeq}
 import net.liftweb.actor.LAFuture
 import net.liftweb.common._
 import net.liftweb.json._
-import net.liftweb.http.{DispatchSnippet, LiftRules, RequestVar, ResourceServer, S, SessionVar}
+import net.liftweb.http.{DispatchSnippet, LiftRules, RequestVar, ResourceServer, S, SessionVar, XhtmlResponse}
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.{JsCmd, JsExp}
@@ -28,7 +28,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
   }
 
   private [ng] var futuresDefault: Boolean = true
-  private [ng] var appSelectorDefault: String = "[ng-app]"
+  private [ng] var appSelector: String = "[ng-app]"
   private [ng] var includeJsScript: Boolean = true
   private [ng] var includeAngularJs: Boolean = false
   private [ng] var additionalAngularJsModules: Seq[String] = Seq()
@@ -62,7 +62,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
       case "Angular" => this
       case "i18n" => AngularI18n
     }
-    
+
     LiftRules.addToPackages("net.liftmodules.ng")
 
     ResourceServer.allow {
@@ -70,7 +70,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     }
 
     futuresDefault = futures
-    appSelectorDefault = appSelector
+    this.appSelector = appSelector
     this.includeJsScript = includeJsScript
 
     AngularI18nRest.init()
@@ -232,7 +232,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
     ))
     val modules = Script(AngularModules.is.map(_.cmd).reduceOption(_ & _).getOrElse(Noop))
     val includeFutures = S.attr("futures").map(bool(_, futuresDefault)).openOr(futuresDefault)
-    val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor"></div> else NodeSeq.Empty
+    val futureActor = if(includeFutures) <div data-lift="comet?type=LiftNgFutureActor" expose-scope=""></div> else NodeSeq.Empty
 
     angularCspCss ++ angularModules ++ liftproxy ++ jsModule ++ modules ++ futureActor
   }

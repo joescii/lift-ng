@@ -8,7 +8,7 @@
       <script id="staticApp_js"       src="/js/StaticApp.js"              type="text/javascript"></script>
 
       <h2>Static service tests</h2>
-      <div ng-app="StaticApp">
+      <div ng-app="StaticApp" class="application" expose-scope>
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="TestController">
           <span id="outputStr" ng-bind="outputStr">OutputStr</span>
