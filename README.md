@@ -787,6 +787,15 @@ Default behavior is to serve the minified version in all modes except `RunModes.
 <script data-lift="Angular?min=off"></script>
 ```
 
+### Production Hardening
+
+By default Angular runs in a non-production mode.
+Once you [disable Debug Data](https://docs.angularjs.org/guide/production#disabling-debug-data), you will need to add lift-ng's `expose-scope` directive to your Angular app(s).
+The `expose-scope` directive should be on the same element as your `ng-app`.
+With this in place, lift-ng will have access to the `$scope` object needed for hooking up futures, etc.
+
+See the test project for examples such as "Embedded Futures" test app's [JavaScript](https://github.com/joescii/lift-ng/blob/3a29e61cb0e2f1b7eded2e05c28b6924c8fa3050/test-project/src/main/webapp/js/EmbeddedFuturesApp.js#L2-L4) and [HTML](https://github.com/joescii/lift-ng/blob/3a29e61cb0e2f1b7eded2e05c28b6924c8fa3050/test-project/src/main/webapp/embedded-futures.html#L11)
+
 ## Scaladocs
 
 The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.
