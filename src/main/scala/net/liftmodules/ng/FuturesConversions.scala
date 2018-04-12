@@ -29,19 +29,15 @@ object FutureConversions { conversions =>
 
       laf
     }
-
-    lazy val boxed: FutureBox[T] = {
-      f.map { t =>
-        if(t.isInstanceOf[Box[_]]) t.asInstanceOf[Box[T]]
-        else Box.legacyNullTest(t)
-      }.recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) }
-    }
   }
 
   def boxed[T](f: Future[T])(implicit ecp: ExecutionContextProvider): FutureBox[T] =
-    f.map(Box.legacyNullTest)(ecp.ec)
-      .recover { case t: Throwable => Failure(t.getMessage, Full(t), Empty) } (ecp.ec)
-
+    f.map { t =>
+      if(t.isInstanceOf[Box[_]]) t.asInstanceOf[Box[T]]
+      else Box.legacyNullTest(t)
+    }(ecp.ec).recover {
+      case t: Throwable => Failure(t.getMessage, Full(t), Empty)
+    }(ecp.ec)
 
   def LAFutureToFuture[T](f: LAFuture[Box[T]]): FutureBox[T] = {
       val p: Promise[Box[T]] = Promise()
