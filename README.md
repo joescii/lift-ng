@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.11.0"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.12.0"  % "compile"
    )
 }
 ```
