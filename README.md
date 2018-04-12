@@ -139,7 +139,7 @@ libraryDependencies ++= {
     // Other dependencies ...
     "org.webjars.npm" %  "angular"           % angularVersion,
     "org.webjars.npm" %  "angular-animate"   % angularVersion,
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.11.0"  % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.12.0"  % "compile"
    )
 }
 ```
@@ -891,6 +891,16 @@ The macro described above will rewrite `defs` into a chain of these six function
 These functions have been introduced ahead of the macro for the sake of allowing the implicit JSON `Formats` parameter to be provided (see [JSON Serialization](#json-serialization)).
 
 ## Change log
+* *0.12.0*: This release addresses two issues introduced in 0.11.0 and adds support for production-ready Angular.
+** BREAKING CHANGES **
+  * All implicit `scala.concurrent.ExecutionContext` parameters have been replaced by our own `ExecutionContextProvider` trait.
+    An instance of `ExecutionContext` is NOT serializable, and hence breaks serialization of lift-ng service functions utilizing Futures.
+    This serialization is required to keep lift-ng compatible with [lift-cluster](https://github.com/joescii/lift-cluster).
+    If you don't use lift-cluster, then the easiest way forward is to change your `ExecutionContesxt` import to `net.liftmodules.ng.AngularExecutionContext._`.
+    If you are using lift-cluster, then implement a serializable `ExecutionContextProvider` and place it in implicit scope.
+  * When `LaFuture[Box[T]]` was replaced on the `JsObjFactory` API in 0.11.0 in favor of `Future[T]`, we introduced a subtle difference in behavior if the type happened to be `Future[Box[T]]`.
+    Simply converting all instances of `LAFuture[Box[T]]` to `Future[Box[T]]` for 0.11.0 introduced changes on the client (the entire `Box` was serialized, so the client needs to access `.value`).
+    Now a `Future[Box[T]]` will behave as original, where the `Box` is flattened into a nullable object.
 * *0.11.0*: This a maintenance release to modernize Scala/Lift version support and to drop a lot of legacy artifacts in the lift-ng API, particularly for the `JsObjFactory`.
 Added Lift 3.2.0 and Scala 2.12.x suuport.
 Dropped support for Lift 2.5.x and Scala 2.10.x.
