@@ -804,16 +804,6 @@ With this in place, lift-ng will have access to the `$scope` object needed for h
 
 See the test project for examples such as "Embedded Futures" test app's [JavaScript](https://github.com/joescii/lift-ng/blob/3a29e61cb0e2f1b7eded2e05c28b6924c8fa3050/test-project/src/main/webapp/js/EmbeddedFuturesApp.js#L2-L4) and [HTML](https://github.com/joescii/lift-ng/blob/3a29e61cb0e2f1b7eded2e05c28b6924c8fa3050/test-project/src/main/webapp/embedded-futures.html#L11)
 
-## Scaladocs
-
-The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.
-There should not be any differences among the supported versions of Scala.
-Nonetheless all are listed here for good measure.
-* [Scala 2.10](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.10/api/index.html#package)
-* [Scala 2.9.2](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.2/api/index.html#package)
-* [Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
-* [Scala 2.9.1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1/api/index.html#package)
-
 ## Community/Support
 
 Need help?  Hit us up on the [Lift Google group](https://groups.google.com/forum/#!forum/liftweb).
