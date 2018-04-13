@@ -54,11 +54,11 @@ sourceGenerators in Compile += buildInfo
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, liftEdition)
 buildInfoPackage := "net.liftmodules.ng"
 
-publishTo := { version.value.endsWith("SNAPSHOT") match {
-    case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-    case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-  }
-}
+publishTo := (
+  if(version.value.endsWith("SNAPSHOT")) Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+  else Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+)
+
 credentials += Credentials( file("sonatype.credentials") )
 credentials += Credentials( file("/private/liftmodules/sonatype.credentials") )
 publishMavenStyle := true
