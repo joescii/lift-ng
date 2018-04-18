@@ -2,7 +2,7 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.11.1-SNAPSHOT"
+version := "0.11.0"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
@@ -30,7 +30,12 @@ libraryDependencies ++= {
   val liftng = version.value
   val edition = liftEdition.value
   val jqEdition = if(edition == "3.2") "3.1" else edition
-  val kryo = if(clusteringSupported(edition, scalaBinaryVersion.value)) Seq("net.liftmodules" %% ("lift-cluster-kryo_"+edition) % "0.0.2" % "compile") else Seq() // https://github.com/joescii/lift-cluster
+  val clusterVer = "0.0.3-SNAPSHOT"
+  val clustering = if(clusteringSupported(edition, scalaBinaryVersion.value)) Seq(
+    "net.liftmodules" %% ("lift-cluster-jetty9_"+edition) % clusterVer % "compile",
+    "net.liftmodules" %% ("lift-cluster-kryo_"+edition) % clusterVer % "compile",
+    "com.h2database" % "h2" % "1.4.197"
+  ) else Seq() // https://github.com/joescii/lift-cluster
 
   Seq(
     "net.liftweb"             %%  "lift-webkit"                       % lift                  % "compile",
@@ -43,7 +48,7 @@ libraryDependencies ++= {
     "ch.qos.logback"          %   "logback-classic"                   % "1.0.6"               % "compile",
     "org.scalatest"           %%  "scalatest"                         % "3.0.4"               % "test->*", // http://www.scalatest.org/
     "org.seleniumhq.selenium" %   "selenium-java"                     % "2.51.0"              % "test"     // http://www.seleniumhq.org/download/
-  ) ++ kryo
+  ) ++ clustering
 }
 
 excludeFilter in unmanagedSources := {
@@ -51,9 +56,9 @@ excludeFilter in unmanagedSources := {
     (if(clusteringSupported(liftEdition.value, scalaBinaryVersion.value)) "SerializationNoop.scala" else "SerializationKryo.scala")
 }
 
-(Keys.test in Test) := (Keys.test in Test).dependsOn (start in container.Configuration).value
-(Keys.testOnly in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
-(Keys.testQuick in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
+//(Keys.test in Test) := (Keys.test in Test).dependsOn (start in container.Configuration).value
+//(Keys.testOnly in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
+//(Keys.testQuick in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
 
 parallelExecution in Test := false
 
@@ -62,3 +67,7 @@ sourceGenerators in Compile += buildInfo
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, scalaVersion)
 buildInfoPackage := "net.liftmodules.ng.test"
 
+(runMain in Compile) := (runMain in Compile).dependsOn(Keys.`package` in Compile).evaluated
+testOptions in Test += Tests.Setup { _ =>
+  (runMain in Compile).toTask(" bootstrap.liftweb.Start").value
+}
