@@ -19,8 +19,6 @@ resolvers ++= Seq(
   "releases"  at "https://oss.sonatype.org/content/repositories/releases"
 )
 
-Seq(webSettings :_*)
-
 unmanagedResourceDirectories in Test += baseDirectory.value / "src/main/webapp"
 
 def clusteringSupported(liftEdition: String, scalaBinaryVersion: String): Boolean = liftEdition == "3.2" && scalaBinaryVersion == "2.11"
@@ -56,18 +54,15 @@ excludeFilter in unmanagedSources := {
     (if(clusteringSupported(liftEdition.value, scalaBinaryVersion.value)) "SerializationNoop.scala" else "SerializationKryo.scala")
 }
 
-//(Keys.test in Test) := (Keys.test in Test).dependsOn (start in container.Configuration).value
-//(Keys.testOnly in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
-//(Keys.testQuick in Test) := (Keys.testOnly in Test).dependsOn (start in container.Configuration).evaluated
-
 parallelExecution in Test := false
 
-buildInfoSettings
-sourceGenerators in Compile += buildInfo
+enablePlugins(BuildInfoPlugin)
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, scalaVersion)
 buildInfoPackage := "net.liftmodules.ng.test"
 
-(runMain in Compile) := (runMain in Compile).dependsOn(Keys.`package` in Compile).evaluated
-testOptions in Test += Tests.Setup { _ =>
-  (runMain in Compile).toTask(" bootstrap.liftweb.Start").value
-}
+//(runMain in Compile) := (runMain in Compile).dependsOn(Keys.`package` in Compile).evaluated
+//testOptions in Test += Tests.Setup { _ =>
+//  (runMain in Compile).toTask(" bootstrap.liftweb.Start").value
+//}
+
+enablePlugins(JettyPlugin)
