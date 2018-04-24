@@ -18,6 +18,8 @@ import net.liftmodules.ng.Angular.Reject
 import net.liftmodules.ng.test.snippet.FailureSnips.TestException
 import net.liftweb.json.JsonAST.JString
 import net.liftweb.util
+import net.liftmodules.cluster.{ LiftCluster, LiftClusterConfig }
+import net.liftmodules.cluster.kryo.KryoSerializableLiftSession
 
 
 /**
@@ -93,6 +95,12 @@ class Boot {
     LiftSession.onEndServicing = List((s: LiftSession, _: Req, _: Box[LiftResponse]) =>
       net.liftmodules.ng.test.lib.LiftSessionSerialization.roundTrip(s)
     )
+
+    val clusterConfig = LiftClusterConfig(
+      serializer = KryoSerializableLiftSession.serializer
+    )
+
+    LiftCluster.init(clusterConfig)
 
     angular()
   }

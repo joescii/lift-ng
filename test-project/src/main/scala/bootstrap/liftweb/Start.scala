@@ -9,7 +9,6 @@ import scala.util.Properties
 object Start extends Loggable {
   def main(args: Array[String]): Unit = {
     startLift()
-    println("BYE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   }
 
   def startLift(): Unit = {
@@ -33,8 +32,7 @@ object Start extends Loggable {
       host = None,
       contextPath = context,
       clusterConfig = Some(Jetty9ClusterConfig(workerName, DriverOther("org.h2.Driver"), endpoint)),
-      webappPath = "target/webapp",
-      returnAfterStart = true
+      webappPath = "target/webapp"
     )
     Jetty9Starter.start(config)
   }

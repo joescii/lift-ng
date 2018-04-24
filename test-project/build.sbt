@@ -30,7 +30,7 @@ libraryDependencies ++= {
   val liftng = version.value
   val edition = liftEdition.value
   val jqEdition = if(edition == "3.2") "3.1" else edition
-  val clusterVer = "0.0.3-SNAPSHOT"
+  val clusterVer = "0.0.2"
   val clustering = if(clusteringSupported(edition, scalaBinaryVersion.value)) Seq(
     "net.liftmodules" %% ("lift-cluster-jetty9_"+edition) % clusterVer % "compile",
     "net.liftmodules" %% ("lift-cluster-kryo_"+edition) % clusterVer % "compile",
