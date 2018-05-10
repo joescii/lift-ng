@@ -60,9 +60,7 @@ enablePlugins(BuildInfoPlugin)
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, scalaVersion)
 buildInfoPackage := "net.liftmodules.ng.test"
 
-//(runMain in Compile) := (runMain in Compile).dependsOn(Keys.`package` in Compile).evaluated
-//testOptions in Test += Tests.Setup { _ =>
-//  (runMain in Compile).toTask(" bootstrap.liftweb.Start").value
-//}
-
 enablePlugins(JettyPlugin)
+(runMain in Compile) := (runMain in Compile).dependsOn(webappPrepare).evaluated
+(bgRun in Compile) := (bgRun in Compile).dependsOn(webappPrepare).evaluated
+
