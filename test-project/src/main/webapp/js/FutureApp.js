@@ -1,4 +1,8 @@
 angular.module('FutureApp', ['lift-ng', 'Futures'])
+.config(['$compileProvider', function ($compileProvider) {
+  // Explicitly leaving debug on for at least one of our tests...
+  $compileProvider.debugInfoEnabled(true);
+}])
 .controller('NoArgController', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
 
@@ -70,6 +74,15 @@ angular.module('FutureApp', ['lift-ng', 'Futures'])
   $scope.click = function() {
     svc.satisfied().then(function() {
       $scope.output = "satisfied";
+    });
+  };
+}])
+.controller('BoxedController', ['$scope', 'futureServices', function($scope, svc) {
+  $scope.output = "";
+
+  $scope.click = function() {
+    svc.boxed().then(function(str){
+      $scope.output = str;
     });
   };
 }])

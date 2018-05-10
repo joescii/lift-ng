@@ -8,9 +8,9 @@ import common._
 import net.liftweb.json.DefaultFormats
 import util.Schedule
 import util.Helpers._
+import AngularExecutionContext._
 
 import scala.xml.NodeSeq
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Future, Promise => SPromise }
 
 object FutureSnips extends Loggable {
@@ -44,6 +44,11 @@ object FutureSnips extends Loggable {
       })
       .defFutureAny("satisfied", {
         Future { Empty }
+      })
+      .defFutureAny("boxed", {
+        val p = SPromise[Box[String]]()
+        Schedule.schedule(() => p.success(Full("Boxed")), 1 second)
+        p.future
       })
     )
   )

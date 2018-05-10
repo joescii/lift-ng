@@ -4,6 +4,9 @@
  */
 
 angular.module('SnipServices1', [])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .factory('snipServices1', ['$q', function($q) {
   return {
     call1: function() {

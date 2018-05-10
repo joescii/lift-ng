@@ -4,7 +4,7 @@
   <body class="lift:content_id=main">
     <div id="main" class="lift:surround?with=default;at=content">
       <h2>Multiple Server to Client Binders</h2>
-      <div ng-app="MultipleBindersApp">
+      <div ng-app="MultipleBindersApp" class="application" expose-scope>
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="Controller1" data-lift="Angular.bind?type=MultipleBinder1">
           Binder 1: <span id="binder1" ng-bind="bound1.msg"></span>

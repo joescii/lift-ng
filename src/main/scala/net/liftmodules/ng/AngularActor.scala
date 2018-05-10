@@ -11,7 +11,7 @@ import scala.xml.NodeSeq
 /** A comet actor for Angular action */
 trait AngularActor extends CometActor with LiftNgJsHelpers {
 
-  val nodesToRender:NodeSeq = <div id={id}></div>
+  val nodesToRender:NodeSeq = <div id={id} expose-scope=""></div>
 
   def render = NodeSeq.Empty
 

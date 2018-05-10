@@ -4,7 +4,7 @@
   <body class="lift:content_id=main">
     <div id="main" class="lift:surround?with=default;at=content">
       <h2>Server to Client Optimized Binding tests</h2>
-      <div ng-app="Server2ClientBindingApp">
+      <div ng-app="Server2ClientBindingApp" class="application" expose-scope>
         <div data-lift="embed?what=ready"></div>
         <div ng-controller="Controller" data-lift="Angular.bind?type=ArrayOptimizedBindActor">
           <div><input id="input0" type="text" ng-model="array.l[0]"/></div>

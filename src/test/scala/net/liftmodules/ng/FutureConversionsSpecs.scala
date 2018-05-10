@@ -6,8 +6,7 @@ import net.liftweb.actor.LAFuture
 import org.scalatest.concurrent.ScalaFutures
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-
+import AngularExecutionContext._
 
 class FutureConversionsSpecs extends WordSpec with Matchers with ScalaFutures {
   "The Scala Future => LAFuture converter" should {
@@ -34,14 +33,14 @@ class FutureConversionsSpecs extends WordSpec with Matchers with ScalaFutures {
 
     "convert a successful Future[String] into a Future[Full[String]]" in {
       val f:  Future[String] = Future("scala")
-      val fb: Future[Box[String]] = f.boxed
+      val fb: Future[Box[String]] = boxed(f)
 
       whenReady(fb)( _ shouldEqual Full("scala") )
     }
 
     "convert a successful Future(null) into Future(Empty)" in {
       val f:  Future[String] = Future(null)
-      val fb: Future[Box[String]] = f.boxed
+      val fb: Future[Box[String]] = boxed(f)
 
       whenReady(fb)( _ shouldEqual Empty )
     }
@@ -49,7 +48,7 @@ class FutureConversionsSpecs extends WordSpec with Matchers with ScalaFutures {
     "convert a failed Future[_] into a Future(Failure)" in {
       val e = new Exception("test")
       val f:  Future[String] = Future.failed(e)
-      val fb: Future[Box[String]] = f.boxed
+      val fb: Future[Box[String]] = boxed(f)
 
       whenReady(fb)( _ shouldEqual Failure("test", Full(e), Empty) )
     }

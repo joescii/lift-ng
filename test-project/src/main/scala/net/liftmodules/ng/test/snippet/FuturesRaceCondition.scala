@@ -1,10 +1,10 @@
 package net.liftmodules.ng.test.snippet
 
 import net.liftmodules.ng.Angular._
+import net.liftmodules.ng.AngularExecutionContext._
 import net.liftweb.common.Full
 import net.liftweb.json.DefaultFormats
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 
 case class FuturesRaceConditionModel(

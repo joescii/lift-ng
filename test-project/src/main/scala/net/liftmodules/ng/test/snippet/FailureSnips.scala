@@ -7,10 +7,10 @@ import net.liftweb.common._
 import net.liftweb.json.DefaultFormats
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
+import AngularExecutionContext._
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object FailureSnips {
   implicit val formats = DefaultFormats

@@ -14,7 +14,7 @@ val copyJs = (resourceGenerators in Compile) += task {
 name := "ng"
 organization := "net.liftmodules"
 homepage := Some(url("https://github.com/joescii/lift-ng"))
-version := "0.11.1-SNAPSHOT"
+version := "0.12.0-RC1"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
@@ -54,11 +54,11 @@ sourceGenerators in Compile += buildInfo
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, liftEdition)
 buildInfoPackage := "net.liftmodules.ng"
 
-publishTo := { version.value.endsWith("SNAPSHOT") match {
-    case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-    case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-  }
-}
+publishTo := (
+  if(version.value.endsWith("SNAPSHOT")) Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+  else Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+)
+
 credentials += Credentials( file("sonatype.credentials") )
 credentials += Credentials( file("/private/liftmodules/sonatype.credentials") )
 publishMavenStyle := true

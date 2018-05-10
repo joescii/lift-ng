@@ -10,6 +10,9 @@ var testRun = function(appNumber) {
 };
 
 angular.module('App1', ['lift-ng', 'Futures'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .run(testRun(1))
 .controller('Controller', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";
@@ -23,6 +26,9 @@ angular.module('App1', ['lift-ng', 'Futures'])
 ;
 
 angular.module('App2', ['Futures'])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.debugInfoEnabled(false);
+}])
 .run(testRun(2))
 .controller('Controller', ['$scope', 'futureServices', function($scope, svc) {
   $scope.output = "";

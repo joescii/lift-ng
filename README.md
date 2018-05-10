@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.11.0"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.12.0"  % "compile"
    )
 }
 ```
@@ -139,7 +139,7 @@ libraryDependencies ++= {
     // Other dependencies ...
     "org.webjars.npm" %  "angular"           % angularVersion,
     "org.webjars.npm" %  "angular-animate"   % angularVersion,
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.11.0"  % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.12.0"  % "compile"
    )
 }
 ```
@@ -151,9 +151,17 @@ Angular is published as either `angular` or `angularjs` module names under the `
 
 ## Supported Versions
 
-**lift-ng** is built and released to support Lift edition 2.5 with Scala versions 2.9.1, 2.9.2, and 2.10; Lift edition 2.6 with Scala versions 2.9.1, 2.9.2, 2.10, and 2.11; and Lift edition 3.0 with Scala version 2.11.
-This project's scala version is purposefully set at the lowest common denominator to ensure each version compiles.
-Automated testing is performed against the latest 2.10/2.5, 2.10/2.6, 2.11/2.6, and 2.11/3.0 Scala/Lift versions for each release of **lift-ng**.
+**lift-ng** is built, released, and tested against the following combinations of Lift and Scala versions
+
+| Lift Version | Scala Version |
+| ------------:| -------------:|
+| 3.2.x | 2.12.x |
+| 3.2.x | 2.11.x |
+| 3.1.x | 2.12.x |
+| 3.1.x | 2.11.x |
+| 3.0.x | 2.12.x |
+| 3.0.x | 2.11.x |
+| 2.6.x | 2.11.x |
 
 ## Usage
 
@@ -787,15 +795,14 @@ Default behavior is to serve the minified version in all modes except `RunModes.
 <script data-lift="Angular?min=off"></script>
 ```
 
-## Scaladocs
+### Production Hardening
 
-The latest version of scaladocs are hosted thanks to [cloudbees](http://www.cloudbees.com/) continuous integration services.
-There should not be any differences among the supported versions of Scala.
-Nonetheless all are listed here for good measure.
-* [Scala 2.10](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.10/api/index.html#package)
-* [Scala 2.9.2](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.2/api/index.html#package)
-* [Scala 2.9.1-1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1-1/api/index.html#package)
-* [Scala 2.9.1](https://liftmodules.ci.cloudbees.com/job/lift-ng/ws/target/scala-2.9.1/api/index.html#package)
+By default Angular runs in a non-production mode.
+Once you [disable Debug Data](https://docs.angularjs.org/guide/production#disabling-debug-data), you will need to add lift-ng's `expose-scope` directive to your Angular app(s).
+The `expose-scope` directive should be on the same element as your `ng-app`.
+With this in place, lift-ng will have access to the `$scope` object needed for hooking up futures, etc.
+
+See the test project for examples such as "Embedded Futures" test app's [JavaScript](https://github.com/joescii/lift-ng/blob/3a29e61cb0e2f1b7eded2e05c28b6924c8fa3050/test-project/src/main/webapp/js/EmbeddedFuturesApp.js#L2-L4) and [HTML](https://github.com/joescii/lift-ng/blob/3a29e61cb0e2f1b7eded2e05c28b6924c8fa3050/test-project/src/main/webapp/embedded-futures.html#L11)
 
 ## Community/Support
 
@@ -882,6 +889,16 @@ The macro described above will rewrite `defs` into a chain of these six function
 These functions have been introduced ahead of the macro for the sake of allowing the implicit JSON `Formats` parameter to be provided (see [JSON Serialization](#json-serialization)).
 
 ## Change log
+* *0.12.0*: This release addresses two issues introduced in 0.11.0 and adds support for production-ready Angular.
+** BREAKING CHANGES **
+  * All implicit `scala.concurrent.ExecutionContext` parameters have been replaced by our own `ExecutionContextProvider` trait.
+    An instance of `ExecutionContext` is NOT serializable, and hence breaks serialization of lift-ng service functions utilizing Futures.
+    This serialization is required to keep lift-ng compatible with [lift-cluster](https://github.com/joescii/lift-cluster).
+    If you don't use lift-cluster, then the easiest way forward is to change your `ExecutionContesxt` import to `net.liftmodules.ng.AngularExecutionContext._`.
+    If you are using lift-cluster, then implement a serializable `ExecutionContextProvider` and place it in implicit scope.
+  * When `LaFuture[Box[T]]` was replaced on the `JsObjFactory` API in 0.11.0 in favor of `Future[T]`, we introduced a subtle difference in behavior if the type happened to be `Future[Box[T]]`.
+    Simply converting all instances of `LAFuture[Box[T]]` to `Future[Box[T]]` for 0.11.0 introduced changes on the client (the entire `Box` was serialized, so the client needs to access `.value`).
+    Now a `Future[Box[T]]` will behave as original, where the `Box` is flattened into a nullable object.
 * *0.11.0*: This a maintenance release to modernize Scala/Lift version support and to drop a lot of legacy artifacts in the lift-ng API, particularly for the `JsObjFactory`.
 Added Lift 3.2.0 and Scala 2.12.x suuport.
 Dropped support for Lift 2.5.x and Scala 2.10.x.

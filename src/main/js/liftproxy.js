@@ -147,8 +147,22 @@ angular
     };
 
     return svc;
-  }
-]);
+  }])
+  .service("scopeStore", function() {
+    return {};
+  })
+  .directive('exposeScope', ['scopeStore', function(scopeStore) {
+    return {
+      restrict: 'A',
+      scope: false,
+      link: function postLink(scope, elem) {
+        var id = elem.attr('id');
+        if (id) scopeStore[id] = scope;
+        elem.data('$scope', scope);
+      }
+    };
+  }])
+;
 
 (function(){
   var net_liftmodules_ng = window.net_liftmodules_ng || {};

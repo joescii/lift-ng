@@ -47,6 +47,11 @@ class FuturesSpec extends BaseSpec {
     initialize("futures")
   }
 
+  "The angular service returning a box" should "send the string 'Boxed' up to the client after roughly 1 second" in {
+    click on "boxed-button"
+    eventually{id("boxed-output").element.text should be ("Boxed")}
+  }
+
   "The angular services" should "correctly load concurrently" in {
     click on "no-arg-button"
     click on "exception-button"
@@ -57,6 +62,7 @@ class FuturesSpec extends BaseSpec {
     click on "json-button"
     click on "empty-button"
     click on "satisfied-button"
+    click on "boxed-button"
     eventually{
       id("no-arg-output").element.text should be ("FromFuture")
       id("exception-output").element.text should be ("FromServerFutureException")
@@ -65,6 +71,7 @@ class FuturesSpec extends BaseSpec {
       id("json-output-b").element.text should be ("FromFuture argB")
       id("empty-output").element.text should be ("returned")
       id("satisfied-output").element.text should be ("satisfied")
+      id("boxed-output").element.text should be ("Boxed")
     }
   }
 
