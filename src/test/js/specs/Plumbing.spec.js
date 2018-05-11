@@ -17,7 +17,7 @@ describe('lift-ng', function(){
 
     it('should resolve data with state == "resolved"', function(){
       var id = "myDefer";
-      var defer = plumbing.createDefer(id);
+      var defer = plumbing.getOrCreateDefer(id);
       var data = {
         state: "resolved",
         data: "string"
@@ -34,7 +34,7 @@ describe('lift-ng', function(){
 
     it('should reject data with state == "rejected"', function(){
       var id = "myDefer";
-      var defer = plumbing.createDefer(id);
+      var defer = plumbing.getOrCreateDefer(id);
       var data = {
         state: "rejected",
         data: "string"
@@ -51,7 +51,7 @@ describe('lift-ng', function(){
 
     it('should resolve with empty data', function(){
       var id = "myDefer";
-      var defer = plumbing.createDefer(id);
+      var defer = plumbing.getOrCreateDefer(id);
       var data = {
         state: "resolved"
       };
@@ -67,7 +67,7 @@ describe('lift-ng', function(){
 
     it('should resolve with data == false', function(){
       var id = "myDefer";
-      var defer = plumbing.createDefer(id);
+      var defer = plumbing.getOrCreateDefer(id);
       var data = {
         state: "resolved",
         data: false
