@@ -56,5 +56,5 @@ class LAFutureSerializer[T : Manifest] extends Serializer[LAFuture[Box[T]]] with
       else throw new MappingException("Can't convert " + json + " to " + Class)
   }
 
-  def serialize(implicit format: Formats) = laFutureSerializer(format, provider) orElse scalaFutureSerializer(format)(provider)
+  def serialize(implicit format: Formats) = scalaFutureSerializer(format)(provider) orElse laFutureSerializer(format, provider)
 }

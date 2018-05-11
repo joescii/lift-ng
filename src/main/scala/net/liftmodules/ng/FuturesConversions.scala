@@ -9,12 +9,6 @@ import scala.util.{Success, Failure => SFailure}
 
 import ExecutionContextProvider._
 
-trait ScalaFutureSerializer {
-  def scalaFutureSerializer(formats: Formats)(implicit ec: ExecutionContextProvider): PartialFunction[Any, JValue] = {
-    case future: Future[_] => LAFutureSerializer.laFuture2JValue(formats, FutureConversions.FutureToLAFuture(future)(ec.ec))
-  }
-}
-
 object FutureConversions { conversions =>
   implicit def FutureToLAFuture[T](f: Future[T])(implicit ec: ExecutionContext):LAFuture[Box[T]] = f.la
 
