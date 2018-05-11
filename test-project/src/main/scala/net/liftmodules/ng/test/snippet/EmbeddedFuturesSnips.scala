@@ -11,7 +11,7 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.S
 import net.liftweb.json.DefaultFormats
 
-import AngularExecutionContext._
+import test.lib.SerializableECP._
 
 import scala.concurrent.{Future, Promise => ScalaPromise}
 import scala.util.Try

@@ -8,7 +8,7 @@ import common._
 import net.liftweb.json.DefaultFormats
 import util.Schedule
 import util.Helpers._
-import AngularExecutionContext._
+import test.lib.SerializableECP._
 
 import scala.xml.NodeSeq
 import scala.concurrent.{ Future, Promise => SPromise }
