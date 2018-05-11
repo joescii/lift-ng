@@ -16,8 +16,13 @@ trait ScalaFutureSerializer {
     plumbFuture(future, id)
 
     JObject(List(
+<<<<<<< HEAD
       JField("state", JString("pending")),
       JField("net.liftmodules.ng.Angular.future", JString(id))
+=======
+      JField("net.liftmodules.ng.Angular.future", JString(id)),
+      JField("state", JString("pending"))
+>>>>>>> v0.12.0
     ))
   }
 
