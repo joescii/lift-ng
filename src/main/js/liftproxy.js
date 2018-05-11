@@ -3,10 +3,15 @@ angular
   .service("plumbing", [ "$q", function($q){
     var defers = {};
 
-    var create = function(id) {
-      var q = $q.defer();
-      defers[id] = q;
-      return q;
+    var getOrCreate = function(id) {
+      var q = defers[id];
+      if(typeof q !== "undefined" && q !== null) { // We already have a defer for this id
+        return q;
+      } else { // We need to create a new defer and save it for later
+        q = $q.defer();
+        defers[id] = q;
+        return q;
+      }
     };
 
     var resolve = function(response, q) {
@@ -32,7 +37,7 @@ angular
         resolve(response, q);
         delete defers[id];
       } else { // We arrived before the model which embeds us!
-        resolve(response, create(id));
+        resolve(response, getOrCreate(id));
       }
     };
 
@@ -60,7 +65,7 @@ angular
             d.reject(data);
             model[k] = d.promise;
           } else if(state == "pending") { // Promise/Future pending
-            model[k] = create(id).promise;
+            model[k] = getOrCreate(id).promise;
           }
         }
         // Not a future, so check children
@@ -71,7 +76,7 @@ angular
     };
 
     return {
-      createDefer: create,
+      getOrCreateDefer: getOrCreate,
       resolve: resolve,
       fulfill: fulfill,
       inject: inject
@@ -128,7 +133,7 @@ angular
 
           // Otherwise, we need to plumb out a new promise because we'll get the value later.
           else {
-            plumbing.createDefer(response.futureId).promise.then(
+            plumbing.getOrCreateDefer(response.futureId).promise.then(
               function(data)  { defer.resolve(data)  },
               function(error) { defer.reject(error)  },
               function(notify){ defer.notify(notify) }
