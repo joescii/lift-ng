@@ -75,3 +75,15 @@ enablePlugins(JettyPlugin)
   .dependsOn(cleanLogTask)
   .evaluated
 
+
+val runForTests = taskKey[Unit]("Runs the appserver and blocks until the server is listening to port 8080")
+runForTests := {
+  (bgRun in Compile).toTask(" bootstrap.liftweb.Start").value
+  var started = false
+
+  while(!started) {
+    Thread.sleep(1000)
+    started = IO.readLines(file("./console.devmode.log")).find(_.contains("Lift server started on port 8080")).isDefined
+  }
+}
+
