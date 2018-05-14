@@ -60,7 +60,18 @@ enablePlugins(BuildInfoPlugin)
 buildInfoKeys := Seq[BuildInfoKey](version, liftVersion, scalaVersion)
 buildInfoPackage := "net.liftmodules.ng.test"
 
+val cleanLogTask = taskKey[Unit]("Cleans the logback log file")
+cleanLogTask := {
+  IO.write(file("./console.devmode.log"), "")
+}
+
 enablePlugins(JettyPlugin)
-(runMain in Compile) := (runMain in Compile).dependsOn(webappPrepare).evaluated
-(bgRun in Compile) := (bgRun in Compile).dependsOn(webappPrepare).evaluated
+(runMain in Compile) := (runMain in Compile)
+  .dependsOn(webappPrepare)
+  .dependsOn(cleanLogTask)
+  .evaluated
+(bgRun in Compile) := (bgRun in Compile)
+  .dependsOn(webappPrepare)
+  .dependsOn(cleanLogTask)
+  .evaluated
 
