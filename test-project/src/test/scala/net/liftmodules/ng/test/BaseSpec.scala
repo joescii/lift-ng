@@ -1,10 +1,11 @@
 package net.liftmodules.ng.test
 
+import java.io.{BufferedReader, FileReader}
+
 import org.scalatest._
 import concurrent.Eventually
 import time._
 import selenium._
-
 import org.openqa.selenium._
 import firefox.FirefoxDriver
 //import safari.SafariDriver
@@ -32,4 +33,16 @@ trait BaseSpec extends FlatSpecLike with Matchers with Eventually with WebBrowse
     eventually { id("ready").element.text should be ("Ready") }
   }
 
+  def checkSerialization(): Unit = {
+    "KryoSerialization" should "not throw exceptions" in {
+      val r = new BufferedReader(new FileReader("./console.devmode.log"))
+      val line = Iterator.
+        continually(r.readLine()).
+        takeWhile(_ != null).
+        find(_.contains("com.esotericsoftware.kryo.KryoException"))
+
+      line shouldBe None
+    }
+
+  }
 }

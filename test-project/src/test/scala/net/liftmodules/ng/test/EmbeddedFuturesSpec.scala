@@ -136,4 +136,5 @@ class EmbeddedFuturesSpec extends BaseSpec {
     }
   }
 
+  checkSerialization()
 }

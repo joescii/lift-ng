@@ -1,5 +1,7 @@
 package net.liftmodules.ng.test
 
+import java.io.{BufferedReader, FileReader}
+
 class FuturesSpec extends BaseSpec {
   "The futures page" should "load" in {
     initialize("futures")
@@ -75,4 +77,5 @@ class FuturesSpec extends BaseSpec {
     }
   }
 
+  checkSerialization()
 }
