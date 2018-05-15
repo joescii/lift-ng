@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ARGS="-Dnet.liftmodules.ng.test.browser=chrome -Dwebdriver.chrome.driver=$HOME/tools/selenium/chromedriver"
-TASKS="clean update test"
+TASKS="clean update runForTests test"
 MULLIGANS=3
 
 run_tests() {

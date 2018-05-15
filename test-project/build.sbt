@@ -87,10 +87,4 @@ runForTests := {
   }
 }
 
-(test in Test) := (test in Test)
-  .dependsOn(runForTests)
-  .value
 
-(testOnly in Test) := (testOnly in Test)
-  .dependsOn(runForTests)
-  .evaluated
