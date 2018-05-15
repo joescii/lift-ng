@@ -51,7 +51,7 @@ libraryDependencies ++= {
 
 excludeFilter in unmanagedSources := {
   HiddenFileFilter ||
-    (if(clusteringSupported(liftEdition.value, scalaBinaryVersion.value)) "SerializationNoop.scala" else "SerializationKryo.scala")
+    (if(clusteringSupported(liftEdition.value, scalaBinaryVersion.value)) "StartStandard.scala" else "StartClustered.scala")
 }
 
 parallelExecution in Test := false

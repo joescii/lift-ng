@@ -1,12 +1,22 @@
 package bootstrap.liftweb
 
 import net.liftmodules.cluster.jetty9._
+import net.liftmodules.cluster.{ LiftCluster, LiftClusterConfig }
+import net.liftmodules.cluster.kryo.KryoSerializableLiftSession
 import net.liftweb.common.Loggable
 import net.liftweb.util.{Props, StringHelpers}
 
 import scala.util.Properties
 
 object Start extends Loggable {
+  def initCluster(): Unit = {
+    val clusterConfig = LiftClusterConfig(
+      serializer = KryoSerializableLiftSession.serializer
+    )
+
+    LiftCluster.init(clusterConfig)
+  }
+
   def main(args: Array[String]): Unit = {
     startLift()
   }

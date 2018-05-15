@@ -18,9 +18,6 @@ import net.liftmodules.ng.Angular.Reject
 import net.liftmodules.ng.test.snippet.FailureSnips.TestException
 import net.liftweb.json.JsonAST.JString
 import net.liftweb.util
-import net.liftmodules.cluster.{ LiftCluster, LiftClusterConfig }
-import net.liftmodules.cluster.kryo.KryoSerializableLiftSession
-
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -92,13 +89,9 @@ class Boot {
       "nonEnglish" ::
       LiftRules.resourceNames
 
-    val clusterConfig = LiftClusterConfig(
-      serializer = KryoSerializableLiftSession.serializer
-    )
-
-    LiftCluster.init(clusterConfig)
-
     angular()
+
+    Start.initCluster()
   }
 
   def angular() = {
