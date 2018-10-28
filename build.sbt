@@ -14,7 +14,7 @@ val copyJs = (resourceGenerators in Compile) += task {
 name := "ng"
 organization := "net.liftmodules"
 homepage := Some(url("https://github.com/joescii/lift-ng"))
-version := "0.12.0"
+version := "0.12.1-SNAPSHOT"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
