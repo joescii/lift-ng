@@ -624,8 +624,9 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     override def tryToPromise(t: => Try[Box[Any]])(implicit formats: Formats): Promise = try {
       t match {
-        case Success(Full(Unit)) => Resolve()
+        case Success(Full(Unit)) | Success(Empty) => Resolve()
         case Success(Full(any)) => resolve(any, formats)
+        case Success(f: Failure) => handleFailure(f)
         case f: scala.util.Failure[Box[Any]] => handleFailure(throwableToFailure(f.exception))
       }
     } catch {
