@@ -622,11 +622,11 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
 
     private [this] def resolve(any: Any, formats: Formats) = Resolve(Some(Extraction.decompose(any)(formats + new LAFutureSerializer)))
 
-    override def tryToPromise(t: => Try[Any])(implicit formats: Formats): Promise = try {
+    override def tryToPromise(t: => Try[Box[Any]])(implicit formats: Formats): Promise = try {
       t match {
-        case Success(Unit) => Resolve()
-        case Success(any: Any) => resolve(any, formats)
-        case f: scala.util.Failure[Any] => handleFailure(throwableToFailure(f.exception))
+        case Success(Full(Unit)) => Resolve()
+        case Success(Full(any)) => resolve(any, formats)
+        case f: scala.util.Failure[Box[Any]] => handleFailure(throwableToFailure(f.exception))
       }
     } catch {
       case t: Throwable =>
@@ -651,7 +651,7 @@ object Angular extends DispatchSnippet with AngularProperties with LiftNgJsHelpe
    */
   trait PromiseMapper {
     def boxToPromise(box: => Box[Any])(implicit formats: Formats): Promise
-    def tryToPromise(t: => scala.util.Try[Any])(implicit formats: Formats): Promise
+    def tryToPromise(t: => scala.util.Try[Box[Any]])(implicit formats: Formats): Promise
   }
 
   /**
