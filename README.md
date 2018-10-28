@@ -55,7 +55,7 @@ libraryDependencies ++= {
   Seq(
     // Other dependencies ...
     "org.webjars.bower" %  "angularjs"         % angularVersion,
-    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.12.0"  % "compile"
+    "net.liftmodules"   %% ("ng_"+liftEdition) % "0.12.1"  % "compile"
    )
 }
 ```
@@ -139,7 +139,7 @@ libraryDependencies ++= {
     // Other dependencies ...
     "org.webjars.npm" %  "angular"           % angularVersion,
     "org.webjars.npm" %  "angular-animate"   % angularVersion,
-    "net.liftmodules" %% ("ng_"+liftEdition) % "0.12.0"  % "compile"
+    "net.liftmodules" %% ("ng_"+liftEdition) % "0.12.1"  % "compile"
    )
 }
 ```
@@ -889,6 +889,7 @@ The macro described above will rewrite `defs` into a chain of these six function
 These functions have been introduced ahead of the macro for the sake of allowing the implicit JSON `Formats` parameter to be provided (see [JSON Serialization](#json-serialization)).
 
 ## Change log
+* *0.12.1*: Fixed Try => Promise serialization which was not unboxing the value.
 * *0.12.0*: This release addresses two issues introduced in 0.11.0 and adds support for production-ready Angular.
 ** BREAKING CHANGES **
   * All implicit `scala.concurrent.ExecutionContext` parameters have been replaced by our own `ExecutionContextProvider` trait.
