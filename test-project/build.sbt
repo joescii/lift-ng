@@ -2,7 +2,7 @@ name := "ng-test"
 
 organization := "net.liftmodules"
 
-version := "0.12.0-SNAPSHOT"
+version := "0.12.0"
 
 val liftVersion = SettingKey[String]("liftVersion", "Full version number of the Lift Web Framework")
 val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
@@ -15,6 +15,7 @@ scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 resolvers ++= Seq(
   "staging"   at "https://oss.sonatype.org/service/local/staging/deploy/maven2",
+  "stage" at "https://oss.sonatype.org/content/repositories/netliftmodules-1250/",
 //  "snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
   "releases"  at "https://oss.sonatype.org/content/repositories/releases"
 )
