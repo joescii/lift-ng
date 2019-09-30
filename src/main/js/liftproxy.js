@@ -1,6 +1,6 @@
 angular
   .module("lift-ng", [])
-  .service("plumbing", [ "$q", function($q){
+  .service("plumbing", [ "$rootScope", "$q", function($rootScope, $q){
     var defers = {};
 
     var getOrCreate = function(id) {
@@ -40,6 +40,12 @@ angular
         resolve(response, getOrCreate(id));
       }
     };
+    
+    var fulfillAndApply = function(response, id) {
+      	$rootScope.$apply(function() {
+      		fulfill(response, id);
+      	});
+    }
 
     // Called to inject promises wherever our serializer encountered a Future
     var inject = function(model) {
@@ -79,6 +85,7 @@ angular
       getOrCreateDefer: getOrCreate,
       resolve: resolve,
       fulfill: fulfill,
+      fulfillAndApply: fulfillAndApply,
       inject: inject
     }
   }])
@@ -272,7 +279,7 @@ angular
       i=0;
       for(l=es.length;i<l;i++){
         e=angular.element(es[i]);
-        e.scope().$apply(function(){e.injector().get('plumbing').fulfill(r, d)});
+        e.injector().get('plumbing').fulfillAndApply(r, d);
       }
   };
 
